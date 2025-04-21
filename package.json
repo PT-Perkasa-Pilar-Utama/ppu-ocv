@@ -1,0 +1,43 @@
+{
+  "name": "ppu-ocv",
+  "version": "0.0.1",
+  "description": "Opencv.js-based image processor for leveraging easy pipeline processing such as thresholding, contours, canny edge, and so on even perspective correction",
+  "keywords": [
+    "open-cv",
+    "image-processor",
+    "canvas",
+    "threshold"
+  ],
+  "author": "snowfluke",
+  "license": "MIT",
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "scripts": {
+    "task": "bun scripts/task.ts",
+    "build:test": "bun task build && bun test",
+    "build:publish": "bun task build && bun task report-size && bun task publish",
+    "lint": "eslint ./src",
+    "lint:fix": "eslint ./src --fix"
+  },
+  "devDependencies": {
+    "@stylistic/eslint-plugin": "latest",
+    "@types/bun": "latest",
+    "@types/uglify-js": "latest",
+    "eslint": "latest",
+    "eslint-plugin-jsdoc": "latest",
+    "mitata": "latest",
+    "tsx": "latest",
+    "typescript": "latest",
+    "typescript-eslint": "latest",
+    "uglify-js": ">=2.4.24"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv.git"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.69",
+    "@techstark/opencv-js": "^4.10.0-release.1"
+  }
+}
