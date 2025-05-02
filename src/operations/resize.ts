@@ -21,6 +21,9 @@ export function resize(
   img: cv.Mat,
   options: ResizeOptions
 ): OperationResult {
+  if (!options.width || !options.height) {
+    throw new Error("Invalid options: width and height are required");
+  }
 
   const imgResize = new cv.Mat();
   cv.resize(img, imgResize, new cv.Size(options.width, options.height));

@@ -23,6 +23,10 @@ export interface WarpOptions extends BaseOperationOptions {
 }
 
 export function warp(img: cv.Mat, options: WarpOptions): OperationResult {
+  if(!options.points || !options.bbox) {
+    throw new Error("Invalid options: points and bbox are required");
+  }
+  
   const { points, bbox } = options;
   const imgWarp = new cv.Mat();
 
