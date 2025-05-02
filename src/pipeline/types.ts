@@ -12,10 +12,18 @@ export interface OperationResult {
 
 export type OperationFunction<T extends BaseOperationOptions> = (
   img: cv.Mat,
-  options: Partial<T>
+  options: T // Expects fully merged options
 ) => OperationResult;
 
-export interface OperationModule<T extends BaseOperationOptions> {
-  operation: OperationFunction<T>;
-  defaultOptions: T;
+/**
+ * @description
+ * Central registry mapping operation names to their specific option types.
+ * Operation modules MUST augment this interface.
+ */
+export interface RegisteredOperations {
+  // Augmented by operation modules (e.g., blur: BlurOptions;)
 }
+
+export type OperationName = keyof RegisteredOperations;
+
+export type OperationOptions<N extends OperationName> = RegisteredOperations[N];

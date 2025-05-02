@@ -4,6 +4,13 @@ import type { BoundingBox, Points } from "@/index.interface";
 import { registry } from "@/pipeline/registry";
 import type { BaseOperationOptions, OperationResult } from "@/pipeline/types";
 
+
+declare module '@/pipeline/types' {
+  interface RegisteredOperations {
+    warp: WarpOptions;
+  }
+}
+
 export interface WarpOptions extends BaseOperationOptions {
   /** Four points of the source image containing x and y point in
    * topLeft, topRight, bottomLeft and BottomRight.
@@ -15,12 +22,8 @@ export interface WarpOptions extends BaseOperationOptions {
   bbox: BoundingBox;
 }
 
-export function warp(img: cv.Mat, opts: Partial<WarpOptions>): OperationResult {
-  if (!opts.points || !opts.bbox) {
-    throw new Error("Warp requires both points and bbox");
-  }
-
-  const { points, bbox } = opts;
+export function warp(img: cv.Mat, options: WarpOptions): OperationResult {
+  const { points, bbox } = options;
   const imgWarp = new cv.Mat();
 
   const targetWidth = bbox.x1 - bbox.x0;

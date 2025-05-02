@@ -6,6 +6,12 @@ import cv, {
 import { registry } from "@/pipeline/registry";
 import type { BaseOperationOptions, OperationResult } from "@/pipeline/types";
 
+declare module '@/pipeline/types' {
+  interface RegisteredOperations {
+    adaptiveThreshold: AdaptiveThresholdOptions;
+  }
+}
+
 export interface AdaptiveThresholdOptions extends BaseOperationOptions {
   /** Upper threshold value (0-255) */
   upper: number;
@@ -29,23 +35,19 @@ export const defaultOptions: AdaptiveThresholdOptions = {
 
 export function adaptiveThreshold(
   img: cv.Mat,
-  options: Partial<AdaptiveThresholdOptions> = {}
+  options: AdaptiveThresholdOptions
 ): OperationResult {
-  const opts: AdaptiveThresholdOptions = {
-    ...defaultOptions,
-    ...options,
-  };
 
   const imgAdaptiveThreshold = new cv.Mat();
 
   cv.adaptiveThreshold(
     img,
     imgAdaptiveThreshold,
-    opts.max,
-    opts.method,
-    opts.type,
-    opts.size,
-    opts.constant
+    options.max,
+    options.method,
+    options.type,
+    options.size,
+    options.constant
   );
   img.delete();
 

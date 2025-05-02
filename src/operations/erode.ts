@@ -3,6 +3,12 @@ import cv from "@techstark/opencv-js";
 import { registry } from "@/pipeline/registry";
 import type { BaseOperationOptions, OperationResult } from "@/pipeline/types";
 
+declare module '@/pipeline/types' {
+  interface RegisteredOperations {
+    erode: ErodeOptions;
+  }
+}
+
 export interface ErodeOptions extends BaseOperationOptions {
   /** Size of the block [x, y] */
   size: [number, number];
@@ -17,20 +23,16 @@ export const defaultOptions: ErodeOptions = {
 
 export function erode(
   img: cv.Mat,
-  options: Partial<ErodeOptions> = {}
+  options: ErodeOptions
 ): OperationResult {
-  const opts: ErodeOptions = {
-    ...defaultOptions,
-    ...options,
-  };
 
   const imgErode = new cv.Mat();
   const kernel = cv.getStructuringElement(
     cv.MORPH_RECT,
-    new cv.Size(opts.size[0], opts.size[1])
+    new cv.Size(options.size[0], options.size[1])
   );
 
-  cv.erode(img, imgErode, kernel, new cv.Point(-1, -1), opts.iter);
+  cv.erode(img, imgErode, kernel, new cv.Point(-1, -1), options.iter);
   img.delete();
 
   return {

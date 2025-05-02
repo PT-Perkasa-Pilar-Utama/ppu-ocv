@@ -3,6 +3,12 @@ import cv from "@techstark/opencv-js";
 import { registry } from "@/pipeline/registry";
 import type { BaseOperationOptions, OperationResult } from "@/pipeline/types";
 
+declare module '@/pipeline/types' {
+  interface RegisteredOperations {
+    dilate: DilateOptions;
+  }
+}
+
 export interface DilateOptions extends BaseOperationOptions {
   /** Size of the block [x, y] */
   size: [number, number];
@@ -17,20 +23,16 @@ export const defaultOptions: DilateOptions = {
 
 export function dilate(
   img: cv.Mat,
-  options: Partial<DilateOptions> = {}
+  options: DilateOptions
 ): OperationResult {
-  const opts: DilateOptions = {
-    ...defaultOptions,
-    ...options,
-  };
 
   const imgDilate = new cv.Mat();
   const kernel = cv.getStructuringElement(
     cv.MORPH_RECT,
-    new cv.Size(opts.size[0], opts.size[1])
+    new cv.Size(options.size[0], options.size[1])
   );
 
-  cv.dilate(img, imgDilate, kernel, new cv.Point(-1, -1), opts.iter);
+  cv.dilate(img, imgDilate, kernel, new cv.Point(-1, -1), options.iter);
   img.delete();
 
   return {

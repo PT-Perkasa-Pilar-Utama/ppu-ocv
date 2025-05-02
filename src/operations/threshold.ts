@@ -3,6 +3,12 @@ import cv, { type ThresholdTypes } from "@techstark/opencv-js";
 import { registry } from "@/pipeline/registry";
 import type { BaseOperationOptions, OperationResult } from "@/pipeline/types";
 
+declare module '@/pipeline/types' {
+  interface RegisteredOperations {
+    threshold: ThresholdOptions;
+  }
+}
+
 export interface ThresholdOptions extends BaseOperationOptions {
   /** Lower threshold value (0-255) */
   lower: number;
@@ -20,16 +26,11 @@ export const defaultOptions: ThresholdOptions = {
 
 export function threshold(
   img: cv.Mat,
-  options: Partial<ThresholdOptions> = {}
+  options: ThresholdOptions
 ): OperationResult {
-  const opts: ThresholdOptions = {
-    ...defaultOptions,
-    ...options,
-  };
 
   const imgThreshold = new cv.Mat();
-
-  cv.threshold(img, imgThreshold, opts.min, opts.max, opts.type);
+  cv.threshold(img, imgThreshold, options.min, options.max, options.type);
   img.delete();
 
   return {

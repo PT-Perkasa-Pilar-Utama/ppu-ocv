@@ -3,6 +3,12 @@ import cv from "@techstark/opencv-js";
 import { registry } from "@/pipeline/registry";
 import type { BaseOperationOptions, OperationResult } from "@/pipeline/types";
 
+declare module '@/pipeline/types' {
+  interface RegisteredOperations {
+    resize: ResizeOptions;
+  }
+}
+
 export interface ResizeOptions extends BaseOperationOptions {
   /** Width of the resized image */
   width: number;
@@ -10,22 +16,14 @@ export interface ResizeOptions extends BaseOperationOptions {
   height: number;
 }
 
-export const defaultOptions: ResizeOptions = {
-  width: 250,
-  height: 250,
-};
 
 export function resize(
   img: cv.Mat,
-  options: Partial<ResizeOptions> = {}
+  options: ResizeOptions
 ): OperationResult {
-  const opts: ResizeOptions = {
-    ...defaultOptions,
-    ...options,
-  };
 
   const imgResize = new cv.Mat();
-  cv.resize(img, imgResize, new cv.Size(opts.width, opts.height));
+  cv.resize(img, imgResize, new cv.Size(options.width, options.height));
   img.delete();
 
   return {
@@ -35,4 +33,4 @@ export function resize(
   };
 }
 
-registry.register("resize", resize, defaultOptions);
+registry.register("resize", resize);

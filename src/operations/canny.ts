@@ -3,6 +3,12 @@ import cv from "@techstark/opencv-js";
 import { registry } from "@/pipeline/registry";
 import type { BaseOperationOptions, OperationResult } from "@/pipeline/types";
 
+declare module '@/pipeline/types' {
+  interface RegisteredOperations {
+    canny: CannyOptions;
+  }
+}
+
 export interface CannyOptions extends BaseOperationOptions {
   /** Lower threshold for the hysteresis procedure (0-255) */
   lower: number;
@@ -17,16 +23,11 @@ export const defaultOptions: CannyOptions = {
 
 export function canny(
   img: cv.Mat,
-  options: Partial<CannyOptions> = {}
+  options:  CannyOptions
 ): OperationResult {
-  const opts: CannyOptions = {
-    ...defaultOptions,
-    ...options,
-  };
 
   const imgCanny = new cv.Mat();
-
-  cv.Canny(img, imgCanny, opts.lower, opts.upper);
+  cv.Canny(img, imgCanny, options.lower, options.upper);
   img.delete();
 
   return {

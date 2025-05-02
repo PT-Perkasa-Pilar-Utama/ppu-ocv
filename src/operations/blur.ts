@@ -3,6 +3,12 @@ import cv from "@techstark/opencv-js";
 import { registry } from "@/pipeline/registry";
 import type { BaseOperationOptions, OperationResult } from "@/pipeline/types";
 
+declare module '@/pipeline/types' {
+  interface RegisteredOperations {
+    blur: BlurOptions;
+  }
+}
+
 export interface BlurOptions extends BaseOperationOptions {
   /** Size of the blur [x, y] */
   size: [number, number];
@@ -17,20 +23,16 @@ export const defaultOptions: BlurOptions = {
 
 export function blur(
   img: cv.Mat,
-  options: Partial<BlurOptions> = {}
+  options: BlurOptions
 ): OperationResult {
-  const opts: BlurOptions = {
-    ...defaultOptions,
-    ...options,
-  };
 
   const imgBlur = new cv.Mat();
 
   cv.GaussianBlur(
     img,
     imgBlur,
-    new cv.Size(opts.size[0], opts.size[1]),
-    opts.sigma
+    new cv.Size(options.size[0], options.size[1]),
+    options.sigma
   );
   img.delete();
 

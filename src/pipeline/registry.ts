@@ -1,20 +1,21 @@
 import cv from "@techstark/opencv-js";
 import type {
-  BaseOperationOptions,
   OperationFunction,
-  OperationResult,
+  OperationName,
+  OperationOptions,
+  OperationResult
 } from "./types";
 
 class OperationRegistry {
   private operations: Map<string, OperationFunction<any>> = new Map();
   private defaultOptions: Map<string, any> = new Map();
 
-  register<T extends BaseOperationOptions>(
-    name: string,
-    operation: OperationFunction<T>,
-    defaultOptions?: Partial<T>
+  register<Name extends OperationName>(
+    name: Name,
+    operation: OperationFunction<OperationOptions<Name>>,
+    defaultOptions?: Partial<OperationOptions<Name>>
   ): void {
-    this.operations.set(name, operation);
+    this.operations.set(name, operation as OperationFunction<any>);
     if (defaultOptions) {
       this.defaultOptions.set(name, defaultOptions);
     }
@@ -32,17 +33,17 @@ class OperationRegistry {
     return this.operations.has(name);
   }
 
-  getOperationNames(): string[] {
-    return Array.from(this.operations.keys());
+  getOperationNames(): OperationName[] {
+    return Array.from(this.operations.keys()) as OperationName[];
   }
 }
 
 export const registry: OperationRegistry = new OperationRegistry();
 
-export function executeOperation(
-  operationName: string,
+export function executeOperation<Name extends OperationName>(
+  operationName: Name,
   img: cv.Mat,
-  options: any = {}
+  options?: Partial<OperationOptions<Name>>
 ): OperationResult {
   const operation = registry.getOperation(operationName);
   if (!operation) {
@@ -52,7 +53,7 @@ export function executeOperation(
   const mergedOptions = {
     ...registry.getDefaultOptions(operationName),
     ...options,
-  };
+  } as OperationOptions<Name>;
 
   return operation(img, mergedOptions);
 }

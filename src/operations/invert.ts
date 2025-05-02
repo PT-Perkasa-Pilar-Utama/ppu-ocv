@@ -3,13 +3,19 @@ import cv from "@techstark/opencv-js";
 import { registry } from "@/pipeline/registry";
 import type { BaseOperationOptions, OperationResult } from "@/pipeline/types";
 
+declare module '@/pipeline/types' {
+  interface RegisteredOperations {
+    invert: InvertOptions;
+  }
+}
+
 export interface InvertOptions extends BaseOperationOptions {}
 
 export const defaultOptions: InvertOptions = {};
 
 export function invert(
   img: cv.Mat,
-  options: Partial<InvertOptions> = {}
+  options: InvertOptions
 ): OperationResult {
   const imgInvert = new cv.Mat();
 

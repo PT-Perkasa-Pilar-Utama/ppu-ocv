@@ -3,6 +3,12 @@ import cv, { type BorderTypes } from "@techstark/opencv-js";
 import { registry } from "@/pipeline/registry";
 import type { BaseOperationOptions, OperationResult } from "@/pipeline/types";
 
+declare module '@/pipeline/types' {
+  interface RegisteredOperations {
+    border: BorderOptions;
+  }
+}
+
 export interface BorderOptions extends BaseOperationOptions {
   /** Size of the border in pixels */
   size: number;
@@ -20,24 +26,20 @@ export const defaultOptions: BorderOptions = {
 
 export function border(
   img: cv.Mat,
-  options: Partial<BorderOptions> = {}
+  options: BorderOptions
 ): OperationResult {
-  const opts: BorderOptions = {
-    ...defaultOptions,
-    ...options,
-  };
 
   const imgBorder = new cv.Mat();
 
   cv.copyMakeBorder(
     img,
     imgBorder,
-    opts.size,
-    opts.size,
-    opts.size,
-    opts.size,
-    opts.borderType,
-    opts.borderColor
+    options.size,
+    options.size,
+    options.size,
+    options.size,
+    options.borderType,
+    options.borderColor
   );
   img.delete();
 
