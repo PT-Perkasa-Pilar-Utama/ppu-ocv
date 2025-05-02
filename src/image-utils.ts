@@ -5,6 +5,7 @@ import { join } from "path";
 import { ImageProcessor } from "./image-processor-bak";
 import type { BoundingBox, Points } from "./index.interface";
 
+// TODO
 export class ImageUtil {
   constructor() {}
 
