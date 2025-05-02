@@ -1,12 +1,47 @@
-import cv from "@techstark/opencv-js";
+import cv, {
+  type ContourApproximationModes,
+  type RetrievalModes,
+} from "@techstark/opencv-js";
 
 export type ContoursCallbackFn = (contour: cv.Mat) => any;
+
+export interface ContoursOptions {
+  /** The contour retrieval mode. (cv.RETR_...) */
+  mode: RetrievalModes;
+  /** The contour approximation method. (cv.CHAIN_...) */
+  method: ContourApproximationModes;
+}
+
+export const defaultOptions: ContoursOptions = {
+  mode: cv.RETR_EXTERNAL,
+  method: cv.CHAIN_APPROX_SIMPLE,
+};
 
 export class Contours {
   private contours!: cv.MatVector;
 
-  constructor(contours: cv.MatVector) {
-    this.contours = contours;
+  constructor(img: cv.Mat, options: Partial<ContoursOptions> = {}) {
+    const opts: ContoursOptions = {
+      ...defaultOptions,
+      ...options,
+    };
+
+    if (img instanceof cv.Mat) {
+      const contours = new cv.MatVector();
+      const hierarchy = new cv.Mat();
+
+      try {
+        cv.findContours(img, contours, hierarchy, opts.mode, opts.method);
+      } catch (error) {
+        throw error;
+      }
+
+      hierarchy.delete();
+
+      this.contours = contours;
+    } else {
+      throw new Error("Invalid img type. Must be cv.Mat.");
+    }
   }
 
   getAll(): cv.MatVector {

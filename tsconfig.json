@@ -25,6 +25,9 @@
     "declaration": true,
     "declarationDir": "lib",
     "stripInternal": true,
-    "isolatedDeclarations": true
+    "isolatedDeclarations": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   }
 }

@@ -2,24 +2,11 @@ import { Canvas, createCanvas } from "@napi-rs/canvas";
 import cv from "@techstark/opencv-js";
 import { createWriteStream, existsSync, mkdirSync } from "fs";
 import { join } from "path";
-import { ImageProcessor } from "./image-processor";
+import { ImageProcessor } from "./image-processor-bak";
 import type { BoundingBox, Points } from "./index.interface";
 
 export class ImageUtil {
   constructor() {}
-
-  imagUtilinit(): Promise<void> {
-    return new Promise((res) => {
-      if (cv && cv.Mat) {
-        // Already initialized
-        res();
-      } else {
-        cv["onRuntimeInitialized"] = () => {
-          res();
-        };
-      }
-    });
-  }
 
   /**
    * Calculate a rect new points and new canvas based on contour
