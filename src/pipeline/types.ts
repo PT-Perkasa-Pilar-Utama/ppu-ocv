@@ -12,7 +12,7 @@ export interface OperationResult {
 
 export type OperationFunction<T extends BaseOperationOptions> = (
   img: cv.Mat,
-  options: T // Expects fully merged options
+  options: T 
 ) => OperationResult;
 
 /**

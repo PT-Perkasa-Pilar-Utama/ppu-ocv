@@ -77,10 +77,16 @@ export class ImageProcessor {
       throw new Error(`Operation "${operationName}" not found`);
     }
 
-    const result = executeOperation(operationName, this.img, options);
-    this.img = result.img;
-    this.width = result.width;
-    this.height = result.height;
+    try {
+      const result = executeOperation(operationName, this.img, options);
+
+      this.img = result.img;
+      this.width = result.width;
+      this.height = result.height;
+    } catch (error) {
+      console.error(`Error executing operation "${operationName}":`, error);
+      throw error;
+    }
 
     return this;
   }
@@ -184,18 +190,20 @@ export class ImageProcessor {
     return this.executeOperation("warp", options);
   }
 
+  // --- Output and Cleanup Methods ---
+
   /**
    * Destroy the image (cv.Mat) stored in image processor state
+   * @kind non-chainable
+   * @returns void
    */
   destroy(): void {
     this.img.delete();
   }
 
-// --- Output and Cleanup Methods ---
-
   /**
-   * #[Output method]
    * Convert image to cv.Mat
+   * @kind non-chainable
    * @returns cv.Mat
    */
   toMat(): cv.Mat {
@@ -203,8 +211,8 @@ export class ImageProcessor {
   }
 
   /**
-   * #[Output method]
    * Convert image (cv.Mat) to Canvas
+   * @kind non-chainable
    * @returns Canvas
    */
   toCanvas(): Canvas {
@@ -230,28 +238,5 @@ export class ImageProcessor {
     ctx.putImageData(imgData, 0, 0);
     return canvas;
   }
-
-  /**
-   * Dynamically generate methods for all registered operations
-   * This allows for easy addition of new operations without modifying this class
-   */
-  static createProcessorWithAllOperations(): typeof ImageProcessor {
-    const operationNames = registry.getOperationNames();
-    const existingMethods = new Set(
-      Object.getOwnPropertyNames(ImageProcessor.prototype)
-    );
-
-    operationNames.forEach((name) => {
-      if (!existingMethods.has(name)) {
-        // Use proper type indexing with type assertion
-        (ImageProcessor.prototype as any)[name] = function (options: any = {}) {
-          return this.executeOperation(name, options);
-        };
-      }
-    });
-
-    return ImageProcessor;
-  }
 }
 
-ImageProcessor.createProcessorWithAllOperations();
