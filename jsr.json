@@ -1,0 +1,24 @@
+{
+  "name": "@snowfluke/ppu-ocv",
+  "version": "0.0.1",
+  "license": "MIT",
+  "exports": "./src/index.ts",
+  "publish": {
+    "include": [
+      "LICENSE",
+      "README.md",
+      "package.json",
+      "tsconfig.json",
+      "src/*.ts"
+    ],
+    "exclude": [
+      "tests",
+      "assets",
+      "docs",
+      "examples",
+      "dist",
+      "node_modules",
+      "out"
+    ]
+  }
+}
