@@ -1,5 +1,4 @@
-import { Canvas, createCanvas, loadImage } from "@napi-rs/canvas";
-import cv from "@techstark/opencv-js";
+import { Canvas, createCanvas, cv, loadImage } from "@/index";
 
 import type {
   AdaptiveThresholdOptions,
