@@ -5,6 +5,7 @@ export type { BoundingBox, Coordinate, Points } from "@/index.interface";
 export { executeOperation, OperationRegistry, registry } from "@/pipeline";
 export { Canvas, createCanvas, loadImage } from "@napi-rs/canvas";
 
+export { CanvasToolkit } from "@/canvas-toolkit";
 export { Contours } from "@/contours";
 export {
   calculateMeanGrayscaleValue,
