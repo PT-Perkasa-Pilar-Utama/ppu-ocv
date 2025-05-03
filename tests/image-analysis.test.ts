@@ -1,10 +1,10 @@
+import { beforeAll, expect, test } from "bun:test";
 import {
   calculateMeanGrayscaleValue,
   calculateMeanNormalizedLabLightness,
   createCanvas,
   ImageProcessor,
-} from "@/index";
-import { beforeAll, expect, test } from "bun:test";
+} from "../src/index";
 
 beforeAll(async () => {
   await ImageProcessor.initRuntime();

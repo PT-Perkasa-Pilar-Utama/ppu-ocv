@@ -1,7 +1,7 @@
-import { CanvasToolkit, createCanvas, cv, ImageProcessor } from "@/index";
 import { afterAll, beforeAll, expect, test } from "bun:test";
 import { existsSync, readdirSync, rmdirSync, unlinkSync } from "fs";
 import { join } from "path";
+import { CanvasToolkit, createCanvas, cv, ImageProcessor } from "../src/index";
 
 const outDir = "test-out";
 
