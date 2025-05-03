@@ -14,7 +14,7 @@ declare module '@/pipeline/types' {
 export interface WarpOptions extends BaseOperationOptions {
   /** Four points of the source image containing x and y point in
    * topLeft, topRight, bottomLeft and BottomRight.
-   * Use image-util class to get the points
+   * Use Contours class instance to get the points
    */
   points: Points;
 

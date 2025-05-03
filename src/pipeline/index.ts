@@ -1,5 +1,12 @@
-export { executeOperation, registry } from "./registry";
-export type { BaseOperationOptions, OperationResult } from "./types";
+export { executeOperation, OperationRegistry, registry } from "./registry";
+export type {
+  BaseOperationOptions,
+  OperationFunction,
+  OperationName,
+  OperationOptions,
+  OperationResult,
+  RegisteredOperations,
+} from "./types";
 
 import "@/operations/adaptive-threshold";
 import "@/operations/blur";

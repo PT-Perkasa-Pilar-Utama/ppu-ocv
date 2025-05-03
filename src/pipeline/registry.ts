@@ -1,12 +1,12 @@
-import cv from "@techstark/opencv-js";
 import type {
   OperationFunction,
   OperationName,
   OperationOptions,
-  OperationResult
-} from "./types";
+  OperationResult,
+} from "@/index";
+import cv from "@techstark/opencv-js";
 
-class OperationRegistry {
+export class OperationRegistry {
   private operations: Map<string, OperationFunction<any>> = new Map();
   private defaultOptions: Map<string, any> = new Map();
 

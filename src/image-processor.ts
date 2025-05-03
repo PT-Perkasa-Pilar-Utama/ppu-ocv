@@ -11,18 +11,23 @@ import type {
   GrayscaleOptions,
   InvertOptions,
   MorphologicalGradientOptions,
+  OperationName,
+  OperationOptions,
   ResizeOptions,
   ThresholdOptions,
   WarpOptions,
-} from "@/pipeline";
-import { executeOperation, registry } from "@/pipeline";
-import type { OperationName, OperationOptions } from "@/pipeline/types";
+} from "@/index";
+import { executeOperation, registry } from "@/index";
 
 export class ImageProcessor {
   img: cv.Mat;
   width: number;
   height: number;
 
+  /**
+   * Create an ImageProcessor instance from a Canvas or cv.Mat
+   * @param source Source image as Canvas or cv.Mat
+   */
   constructor(source: Canvas | cv.Mat) {
     if (source instanceof Canvas) {
       const ctx = source.getContext("2d");
@@ -69,7 +74,7 @@ export class ImageProcessor {
    * @param operationName Name of the operation to execute
    * @param options Options for the operation
    */
-  executeOperation<Name extends OperationName>(
+  execute<Name extends OperationName>(
     operationName: Name,
     options?: Partial<OperationOptions<Name>>
   ): this {
@@ -96,7 +101,7 @@ export class ImageProcessor {
    * @param options Optional configuration for grayscale conversion
    */
   grayscale(options: Partial<GrayscaleOptions> = {}): this {
-    return this.executeOperation("grayscale", options);
+    return this.execute("grayscale", options);
   }
 
   /**
@@ -104,7 +109,7 @@ export class ImageProcessor {
    * @param options Optional configuration for inversion
    */
   invert(options: Partial<InvertOptions> = {}): this {
-    return this.executeOperation("invert", options);
+    return this.execute("invert", options);
   }
 
   /**
@@ -112,7 +117,7 @@ export class ImageProcessor {
    * @param options Border configuration options
    */
   border(options: Partial<BorderOptions> = {}): this {
-    return this.executeOperation("border", options);
+    return this.execute("border", options);
   }
 
   /**
@@ -120,31 +125,29 @@ export class ImageProcessor {
    * @param options Blur configuration options
    */
   blur(options: Partial<BlurOptions> = {}): this {
-    return this.executeOperation("blur", options);
+    return this.execute("blur", options);
   }
 
   /** Thresholding to convert image to binary
    * @param options Thresholding configuration options
    */
   threshold(options: Partial<ThresholdOptions> = {}): this {
-    return this.executeOperation("threshold", options);
+    return this.execute("threshold", options);
   }
 
   /** Adaptive thresholding to convert image to binary
    * @param options Adaptive thresholding configuration options
    */
-  adaptiveThreshold(
-    options: Partial<AdaptiveThresholdOptions> = {}
-  ): this {
-    return this.executeOperation("adaptiveThreshold", options);
+  adaptiveThreshold(options: Partial<AdaptiveThresholdOptions> = {}): this {
+    return this.execute("adaptiveThreshold", options);
   }
 
   /**
    * Canny edge detection to detect edges in the image
    * @param options Canny edge detection configuration options
    */
-  canny(options: Partial<CannyOptions> = {}) : this {
-    return this.executeOperation("canny", options);
+  canny(options: Partial<CannyOptions> = {}): this {
+    return this.execute("canny", options);
   }
 
   /**
@@ -155,7 +158,7 @@ export class ImageProcessor {
   morphologicalGradient(
     options: Partial<MorphologicalGradientOptions> = {}
   ): this {
-    return this.executeOperation("morphologicalGradient", options);
+    return this.execute("morphologicalGradient", options);
   }
 
   /**
@@ -163,15 +166,15 @@ export class ImageProcessor {
    * @param options Erosion configuration options
    */
   erode(options: Partial<ErodeOptions> = {}): this {
-    return this.executeOperation("erode", options);
+    return this.execute("erode", options);
   }
 
   /**
    * Dilate image to increase the size of the foreground object
    * @param options Dilation configuration options
    */
-  dilate(options: Partial<DilateOptions> = {}) : this {
-    return this.executeOperation("dilate", options);
+  dilate(options: Partial<DilateOptions> = {}): this {
+    return this.execute("dilate", options);
   }
 
   /**
@@ -179,7 +182,7 @@ export class ImageProcessor {
    *  @param options Resize configuration options
    */
   resize(options: ResizeOptions): this {
-    return this.executeOperation("resize", options);
+    return this.execute("resize", options);
   }
 
   /**
@@ -187,7 +190,7 @@ export class ImageProcessor {
    * @param options Warp configuration options
    */
   warp(options: WarpOptions): this {
-    return this.executeOperation("warp", options);
+    return this.execute("warp", options);
   }
 
   // --- Output and Cleanup Methods ---
@@ -239,4 +242,3 @@ export class ImageProcessor {
     return canvas;
   }
 }
-
