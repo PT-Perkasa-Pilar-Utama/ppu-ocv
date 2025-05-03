@@ -1,4 +1,4 @@
-// import { ImageProcessor } from "ppu-ocv"
+// import { CanvasToolkit, ImageProcessor, cv  } from "ppu-ocv"
 import { CanvasToolkit, ImageProcessor, cv } from "@/index";
 
 const file = Bun.file("./assets/receipt.jpg");
