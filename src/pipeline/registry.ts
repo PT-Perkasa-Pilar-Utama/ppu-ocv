@@ -50,8 +50,11 @@ export function executeOperation<Name extends OperationName>(
     throw new Error(`Operation "${operationName}" not found in registry`);
   }
 
-  const defaultOptionsGenerator =
-    registry.getDefaultOptionsGenerator(operationName);
+  const maybeGenerator = registry.getDefaultOptionsGenerator(operationName);
+  const defaultOptionsGenerator: () => OperationOptions<Name> =
+    typeof maybeGenerator === "function"
+      ? maybeGenerator
+      : () => ({} as OperationOptions<Name>);
 
   const mergedOptions = {
     ...defaultOptionsGenerator(),
