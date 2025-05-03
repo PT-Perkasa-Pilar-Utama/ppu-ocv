@@ -128,6 +128,7 @@ export class ImageProcessor {
 
   /**
    * Convert image to grayscale
+   * @description Usage order: independent
    * @param options Optional configuration for grayscale conversion
    */
   grayscale(options: Partial<GrayscaleOptions> = {}): this {
@@ -136,6 +137,7 @@ export class ImageProcessor {
 
   /**
    * Invert image colors
+   * @description Usage order: ideally (after) threshold or adaptiveThreshold
    * @param options Optional configuration for inversion
    */
   invert(options: Partial<InvertOptions> = {}): this {
@@ -144,6 +146,7 @@ export class ImageProcessor {
 
   /**
    * Add border to image
+   * @description Usage order: independent
    * @param options Border configuration options
    */
   border(options: Partial<BorderOptions> = {}): this {
@@ -152,6 +155,7 @@ export class ImageProcessor {
 
   /**
    * Bluring image to reduce noise using Gaussian Blur
+   * @description Usage order: (ideally after) grayscale
    * @param options Blur configuration options
    */
   blur(options: Partial<BlurOptions> = {}): this {
@@ -159,6 +163,7 @@ export class ImageProcessor {
   }
 
   /** Thresholding to convert image to binary
+   * @description Usage order: (after) grayscale (and optionally blur)
    * @param options Thresholding configuration options
    */
   threshold(options: Partial<ThresholdOptions> = {}): this {
@@ -166,6 +171,7 @@ export class ImageProcessor {
   }
 
   /** Adaptive thresholding to convert image to binary
+   * @description Usage order: (after) grayscale (and optionally blur)
    * @param options Adaptive thresholding configuration options
    */
   adaptiveThreshold(options: Partial<AdaptiveThresholdOptions> = {}): this {
@@ -174,6 +180,7 @@ export class ImageProcessor {
 
   /**
    * Canny edge detection to detect edges in the image
+   * @description Usage order: (after) grayscale + blur
    * @param options Canny edge detection configuration options
    */
   canny(options: Partial<CannyOptions> = {}): this {
@@ -182,6 +189,7 @@ export class ImageProcessor {
 
   /**
    * Morphological gradient to highlight the edges in the image
+   * @description Usage order: (after) dilation + erosion (or threshold)
    * @param options Morphological gradient configuration options
    */
 
@@ -193,6 +201,7 @@ export class ImageProcessor {
 
   /**
    * Erode image to reduce noise
+   * @description Usage order: (after) threshold or edge detection
    * @param options Erosion configuration options
    */
   erode(options: Partial<ErodeOptions> = {}): this {
@@ -201,6 +210,7 @@ export class ImageProcessor {
 
   /**
    * Dilate image to increase the size of the foreground object
+   * @description Usage order: (after) threshold or edge detection
    * @param options Dilation configuration options
    */
   dilate(options: Partial<DilateOptions> = {}): this {
@@ -209,6 +219,7 @@ export class ImageProcessor {
 
   /**
    * Resize image to a new width and height
+   * @description Usage order: independent
    *  @param options Resize configuration options
    */
   resize(options: ResizeOptions): this {
@@ -217,6 +228,7 @@ export class ImageProcessor {
 
   /**
    * Warp image to a new perspective
+   * @description Usage order: independent
    * @param options Warp configuration options
    */
   warp(options: WarpOptions): this {

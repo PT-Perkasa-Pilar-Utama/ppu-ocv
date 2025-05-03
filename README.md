@@ -51,6 +51,8 @@ bun add ppu-ocv
 
 ## Usage
 
+Note that Operation order is matter, you should atleast know some basic in using OpenCV. See the operations table below this.
+
 ```ts
 import { ImageProcessor } from "ppu-ocv";
 
@@ -103,20 +105,20 @@ For more advanced usage, see: [Example usage of ppu-ocv](./examples)
 
 To avoid bloat, we only ship essential operations for chaining. Currently shipped operations are:
 
-```ts
-"adaptiveThreshold" |
-  "blur" |
-  "border" |
-  "canny" |
-  "dilate" |
-  "erode" |
-  "grayscale" |
-  "invert" |
-  "morphologicalGradient" |
-  "resize" |
-  "threshold" |
-  "warp";
-```
+| Operation                 | Depends on…                                 | Why                                                             |
+| ------------------------- | ------------------------------------------- | --------------------------------------------------------------- |
+| **grayscale**             | –                                           | Converts to single‐channel; many ops expect a gray image first. |
+| **blur**                  | _(ideally after)_ grayscale                 | Noise reduction works best on 1-channel data.                   |
+| **threshold**             | _(after)_ grayscale                         | Produces a binary image; needs gray levels.                     |
+| **adaptiveThreshold**     | _(after)_ grayscale (and optionally blur)   | Local thresholding on gray values (smoother if blurred first).  |
+| **invert**                | _(after)_ threshold or adaptiveThreshold    | Inverting a binary mask flips foreground/background.            |
+| **canny**                 | _(after)_ grayscale + blur                  | Edge detection expects a smoothed gray image.                   |
+| **dilate**                | _(after)_ threshold or edge detection       | Expands foreground regions—usually on a binary mask.            |
+| **erode**                 | _(after)_ threshold or edge detection       | Shrinks or cleans up binary regions.                            |
+| **morphologicalGradient** | _(after)_ dilation + erosion (or threshold) | Highlights boundaries by subtracting eroded from dilated image. |
+| **warp**                  | –                                           | Geometric transform; can be applied at any point.               |
+| **resize**                | –                                           | Also independent; purely geometry.                              |
+| **border**                | –                                           | Independent; purely geometry.                                   |
 
 ## Extending operations
 
