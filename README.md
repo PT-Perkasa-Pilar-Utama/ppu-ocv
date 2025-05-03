@@ -33,25 +33,19 @@ OpenCV is powerful but can be cumbersome to use directly. This library provides:
 
 ## Installation
 
-Using Bun is recommended
-
-Install the package via npm:
+Install using your preferred package manager:
 
 ```bash
 npm install ppu-ocv
-```
-
-Or using Yarn:
-
-```bash
 yarn add ppu-ocv
-```
-
-Bun:
-
-```bash
 bun add ppu-ocv
 ```
+
+> [!NOTE]
+> This project is developed and tested primarily with Bun.
+> Support for Node.js, Deno, or browser environments is **not guaranteed**.
+> If you choose to use it outside of Bun and encounter any issues, feel free to report them
+> I'm open to fixing bugs for other runtimes with community help.
 
 ## Usage
 
