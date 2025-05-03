@@ -6,9 +6,8 @@
  * once before using any functions from this module.
  */
 
-import { ImageProcessor } from "@/index";
-import type { Canvas } from "@napi-rs/canvas";
-import cv from "@techstark/opencv-js";
+import type { Canvas } from "@/index";
+import { ImageProcessor, cv } from "@/index";
 
 /**
  * Options for calculating mean Lab lightness.
