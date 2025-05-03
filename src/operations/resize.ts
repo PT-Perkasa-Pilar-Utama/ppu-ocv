@@ -1,7 +1,7 @@
-import type { OperationResult, RequiredOptions } from "@/index";
-import { cv, registry } from "@/index";
+import type { OperationResult, RequiredOptions } from "../index";
+import { cv, registry } from "../index";
 
-declare module "@/pipeline/types" {
+declare module "../index" {
   interface RegisteredOperations {
     resize: ResizeOptions;
   }

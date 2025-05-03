@@ -1,19 +1,19 @@
 import cv from "@techstark/opencv-js";
 export { cv };
 
-export type { BoundingBox, Coordinate, Points } from "@/index.interface";
-export { executeOperation, OperationRegistry, registry } from "@/pipeline";
 export { Canvas, createCanvas, loadImage } from "@napi-rs/canvas";
 export type { SKRSContext2D } from "@napi-rs/canvas";
+export type { BoundingBox, Coordinate, Points } from "./index.interface";
+export { executeOperation, OperationRegistry, registry } from "./pipeline";
 
-export { CanvasToolkit } from "@/canvas-toolkit";
-export { Contours } from "@/contours";
+export { CanvasToolkit } from "./canvas-toolkit";
+export { Contours } from "./contours";
 export {
   calculateMeanGrayscaleValue,
   calculateMeanNormalizedLabLightness,
   type CalculateMeanLightnessOptions,
-} from "@/image-analysis";
-export { ImageProcessor } from "@/image-processor";
+} from "./image-analysis";
+export { ImageProcessor } from "./image-processor";
 
 export type {
   AdaptiveThresholdOptions,
@@ -35,4 +35,4 @@ export type {
   ResizeOptions,
   ThresholdOptions,
   WarpOptions,
-} from "@/pipeline";
+} from "./pipeline";

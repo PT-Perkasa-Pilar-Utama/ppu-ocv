@@ -3,10 +3,10 @@ import type {
   OperationResult,
   Points,
   RequiredOptions,
-} from "@/index";
-import { cv, registry } from "@/index";
+} from "../index";
+import { cv, registry } from "../index";
 
-declare module "@/pipeline/types" {
+declare module "../index" {
   interface RegisteredOperations {
     warp: WarpOptions;
   }

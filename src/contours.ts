@@ -1,5 +1,5 @@
-import type { BoundingBox, Canvas, Coordinate, Points } from "@/index";
-import { cv } from "@/index";
+import type { BoundingBox, Canvas, Coordinate, Points } from "./index";
+import { cv } from "./index";
 
 export interface ContoursOptions {
   /** The contour retrieval mode. (cv.RETR_...) */

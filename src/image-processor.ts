@@ -1,4 +1,4 @@
-import { Canvas, createCanvas, cv, loadImage } from "@/index";
+import { Canvas, createCanvas, cv, loadImage } from "./index";
 
 import type {
   AdaptiveThresholdOptions,
@@ -16,8 +16,8 @@ import type {
   ResizeOptions,
   ThresholdOptions,
   WarpOptions,
-} from "@/index";
-import { executeOperation, registry } from "@/index";
+} from "./index";
+import { executeOperation, registry } from "./index";
 
 type NameWithRequiredOptions = {
   [N in OperationName]: OperationOptions<N> extends RequiredOptions ? N : never;
