@@ -20,6 +20,17 @@ export const defaultOptions: ContoursOptions = {
 export class Contours {
   private contours: cv.MatVector;
 
+  /** The constructor for the Contours class. It takes an image and options as parameters. */
+  /**
+   * @param img - The image to find contours in.
+   * @param options.mode - The contour retrieval mode. (cv.RETR_...)
+   * @param options.method - The contour approximation method. (cv.CHAIN_...)
+   * @example
+   * const contours = new Contours(image, {
+   *   mode: cv.RETR_EXTERNAL,
+   *   method: cv.CHAIN_APPROX_SIMPLE,
+   * });
+   */
   constructor(img: cv.Mat, options: Partial<ContoursOptions> = {}) {
     const opts: ContoursOptions = {
       ...defaultOptions,
@@ -44,11 +55,20 @@ export class Contours {
     }
   }
 
+  /**
+   *  Get the all of contours found in the image.
+   * @returns The number of contours found in the image (cv.MatVector).
+   */
   getAll(): cv.MatVector {
     return this.contours;
   }
 
-  getIndex(index: number): cv.Mat {
+  /**
+   * Get contour at a specific index.
+   * @param index - The index of the contour to get.
+   * @returns The contour at the specified index (cv.Mat).
+   */
+  getFromIndex(index: number): cv.Mat {
     if (index < this.contours.size()) {
       return this.contours.get(index);
     }
@@ -56,10 +76,21 @@ export class Contours {
     return new cv.Mat();
   }
 
-  getRect(c: cv.Mat): cv.Rect {
-    return cv.boundingRect(c);
+  /**
+   * Get the rectangle that bounds the contour.
+   * @param contour - The contour to get the bounding rectangle for.
+   * @returns The bounding rectangle for the contour (cv.Rect).
+   */
+  getRect(contour: cv.Mat): cv.Rect {
+    return cv.boundingRect(contour);
   }
 
+  /**
+   * Iterate over all contours and call the callback function for each contour.
+   * @param callback - The callback function to call for each contour.
+   * The callback function takes a contour as a parameter.
+   * @returns void
+   */
   iterate(callback: (contour: cv.Mat) => any): Contours {
     for (
       let i = 0, len = this.contours.size() as unknown as number;
@@ -73,6 +104,10 @@ export class Contours {
     return this;
   }
 
+  /**
+   * Get the largest contour area.
+   * @returns The largest contour area (cv.Mat).
+   */
   getLargestContourArea(): cv.Mat | null {
     let maxArea = 0;
     let largestContour: cv.Mat | null = null;
@@ -89,8 +124,19 @@ export class Contours {
     return largestContour;
   }
 
-  getCornerPoints(canvas: Canvas): { points: Points; bbox: BoundingBox } {
-    const contour = this.getLargestContourArea();
+  /**
+   * Get four corner points for a given contour.
+   * Useful for perspective transformation (warp).
+   * @param options.canvas - The canvas to get the corner points for.
+   * @param options.contour - The contour to get the corner points for. If not provided, the largest contour area will be used.
+   * @returns The four corner points of the contour (topLeft, topRight, bottomLeft, bottomRight) and the bounding box.
+   */
+  getCornerPoints(options: { canvas: Canvas; contour?: cv.Mat }): {
+    points: Points;
+    bbox: BoundingBox;
+  } {
+    const { canvas, contour = this.getLargestContourArea() } = options;
+
     const bbox: BoundingBox = {
       x0: 0,
       y0: 0,
@@ -192,6 +238,9 @@ export class Contours {
     };
   }
 
+  /**
+   * Delete the contours object.
+   */
   destroy(): void {
     try {
       this.contours.delete();
