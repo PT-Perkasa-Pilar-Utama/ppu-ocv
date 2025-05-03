@@ -13,7 +13,7 @@ export class OperationRegistry {
   register<Name extends OperationName>(
     name: Name,
     operation: OperationFunction<OperationOptions<Name>>,
-    defaultOptions?: Partial<OperationOptions<Name>>
+    defaultOptions?: () => Partial<OperationOptions<Name>>
   ): void {
     this.operations.set(name, operation as OperationFunction<any>);
     if (defaultOptions) {
@@ -25,7 +25,7 @@ export class OperationRegistry {
     return this.operations.get(name);
   }
 
-  getDefaultOptions(name: string): any {
+  getDefaultOptionsGenerator(name: string): any {
     return this.defaultOptions.get(name) || {};
   }
 
@@ -50,8 +50,11 @@ export function executeOperation<Name extends OperationName>(
     throw new Error(`Operation "${operationName}" not found in registry`);
   }
 
+  const defaultOptionsGenerator =
+    registry.getDefaultOptionsGenerator(operationName);
+
   const mergedOptions = {
-    ...registry.getDefaultOptions(operationName),
+    ...defaultOptionsGenerator(),
     ...options,
   } as OperationOptions<Name>;
 

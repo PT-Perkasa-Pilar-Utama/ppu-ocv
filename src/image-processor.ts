@@ -13,11 +13,18 @@ import type {
   MorphologicalGradientOptions,
   OperationName,
   OperationOptions,
+  RequiredOptions,
   ResizeOptions,
   ThresholdOptions,
   WarpOptions,
 } from "@/index";
 import { executeOperation, registry } from "@/index";
+
+type NameWithRequiredOptions = {
+  [N in OperationName]: OperationOptions<N> extends RequiredOptions ? N : never;
+}[OperationName];
+
+type NameWithOptionalOptions = Exclude<OperationName, NameWithRequiredOptions>;
 
 export class ImageProcessor {
   img: cv.Mat;
@@ -70,20 +77,44 @@ export class ImageProcessor {
   }
 
   /**
-   * Execute any registered pipeline operation
-   * @param operationName Name of the operation to execute
+   * Execute a registered pipeline operation that requires options.
+   * @param operationName Name of the operation (e.g., "resize")
+   * @param options Required options for the operation
+   */
+  execute<Name extends NameWithRequiredOptions>(
+    operationName: Name,
+    options: OperationOptions<Name>
+  ): this;
+
+  /**
+   * Execute a registered pipeline operation where options are optional or have defaults.
+   * @param operationName Name of the operation (e.g., "blur", "grayscale")
+   * @param options Optional or partial options for the operation
+   */
+  execute<Name extends NameWithOptionalOptions>(
+    operationName: Name,
+    options?: Partial<OperationOptions<Name>>
+  ): this;
+
+  /**
+   * Execute a registered pipeline operation.
+   * @param operationName Name of the operation (e.g., "blur", "grayscale")
    * @param options Options for the operation
    */
   execute<Name extends OperationName>(
     operationName: Name,
-    options?: Partial<OperationOptions<Name>>
+    options?: OperationOptions<Name> | Partial<OperationOptions<Name>>
   ): this {
     if (!registry.hasOperation(operationName)) {
       throw new Error(`Operation "${operationName}" not found`);
     }
 
     try {
-      const result = executeOperation(operationName, this.img, options);
+      const result = executeOperation(
+        operationName,
+        this.img,
+        options as Partial<OperationOptions<Name>> | undefined
+      );
 
       this.img = result.img;
       this.width = result.width;

@@ -1,31 +1,27 @@
-import cv from "@techstark/opencv-js";
+import type { OperationResult, PartialOptions } from "@/index";
+import { cv, registry } from "@/index";
 
-import { registry } from "@/pipeline/registry";
-import type { BaseOperationOptions, OperationResult } from "@/pipeline/types";
-
-declare module '@/pipeline/types' {
+declare module "@/pipeline/types" {
   interface RegisteredOperations {
     erode: ErodeOptions;
   }
 }
 
-export interface ErodeOptions extends BaseOperationOptions {
+export interface ErodeOptions extends PartialOptions {
   /** Size of the block [x, y] */
   size: [number, number];
   /** Number of iterations for the erosion operation */
   iter: number;
 }
 
-export const defaultOptions: ErodeOptions = {
-  size: [20, 20],
-  iter: 1,
-};
+function defaultOptions(): ErodeOptions {
+  return {
+    size: [5, 5],
+    iter: 1,
+  };
+}
 
-export function erode(
-  img: cv.Mat,
-  options: ErodeOptions
-): OperationResult {
-
+export function erode(img: cv.Mat, options: ErodeOptions): OperationResult {
   const imgErode = new cv.Mat();
   const kernel = cv.getStructuringElement(
     cv.MORPH_RECT,

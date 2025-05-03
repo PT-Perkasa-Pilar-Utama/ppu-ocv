@@ -1,17 +1,18 @@
-import cv from "@techstark/opencv-js";
+import type {
+  BoundingBox,
+  OperationResult,
+  Points,
+  RequiredOptions,
+} from "@/index";
+import { cv, registry } from "@/index";
 
-import type { BoundingBox, Points } from "@/index.interface";
-import { registry } from "@/pipeline/registry";
-import type { BaseOperationOptions, OperationResult } from "@/pipeline/types";
-
-
-declare module '@/pipeline/types' {
+declare module "@/pipeline/types" {
   interface RegisteredOperations {
     warp: WarpOptions;
   }
 }
 
-export interface WarpOptions extends BaseOperationOptions {
+export interface WarpOptions extends RequiredOptions {
   /** Four points of the source image containing x and y point in
    * topLeft, topRight, bottomLeft and BottomRight.
    * Use Contours class instance to get the points
@@ -23,10 +24,10 @@ export interface WarpOptions extends BaseOperationOptions {
 }
 
 export function warp(img: cv.Mat, options: WarpOptions): OperationResult {
-  if(!options.points || !options.bbox) {
+  if (!options.points || !options.bbox) {
     throw new Error("Invalid options: points and bbox are required");
   }
-  
+
   const { points, bbox } = options;
   const imgWarp = new cv.Mat();
 

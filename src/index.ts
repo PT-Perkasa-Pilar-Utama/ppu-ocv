@@ -16,7 +16,6 @@ export { ImageProcessor } from "@/image-processor";
 
 export type {
   AdaptiveThresholdOptions,
-  BaseOperationOptions,
   BlurOptions,
   BorderOptions,
   CannyOptions,
@@ -29,7 +28,9 @@ export type {
   OperationName,
   OperationOptions,
   OperationResult,
+  PartialOptions,
   RegisteredOperations,
+  RequiredOptions,
   ResizeOptions,
   ThresholdOptions,
   WarpOptions,

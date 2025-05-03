@@ -1,49 +1,45 @@
-import cv, {
-  type AdaptiveThresholdTypes,
-  type ThresholdTypes,
-} from "@techstark/opencv-js";
+import type { OperationResult, PartialOptions } from "@/index";
+import { cv, registry } from "@/index";
 
-import { registry } from "@/pipeline/registry";
-import type { BaseOperationOptions, OperationResult } from "@/pipeline/types";
-
-declare module '@/pipeline/types' {
+declare module "@/pipeline/types" {
   interface RegisteredOperations {
     adaptiveThreshold: AdaptiveThresholdOptions;
   }
 }
 
-export interface AdaptiveThresholdOptions extends BaseOperationOptions {
+export interface AdaptiveThresholdOptions extends PartialOptions {
   /** Upper threshold value (0-255) */
   upper: number;
   /** Adaptive threshold method (cv.ADAPTIVE_THRESH_...) */
-  method: AdaptiveThresholdTypes;
+  method: cv.AdaptiveThresholdTypes;
   /** Type of thresholding (cv.THRESH_...) */
-  type: ThresholdTypes;
+  type: cv.ThresholdTypes;
   /** Block size for adaptive thresholding (must be odd) */
   size: number;
   /** Constant subtracted from the mean or weighted mean */
   constant: number;
 }
 
-export const defaultOptions: AdaptiveThresholdOptions = {
-  upper: 255,
-  method: cv.ADAPTIVE_THRESH_GAUSSIAN_C,
-  type: cv.THRESH_BINARY_INV,
-  size: 7,
-  constant: 2,
-};
+function defaultOptions(): AdaptiveThresholdOptions {
+  return {
+    upper: 255,
+    method: cv.ADAPTIVE_THRESH_GAUSSIAN_C,
+    type: cv.THRESH_BINARY_INV,
+    size: 7,
+    constant: 2,
+  };
+}
 
 export function adaptiveThreshold(
   img: cv.Mat,
   options: AdaptiveThresholdOptions
 ): OperationResult {
-
   const imgAdaptiveThreshold = new cv.Mat();
 
   cv.adaptiveThreshold(
     img,
     imgAdaptiveThreshold,
-    options.max,
+    options.upper,
     options.method,
     options.type,
     options.size,

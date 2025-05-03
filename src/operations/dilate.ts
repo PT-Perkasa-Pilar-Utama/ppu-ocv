@@ -1,31 +1,27 @@
-import cv from "@techstark/opencv-js";
+import type { OperationResult, PartialOptions } from "@/index";
+import { cv, registry } from "@/index";
 
-import { registry } from "@/pipeline/registry";
-import type { BaseOperationOptions, OperationResult } from "@/pipeline/types";
-
-declare module '@/pipeline/types' {
+declare module "@/pipeline/types" {
   interface RegisteredOperations {
     dilate: DilateOptions;
   }
 }
 
-export interface DilateOptions extends BaseOperationOptions {
+export interface DilateOptions extends PartialOptions {
   /** Size of the block [x, y] */
   size: [number, number];
   /** Number of iterations for the dilation operation */
   iter: number;
 }
 
-export const defaultOptions: DilateOptions = {
-  size: [20, 20],
-  iter: 1,
-};
+function defaultOptions(): DilateOptions {
+  return {
+    size: [5, 5],
+    iter: 1,
+  };
+}
 
-export function dilate(
-  img: cv.Mat,
-  options: DilateOptions
-): OperationResult {
-
+export function dilate(img: cv.Mat, options: DilateOptions): OperationResult {
   const imgDilate = new cv.Mat();
   const kernel = cv.getStructuringElement(
     cv.MORPH_RECT,

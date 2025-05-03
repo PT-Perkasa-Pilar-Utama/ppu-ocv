@@ -1,22 +1,19 @@
-import cv from "@techstark/opencv-js";
+import type { OperationResult, PartialOptions } from "@/index";
+import { cv, registry } from "@/index";
 
-import { registry } from "@/pipeline/registry";
-import type { BaseOperationOptions, OperationResult } from "@/pipeline/types";
-
-declare module '@/pipeline/types' {
+declare module "@/pipeline/types" {
   interface RegisteredOperations {
     invert: InvertOptions;
   }
 }
 
-export interface InvertOptions extends BaseOperationOptions {}
+export interface InvertOptions extends PartialOptions {}
 
-export const defaultOptions: InvertOptions = {};
+function defaultOptions(): InvertOptions {
+  return {};
+}
 
-export function invert(
-  img: cv.Mat,
-  options: InvertOptions
-): OperationResult {
+export function invert(img: cv.Mat, options: InvertOptions): OperationResult {
   const imgInvert = new cv.Mat();
 
   cv.bitwise_not(img, imgInvert);

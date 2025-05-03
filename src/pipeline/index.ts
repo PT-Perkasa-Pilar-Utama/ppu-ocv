@@ -1,11 +1,12 @@
 export { executeOperation, OperationRegistry, registry } from "./registry";
 export type {
-  BaseOperationOptions,
   OperationFunction,
   OperationName,
   OperationOptions,
   OperationResult,
+  PartialOptions,
   RegisteredOperations,
+  RequiredOptions,
 } from "./types";
 
 import "@/operations/adaptive-threshold";

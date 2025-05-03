@@ -1,26 +1,20 @@
-import cv from "@techstark/opencv-js";
+import type { OperationResult, RequiredOptions } from "@/index";
+import { cv, registry } from "@/index";
 
-import { registry } from "@/pipeline/registry";
-import type { BaseOperationOptions, OperationResult } from "@/pipeline/types";
-
-declare module '@/pipeline/types' {
+declare module "@/pipeline/types" {
   interface RegisteredOperations {
     resize: ResizeOptions;
   }
 }
 
-export interface ResizeOptions extends BaseOperationOptions {
+export interface ResizeOptions extends RequiredOptions {
   /** Width of the resized image */
   width: number;
   /** Height of the resized image */
   height: number;
 }
 
-
-export function resize(
-  img: cv.Mat,
-  options: ResizeOptions
-): OperationResult {
+export function resize(img: cv.Mat, options: ResizeOptions): OperationResult {
   if (!options.width || !options.height) {
     throw new Error("Invalid options: width and height are required");
   }

@@ -1,31 +1,24 @@
-import cv from "@techstark/opencv-js";
+import type { OperationResult, PartialOptions } from "@/index";
+import { cv, registry } from "@/index";
 
-import { registry } from "@/pipeline/registry";
-import type { BaseOperationOptions, OperationResult } from "@/pipeline/types";
-
-declare module '@/pipeline/types' {
+declare module "@/pipeline/types" {
   interface RegisteredOperations {
     blur: BlurOptions;
   }
 }
 
-export interface BlurOptions extends BaseOperationOptions {
+export interface BlurOptions extends PartialOptions {
   /** Size of the blur [x, y] */
   size: [number, number];
   /** Gaussian kernel standard deviation on x axis */
   sigma: number;
 }
 
-export const defaultOptions: BlurOptions = {
-  size: [5, 5],
-  sigma: 0,
-};
+function defaultOptions(): BlurOptions {
+  return { size: [5, 5], sigma: 0 };
+}
 
-export function blur(
-  img: cv.Mat,
-  options: BlurOptions
-): OperationResult {
-
+export function blur(img: cv.Mat, options: BlurOptions): OperationResult {
   const imgBlur = new cv.Mat();
 
   cv.GaussianBlur(

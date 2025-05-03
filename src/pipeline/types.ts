@@ -1,19 +1,21 @@
 import cv from "@techstark/opencv-js";
 
-export interface BaseOperationOptions {
-  [key: string]: any;
-}
-
 export interface OperationResult {
   img: cv.Mat;
   width: number;
   height: number;
 }
 
-export type OperationFunction<T extends BaseOperationOptions> = (
-  img: cv.Mat,
-  options: T 
-) => OperationResult;
+declare const RequiredBrand: unique symbol;
+export interface RequiredOptions {
+  [RequiredBrand]?: never;
+}
+declare const PartialBrand: unique symbol;
+export interface PartialOptions {
+  [PartialBrand]?: never;
+}
+
+export type OperationFunction<T> = (img: cv.Mat, options: T) => OperationResult;
 
 /**
  * @description

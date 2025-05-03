@@ -1,21 +1,21 @@
-import cv from "@techstark/opencv-js";
+import type { OperationResult, PartialOptions } from "@/index";
+import { cv, registry } from "@/index";
 
-import { registry } from "@/pipeline/registry";
-import type { BaseOperationOptions, OperationResult } from "@/pipeline/types";
-
-declare module '@/pipeline/types' {
+declare module "@/pipeline/types" {
   interface RegisteredOperations {
     grayscale: GrayscaleOptions;
   }
 }
 
-export interface GrayscaleOptions extends BaseOperationOptions {}
+export interface GrayscaleOptions extends PartialOptions {}
 
-export const defaultOptions: GrayscaleOptions = {};
+function defaultOptions(): GrayscaleOptions {
+  return {};
+}
 
 export function grayscale(
   img: cv.Mat,
-  options:  GrayscaleOptions
+  options: GrayscaleOptions
 ): OperationResult {
   const imgGrayscale = new cv.Mat();
 

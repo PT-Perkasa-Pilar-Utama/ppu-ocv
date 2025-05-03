@@ -133,7 +133,7 @@ export class CanvasToolkit {
       mkdirSync(folderPath, { recursive: true });
     }
 
-    const filePath = join(folderPath, `${this.step++}. ${filename}`);
+    const filePath = join(folderPath, `${this.step++}. ${filename}.png`);
     const out = createWriteStream(filePath);
     const buffer = canvas.toBuffer("image/png");
 
