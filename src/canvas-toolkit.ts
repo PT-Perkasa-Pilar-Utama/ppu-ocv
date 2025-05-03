@@ -166,7 +166,7 @@ export class CanvasToolkit {
   }
 
   /**
-   * Draw a not-filled rectangle on the canvas
+   * Draw a non-filled rectangle on the canvas
    * @param options
    * @param options.ctx Canvas rendering context
    * @param options.x X coordinate of the top-left corner
