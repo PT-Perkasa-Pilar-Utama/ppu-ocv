@@ -86,7 +86,7 @@ await ImageProcessor.initRuntime();
 const processor = new ImageProcessor(canvas);
 const grayscaleImg = processor.execute("grayscale").toCanvas();
 
-// the pipeline operation from grayscled image
+// the pipeline operation continued from grayscaled image
 const thresholdImg = processor
   .execute("blur")
   .execute("threshold", {
@@ -125,6 +125,7 @@ To avoid bloat, we only ship essential operations for chaining. Currently shippe
 ## Extending operations
 
 You can easily add your own by creating a prototype method or extend the class of `ImageProcessor`.
+
 See: [How to extend ppu-ocv operations](https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv/blob/main/docs/how-to-extend-ppu-ocv-operations.md)
 
 ## Class documentation
@@ -156,19 +157,11 @@ bun test
 
 Ensure that all tests pass before submitting your pull request.
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Support
-
-If you encounter any issues or have suggestions, please open an issue in the repository.
-
-Happy coding!
-
 ## Scripts
 
-Recommended development environment is in linux-based environment. Library template: https://github.com/aquapi/lib-template
+Recommended development environment is in linux-based environment.
+
+Library template: https://github.com/aquapi/lib-template
 
 All script sources and usage.
 
@@ -179,3 +172,13 @@ Emit `.js` and `.d.ts` files to [`lib`](./lib).
 ### [Publish](./scripts/publish.ts)
 
 Move [`package.json`](./package.json), [`README.md`](./README.md) to [`lib`](./lib) and publish the package.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Support
+
+If you encounter any issues or have suggestions, please open an issue in the repository.
+
+Happy coding!
