@@ -101,7 +101,7 @@ await canvasToolkit.saveImage({
 });
 ```
 
-For more advanced usage, see: [Example usage of ppu-ocv](https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv/tree/main/examples)
+For more advanced usage, see: [Example usage of ppu-ocv](./examples)
 
 ## Built-in pipeline operations
 
@@ -126,7 +126,7 @@ To avoid bloat, we only ship essential operations for chaining. Currently shippe
 
 You can easily add your own by creating a prototype method or extend the class of `ImageProcessor`.
 
-See: [How to extend ppu-ocv operations](https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv/blob/main/docs/how-to-extend-ppu-ocv-operations.md)
+See: [How to extend ppu-ocv operations](./docs/how-to-extend-ppu-ocv-operations.md)
 
 ## Class documentation
 
