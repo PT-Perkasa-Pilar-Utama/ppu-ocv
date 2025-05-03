@@ -6,6 +6,8 @@ import { join } from "path";
 import type { BoundingBox } from "@/index";
 
 export class CanvasToolkit {
+  private step: number = 0;
+
   /**
    * Crop a part of source canvas and return a new canvas of the cropped part
    * @param options
@@ -125,7 +127,7 @@ export class CanvasToolkit {
       mkdirSync(folderPath, { recursive: true });
     }
 
-    const filePath = join(folderPath, filename);
+    const filePath = join(folderPath, `${this.step++}. ${filename}`);
     const out = createWriteStream(filePath);
     const buffer = canvas.toBuffer("image/png");
 
