@@ -42,9 +42,7 @@ await canvasToolkit.saveImage({
   path: DEBUG_FOLDER,
 });
 
-const dilateImg = processor
-  .execute("dilate", { size: [20, 20], iter: 5 })
-  .toCanvas();
+const dilateImg = processor.execute("dilate", { size: [5, 5] }).toCanvas();
 await canvasToolkit.saveImage({
   canvas: dilateImg,
   filename: "dilate",
