@@ -2,7 +2,7 @@
 
 A type-safe, modular, chainable image processing library built on top of OpenCV.js with a fluent API leveraging pipeline processing.
 
-![ppu-ocv pipeline demo](./assets/ppu-ocv-demo.jpg)
+![ppu-ocv pipeline demo](https://raw.githubusercontent.com/PT-Perkasa-Pilar-Utama/ppu-ocv/refs/heads/main/assets/ppu-ocv-demo.jpg)
 
 Image manipulation as easy as:
 
