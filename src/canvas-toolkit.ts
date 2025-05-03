@@ -1,6 +1,12 @@
 import { Canvas, createCanvas } from "@napi-rs/canvas";
 import cv from "@techstark/opencv-js";
-import { createWriteStream, existsSync, mkdirSync } from "fs";
+import {
+  createWriteStream,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  unlinkSync,
+} from "fs";
 import { join } from "path";
 
 import type { BoundingBox } from "@/index";
@@ -140,6 +146,23 @@ export class CanvasToolkit {
         }
       });
     });
+  }
+
+  /**
+   * Clear the output folder
+   * @param path Path to the output folder (default: "out")
+   */
+  clearOutput(path: string = "out"): void {
+    const folderPath = join(process.cwd(), path);
+    if (existsSync(folderPath)) {
+      const files = readdirSync(folderPath);
+      for (const file of files) {
+        if (file === ".gitignore") continue;
+
+        const filePath = join(folderPath, file);
+        unlinkSync(filePath);
+      }
+    }
   }
 
   /**
