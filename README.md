@@ -153,11 +153,11 @@ See: [How to extend ppu-ocv operations](./docs/how-to-extend-ppu-ocv-operations.
 | ----------------------- | --------------- | ----------------------------------------------------------------------------------------- |
 | constructor             | cv.Mat, options | Instantiate Contours and automatically find & store contour list from args                |
 | `getAll`                |                 | Crop a part of source canvas and return a new canvas of the cropped part                  |
-| `getFromIndex`          |                 | Get contour at a specific index                                                           |
+| `getFromIndex`          | index           | Get contour at a specific index                                                           |
 | `getRect`               |                 | Get the rectangle that bounds the contour                                                 |
-| `iterate`               |                 | Iterate over all contours and call the callback function for each contour                 |
+| `iterate`               | callback        | Iterate over all contours and call the callback function for each contour                 |
 | `getLargestContourArea` |                 | Get the largest contour area                                                              |
-| `getCornerPoints`       |                 | Get four corner points for a given contour. Useful for perspective transformation (warp). |
+| `getCornerPoints`       | Canvas, contour | Get four corner points for a given contour. Useful for perspective transformation (warp). |
 | `destroy`               |                 | Destroy & clean-up the memory from the contours                                           |
 
 #### `ImageAnalysis`
