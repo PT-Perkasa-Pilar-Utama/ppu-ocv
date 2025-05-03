@@ -6,7 +6,17 @@
     "open-cv",
     "image-processor",
     "canvas",
-    "threshold"
+    "threshold",
+    "computer-vision",
+    "opencv-js",
+    "perspective-transformation",
+    "edge-detection",
+    "contours",
+    "pipeline",
+    "type-safe",
+    "modular",
+    "chainable",
+    "bun"
   ],
   "author": "snowfluke",
   "license": "MIT",
