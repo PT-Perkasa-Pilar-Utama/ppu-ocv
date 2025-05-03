@@ -1,5 +1,6 @@
-import { Canvas, createCanvas, type SKRSContext2D } from "@napi-rs/canvas";
-import cv from "@techstark/opencv-js";
+import type { BoundingBox, SKRSContext2D } from "@/index";
+import { Canvas, createCanvas, cv } from "@/index";
+
 import {
   createWriteStream,
   existsSync,
@@ -8,8 +9,6 @@ import {
   unlinkSync,
 } from "fs";
 import { join } from "path";
-
-import type { BoundingBox } from "@/index";
 
 export class CanvasToolkit {
   private step: number = 0;
