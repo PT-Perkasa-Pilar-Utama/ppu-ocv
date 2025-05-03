@@ -21,19 +21,6 @@ processor.destroy();
 
 This work is based on https://github.com/TechStark/opencv-js.
 
-## Features
-
-- [x] Type Safety: Full TypeScript typing for operations and options
-- [x] Truly Modular: Each operation is in its own file with clean separation of concerns
-- [x] Customizable: Easily create your own pipeline operations without modifying core code
-- [x] Fluent API: Chain multiple operations together for complex transformations
-- [x] Auto-Registration: Operations register themselves in the pipeline registry
-- [x] Minimal Boilerplate: Create new operations with just a few lines of code
-- [x] Parameter Objects: All operations use structured parameter objects for clean APIs
-- [x] Dynamic Method Generation: Methods are automatically added to the ImageProcessor
-- [x] Memory Management: Proper cleanup of OpenCV resources to prevent memory leaks
-- [x] Canvas Integration: Seamlessly works with `@napi-rs/canvas`
-
 ## Why use this library?
 
 OpenCV is powerful but can be cumbersome to use directly. This library provides:
