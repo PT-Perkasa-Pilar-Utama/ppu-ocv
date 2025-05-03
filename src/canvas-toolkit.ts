@@ -1,4 +1,4 @@
-import { Canvas, createCanvas } from "@napi-rs/canvas";
+import { Canvas, createCanvas, type SKRSContext2D } from "@napi-rs/canvas";
 import cv from "@techstark/opencv-js";
 import {
   createWriteStream,
@@ -177,13 +177,13 @@ export class CanvasToolkit {
    * @param options.color Color of the rectangle (default: "blue")
    */
   drawLine(options: {
-    ctx: CanvasRenderingContext2D;
+    ctx: SKRSContext2D;
     x: number;
     y: number;
     width: number;
     height: number;
-    lineWidth: number;
-    color: string;
+    lineWidth?: number;
+    color?: string;
   }): void {
     const { ctx, x, y, width, height, lineWidth = 2, color = "blue" } = options;
     ctx.beginPath();
@@ -204,10 +204,10 @@ export class CanvasToolkit {
    * @param options.lineWidth Line width (default: 2)
    */
   drawContour(options: {
-    ctx: CanvasRenderingContext2D;
+    ctx: SKRSContext2D;
     contour: cv.Mat;
-    strokeStyle: string;
-    lineWidth: number;
+    strokeStyle?: string;
+    lineWidth?: number;
   }): void {
     const { ctx, contour, strokeStyle = "red", lineWidth = 2 } = options;
 
