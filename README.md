@@ -132,11 +132,47 @@ See: [How to extend ppu-ocv operations](./docs/how-to-extend-ppu-ocv-operations.
 
 #### `ImageProcessor`
 
+| Method                 | Args             | Description                                                                 |
+| ---------------------- | ---------------- | --------------------------------------------------------------------------- |
+| constructor            | cv.Mat or Canvas | Instantiate processor with initial image                                    |
+| static `prepareCanvas` | ArrayBuffer      | Utility to load image from file buffer to canvas                            |
+| static `initRuntime`   |                  | Important open-cv runtime initialization, required to call once per runtime |
+| operations             | depends          | Chainable operations like `blur`, `grayscale`, `resize` and so on           |
+| `execute`              | name, options    | Chainable operations directly via `execute` api                             |
+| outputs                |                  | Non-chainable & non-interupting method for output like `toMat`, `toCanvas`  |
+| `destroy`              |                  | Non-chainable clean-up memory to destroy the object and the state           |
+
 #### `CanvasToolkit`
+
+| Method        | Args                   | Description                                                                               |
+| ------------- | ---------------------- | ----------------------------------------------------------------------------------------- |
+| `crop`        | BoundingBox, Canvas    | Crop a part of source canvas and return a new canvas of the cropped part                  |
+| `isDirty`     | Canvas, threshold      | Check whether a binary canvas is dirty (full of major color either black or white) or not |
+| `saveImage`   | Canvas, filename, path | Save a canvas to an image file                                                            |
+| `clearOutput` | path                   | Clear the output folder                                                                   |
+| `drawLine`    | ctx, coordinate, style | Draw a non-filled rectangle outline on the canvas                                         |
+| `drawContour` | ctx, contour, style    | Draw a contour on the canvas                                                              |
 
 #### `Contours`
 
+| Method                  | Args            | Description                                                                               |
+| ----------------------- | --------------- | ----------------------------------------------------------------------------------------- |
+| constructor             | cv.Mat, options | Instantiate Contours and automatically find & store contour list from args                |
+| `getAll`                |                 | Crop a part of source canvas and return a new canvas of the cropped part                  |
+| `getFromIndex`          |                 | Get contour at a specific index                                                           |
+| `getRect`               |                 | Get the rectangle that bounds the contour                                                 |
+| `iterate`               |                 | Iterate over all contours and call the callback function for each contour                 |
+| `getLargestContourArea` |                 | Get the largest contour area                                                              |
+| `getCornerPoints`       |                 | Get four corner points for a given contour. Useful for perspective transformation (warp). |
+| `destroy`               |                 | Destroy & clean-up the memory from the contours                                           |
+
 #### `ImageAnalysis`
+
+Just a collection of utility functions for analyzing image properties.
+
+- `calculateMeanNormalizedLabLightness`: Calculates the mean normalized lightness of an image using the L channel of the Lab color space. Lightness is normalized based on the image's own maximum lightness value before averaging.
+
+- `calculateMeanGrayscaleValue`: Calculates the mean pixel value of the image after converting it to grayscale.
 
 ## Contributing
 
