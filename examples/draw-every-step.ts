@@ -1,5 +1,5 @@
 // import { ImageProcessor } from "ppu-ocv"
-import { CanvasToolkit, ImageProcessor } from "@/index";
+import { CanvasToolkit, ImageProcessor, cv } from "@/index";
 
 const file = Bun.file("./assets/receipt.jpg");
 const image = await file.arrayBuffer();
@@ -26,19 +26,21 @@ await canvasToolkit.saveImage({
   path: DEBUG_FOLDER,
 });
 
-// or you can use execute
+// or you can continue to use execute
 
-const thresholdImg = processor.execute("threshold").toCanvas();
+const thresholdImg = processor
+  .execute("threshold", { type: cv.THRESH_BINARY_INV + cv.THRESH_OTSU })
+  .toCanvas();
 await canvasToolkit.saveImage({
   canvas: thresholdImg,
   filename: "threshold",
   path: DEBUG_FOLDER,
 });
 
-const invertImg = processor.execute("invert").toCanvas();
+const invertImg = processor.execute("canny").toCanvas();
 await canvasToolkit.saveImage({
   canvas: invertImg,
-  filename: "invert",
+  filename: "canny",
   path: DEBUG_FOLDER,
 });
 
