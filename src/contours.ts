@@ -1,21 +1,19 @@
-import type { BoundingBox, Coordinate, Points } from "@/index";
-import type { Canvas } from "@napi-rs/canvas";
-import cv, {
-  type ContourApproximationModes,
-  type RetrievalModes,
-} from "@techstark/opencv-js";
+import type { BoundingBox, Canvas, Coordinate, Points } from "@/index";
+import { cv } from "@/index";
 
 export interface ContoursOptions {
   /** The contour retrieval mode. (cv.RETR_...) */
-  mode: RetrievalModes;
+  mode: cv.RetrievalModes;
   /** The contour approximation method. (cv.CHAIN_...) */
-  method: ContourApproximationModes;
+  method: cv.ContourApproximationModes;
 }
 
-export const defaultOptions: ContoursOptions = {
-  mode: cv.RETR_EXTERNAL,
-  method: cv.CHAIN_APPROX_SIMPLE,
-};
+function defaultOptions(): ContoursOptions {
+  return {
+    mode: cv.RETR_EXTERNAL,
+    method: cv.CHAIN_APPROX_SIMPLE,
+  };
+}
 
 export class Contours {
   private contours: cv.MatVector;
@@ -33,7 +31,7 @@ export class Contours {
    */
   constructor(img: cv.Mat, options: Partial<ContoursOptions> = {}) {
     const opts: ContoursOptions = {
-      ...defaultOptions,
+      ...defaultOptions(),
       ...options,
     };
 
