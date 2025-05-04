@@ -9,7 +9,7 @@
       "README.md",
       "package.json",
       "tsconfig.json",
-      "src/*.ts"
+      "src/**/*.ts"
     ],
     "exclude": [
       "tests",
