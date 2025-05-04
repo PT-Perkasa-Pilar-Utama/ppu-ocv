@@ -153,31 +153,13 @@ export class MyImageProcessor extends BaseImageProcessor {
 ### 3. Use it by importing the custom `MyImageProcessor.ts`
 
 ```ts
-import { ImageProcessor as BaseImageProcessor } from "ppu-ocv";
-import type { SobelOptions } from "./sobel";
+import { MyImageProcessor } from "./MyImageProcessor";
 
-// Import the registration files (run once)
-import "./sobel";
-// import "./another-custom-op";
+await MyImageProcessor.initRuntime();
+const processor = new MyImageProcessor(canvas);
 
-export class MyImageProcessor extends BaseImageProcessor {
-  /**
-   * Applies Sobel edge detection (Custom Method).
-   */
-  sobel(options?: Partial<SobelOptions>): this {
-    return this.execute("sobel", options);
-  }
+processor.blur().sobel({ dx: 1, dy: 1 });
+// .execute("anotherCustomOp", {});
 
-  // Add other custom methods here
-  // anotherCustomOp(options?: Partial<AnotherOptions>): this {
-  //     return this.execute("anotherCustomOp", options);
-  // }
-
-  // You can even override base methods if necessary, but be careful
-  // blur(options?: Partial<BlurOptions>): this {
-  //    console.log("Custom blur logic before calling base");
-  //    super.blur(options); // Call base implementation
-  //    return this;
-  // }
-}
+processor.destroy();
 ```
