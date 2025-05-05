@@ -24,12 +24,12 @@ export interface CalculateMeanLightnessOptions {
  * Lightness is normalized based on the image's own maximum lightness value before averaging.
  *
  * @param options - Configuration options.
- * @returns A promise resolving to the mean normalized lightness (0-1).
+ * @returns Mean normalized lightness (0-1).
  * @throws Error if OpenCV operations fail.
  */
-export async function calculateMeanNormalizedLabLightness(
+export function calculateMeanNormalizedLabLightness(
   options: CalculateMeanLightnessOptions
-): Promise<number> {
+): number {
   const { canvas, dimension } = options;
 
   let processor: ImageProcessor | null = null;
@@ -90,12 +90,10 @@ export async function calculateMeanNormalizedLabLightness(
  * Calculates the mean pixel value of the image after converting it to grayscale.
  *
  * @param canvas - The source canvas to be processed.
- * @returns A promise resolving to the mean grayscale value (typically 0-255).
+ * @returns Mean grayscale value (typically 0-255).
  * @throws Error if OpenCV operations fail.
  */
-export async function calculateMeanGrayscaleValue(
-  canvas: Canvas
-): Promise<number> {
+export function calculateMeanGrayscaleValue(canvas: Canvas): number {
   let processor: ImageProcessor | null = null;
   let grayscaleImg: cv.Mat | null = null;
 
