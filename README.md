@@ -77,7 +77,7 @@ import { CanvasToolkit, ImageProcessor, cv } from "ppu-ocv";
 const file = Bun.file("./assets/receipt.jpg");
 const image = await file.arrayBuffer();
 
-const canvasToolkit = new CanvasToolkit();
+const canvasToolkit = CanvasToolkit.getInstance();
 const canvas = await ImageProcessor.prepareCanvas(image);
 await ImageProcessor.initRuntime();
 

@@ -8,7 +8,7 @@ const DEBUG_FOLDER = "out";
 const canvas = await ImageProcessor.prepareCanvas(image);
 await ImageProcessor.initRuntime();
 
-const canvasToolkit = new CanvasToolkit();
+const canvasToolkit = CanvasToolkit.getInstance();
 const processor = new ImageProcessor(canvas);
 canvasToolkit.clearOutput(DEBUG_FOLDER);
 

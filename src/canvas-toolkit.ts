@@ -10,8 +10,30 @@ import {
 } from "fs";
 import { join } from "path";
 
+/**
+ * Singleton class for canvas manipulation utilities
+ */
 export class CanvasToolkit {
+  private static instance: CanvasToolkit | null = null;
   private step: number = 0;
+
+  /**
+   * Private constructor to prevent direct instantiation
+   */
+  private constructor() {}
+
+  /**
+   * Get the singleton instance of CanvasToolkit
+   * @returns The singleton instance
+   * @example
+   * const canvasToolkit = CanvasToolkit.getInstance();
+   */
+  public static getInstance(): CanvasToolkit {
+    if (!CanvasToolkit.instance) {
+      CanvasToolkit.instance = new CanvasToolkit();
+    }
+    return CanvasToolkit.instance;
+  }
 
   /**
    * Crop a part of source canvas and return a new canvas of the cropped part
@@ -20,7 +42,7 @@ export class CanvasToolkit {
    * @param options.canvas Source canvas
    * @returns A new canvas of the cropped part
    * @example
-   * const croppedCanvas = canvasToolkit.crop({
+   * const croppedCanvas = CanvasToolkit.getInstance().crop({
    *   bbox: { x0: 10, y0: 10, x1: 100, y1: 100 },
    *   canvas: sourceCanvas,
    * });
@@ -54,7 +76,7 @@ export class CanvasToolkit {
    * @param options.majorColorThreshold Major color threshold (default: 0.97)
    * @returns true if the canvas is dirty, false otherwise
    * @example
-   * const isDirty = canvasToolkit.isDirty({
+   * const isDirty = CanvasToolkit.getInstance().isDirty({
    *   canvas: sourceCanvas,
    *   threshold: 127.5,
    *   majorColorThreshold: 0.97,
@@ -115,7 +137,7 @@ export class CanvasToolkit {
    * @param options.path Path to save the image file (default: "out")
    * @returns A promise that resolves when the image is saved
    * @example
-   * await canvasToolkit.saveImage({
+   * await CanvasToolkit.getInstance().saveImage({
    *   canvas: sourceCanvas,
    *   filename: "output.png",
    * });

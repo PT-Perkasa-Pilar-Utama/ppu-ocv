@@ -27,7 +27,7 @@ test("crop returns correct sub-canvas", () => {
   ctx.fillStyle = "red";
   ctx.fillRect(2, 3, 4, 5);
 
-  const toolkit = new CanvasToolkit();
+  const toolkit = CanvasToolkit.getInstance();
   const cropped = toolkit.crop({
     bbox: { x0: 2, y0: 3, x1: 6, y1: 8 },
     canvas,
@@ -51,7 +51,7 @@ test("isDirty returns false for uniform canvas and true for checkerboard", () =>
   ctx1.fillStyle = "white";
   ctx1.fillRect(0, 0, size, size);
 
-  const toolkit = new CanvasToolkit();
+  const toolkit = CanvasToolkit.getInstance();
   expect(toolkit.isDirty({ canvas: canvas1 })).toBe(false);
 
   const canvas2 = createCanvas(10, 10);
@@ -74,7 +74,7 @@ test("saveImage and clearOutput manage files correctly", async () => {
   ctx.fillStyle = "green";
   ctx.fillRect(0, 0, 4, 4);
 
-  const toolkit = new CanvasToolkit();
+  const toolkit = CanvasToolkit.getInstance();
 
   await toolkit.saveImage({
     canvas,
@@ -102,7 +102,7 @@ test("saveImage and clearOutput manage files correctly", async () => {
 test("drawLine draws a rectangle stroke on canvas", () => {
   const canvas = createCanvas(10, 10);
   const ctx = canvas.getContext("2d");
-  const toolkit = new CanvasToolkit();
+  const toolkit = CanvasToolkit.getInstance();
 
   toolkit.drawLine({
     ctx,
@@ -133,7 +133,7 @@ test("drawContour draws given contour", () => {
   const canvas = createCanvas(6, 6);
 
   const ctx = canvas.getContext("2d");
-  const toolkit = new CanvasToolkit();
+  const toolkit = CanvasToolkit.getInstance();
 
   toolkit.drawContour({ ctx, contour, strokeStyle: "red", lineWidth: 1 });
 
