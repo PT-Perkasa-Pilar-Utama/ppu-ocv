@@ -66,10 +66,30 @@ if (largestContour) {
     path: DEBUG_FOLDER,
   });
 
-  const cornerPoints = contours.getCornerPoints({
-    canvas,
+  const rectangleApproximation = contours.getApproximateRectangleContour({
     contour: largestContour,
   });
+  if (rectangleApproximation) {
+    canvasToolkit.drawContour({
+      ctx,
+      contour: rectangleApproximation,
+      strokeStyle: "green",
+      lineWidth: 4,
+    });
+    await canvasToolkit.saveImage({
+      canvas: canvas,
+      filename: "rectangle-approximation",
+      path: DEBUG_FOLDER,
+    });
+  }
+
+  const cornerPoints = contours.getCornerPoints({
+    canvas,
+    contour: rectangleApproximation,
+  });
+
+  contours.destroy();
+
   const warpedImg = processor2.warp(cornerPoints).toCanvas();
   await canvasToolkit.saveImage({
     canvas: warpedImg,

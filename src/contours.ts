@@ -237,6 +237,34 @@ export class Contours {
   }
 
   /**
+   * Approximates a rectangular contour from a given contour using the Douglas-Peucker algorithm.
+   *
+   * This method simplifies the contour by reducing the number of points,
+   * which is useful for detecting rectangle-like shapes.
+   *
+   * @param options.threshold - Approximation accuracy as a factor of arc length.
+   *        A lower value results in a more accurate approximation with more points. (default: 0.02)
+   * @param options.contour - Optional input contour. If not provided, the largest contour area will be used.
+   * @returns The approximated contour as a `cv.Mat`. Returns an empty `cv.Mat` if no contour is available.
+   */
+  getApproximateRectangleContour(options?: {
+    threshold?: number;
+    contour?: cv.Mat;
+  }): cv.Mat | undefined {
+    const { threshold = 0.02, contour = this.getLargestContourArea() } =
+      options ?? {};
+
+    if (!contour) return undefined;
+
+    const epsilon = threshold * cv.arcLength(contour, true);
+    const approxContour = new cv.Mat();
+    cv.approxPolyDP(contour, approxContour, epsilon, true);
+
+    contour.delete();
+    return approxContour;
+  }
+
+  /**
    * Delete the contours object.
    */
   destroy(): void {
