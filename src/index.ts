@@ -1,7 +1,7 @@
 import cv from "@techstark/opencv-js";
 export { cv };
 
-export { Canvas, createCanvas, loadImage } from "@napi-rs/canvas";
+export { Canvas, createCanvas, ImageData, loadImage } from "@napi-rs/canvas";
 export type { SKRSContext2D } from "@napi-rs/canvas";
 export type { BoundingBox, Coordinate, Points } from "./index.interface";
 export { executeOperation, OperationRegistry, registry } from "./pipeline";
