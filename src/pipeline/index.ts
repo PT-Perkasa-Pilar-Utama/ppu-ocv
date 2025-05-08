@@ -13,6 +13,7 @@ import "../operations/adaptive-threshold";
 import "../operations/blur";
 import "../operations/border";
 import "../operations/canny";
+import "../operations/convert";
 import "../operations/dilate";
 import "../operations/erode";
 import "../operations/grayscale";
@@ -26,6 +27,7 @@ export type { AdaptiveThresholdOptions } from "../operations/adaptive-threshold"
 export type { BlurOptions } from "../operations/blur";
 export type { BorderOptions } from "../operations/border";
 export type { CannyOptions } from "../operations/canny";
+export type { ConvertOptions } from "../operations/convert";
 export type { DilateOptions } from "../operations/dilate";
 export type { ErodeOptions } from "../operations/erode";
 export type { GrayscaleOptions } from "../operations/grayscale";

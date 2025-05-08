@@ -18,6 +18,7 @@ import type {
   WarpOptions,
 } from "./index";
 import { executeOperation, registry } from "./index";
+import type { ConvertOptions } from "./pipeline";
 
 type NameWithRequiredOptions = {
   [N in OperationName]: OperationOptions<N> extends RequiredOptions ? N : never;
@@ -233,6 +234,15 @@ export class ImageProcessor {
    */
   warp(options: WarpOptions): this {
     return this.execute("warp", options);
+  }
+
+  /**
+   * Convert image matrix into new matrix type
+   * @description Usage order: independent
+   * @param options Convert configuration options
+   */
+  convert(options: ConvertOptions): this {
+    return this.execute("convert", options);
   }
 
   // --- Output and Cleanup Methods ---
