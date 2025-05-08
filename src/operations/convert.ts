@@ -13,7 +13,7 @@ export interface ConvertOptions extends RequiredOptions {
 }
 
 export function convert(img: cv.Mat, options: ConvertOptions): OperationResult {
-  if (!options.rtype) {
+  if (options.rtype === undefined) {
     throw new Error("Invalid options: rtype is required");
   }
 

@@ -73,6 +73,7 @@ test("all pipeline operations can run and return this", () => {
   expect(processor.dilate()).toBe(processor);
   expect(processor.erode()).toBe(processor);
   expect(processor.morphologicalGradient()).toBe(processor);
+  expect(processor.convert({ rtype: cv.CV_8UC1 })).toBe(processor);
   expect(
     processor.warp({
       points: {
