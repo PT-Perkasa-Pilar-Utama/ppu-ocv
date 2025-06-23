@@ -33,6 +33,7 @@ export type {
   RegisteredOperations,
   RequiredOptions,
   ResizeOptions,
+  RotateOptions,
   ThresholdOptions,
   WarpOptions,
 } from "./pipeline";

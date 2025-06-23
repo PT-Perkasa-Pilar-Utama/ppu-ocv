@@ -20,6 +20,7 @@ import "../operations/grayscale";
 import "../operations/invert";
 import "../operations/morphological-gradient";
 import "../operations/resize";
+import "../operations/rotate";
 import "../operations/threshold";
 import "../operations/warp";
 
@@ -34,5 +35,6 @@ export type { GrayscaleOptions } from "../operations/grayscale";
 export type { InvertOptions } from "../operations/invert";
 export type { MorphologicalGradientOptions } from "../operations/morphological-gradient";
 export type { ResizeOptions } from "../operations/resize";
+export type { RotateOptions } from "../operations/rotate";
 export type { ThresholdOptions } from "../operations/threshold";
 export type { WarpOptions } from "../operations/warp";

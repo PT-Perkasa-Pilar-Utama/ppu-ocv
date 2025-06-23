@@ -14,6 +14,7 @@ import type {
   OperationOptions,
   RequiredOptions,
   ResizeOptions,
+  RotateOptions,
   ThresholdOptions,
   WarpOptions,
 } from "./index";
@@ -234,6 +235,15 @@ export class ImageProcessor {
    */
   warp(options: WarpOptions): this {
     return this.execute("warp", options);
+  }
+
+  /**
+   * Rotate image by a given angle
+   * @description Usage order: independent
+   * @param options Rotate configuration options
+   */
+  rotate(options: RotateOptions): this {
+    return this.execute("rotate", options);
   }
 
   /**

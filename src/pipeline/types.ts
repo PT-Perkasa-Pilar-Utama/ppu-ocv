@@ -22,8 +22,11 @@ export type OperationFunction<T> = (img: cv.Mat, options: T) => OperationResult;
  * Central registry mapping operation names to their specific option types.
  * Operation modules MUST augment this interface.
  */
+import type { RotateOptions } from "../operations/rotate";
+
 export interface RegisteredOperations {
   // Augmented by operation modules (e.g., blur: BlurOptions;)
+  rotate: RotateOptions;
 }
 
 export type OperationName = keyof RegisteredOperations;
