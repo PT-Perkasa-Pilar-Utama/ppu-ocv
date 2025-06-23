@@ -119,6 +119,7 @@ To avoid bloat, we only ship essential operations for chaining. Currently shippe
 | **warp**                  | –                                           | Geometric transform; can be applied at any point.               |
 | **resize**                | –                                           | Also independent; purely geometry.                              |
 | **border**                | –                                           | Independent; purely geometry.                                   |
+| **rotate**                | –                                           | Independent.                                                    |
 
 ## Extending operations
 

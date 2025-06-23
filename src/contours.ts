@@ -62,6 +62,14 @@ export class Contours {
   }
 
   /**
+   *  Get the size of the contours
+   * @returns Size of the contours
+   */
+  getSize(): number {
+    return this.contours.size();
+  }
+
+  /**
    * Get contour at a specific index.
    * @param index - The index of the contour to get.
    * @returns The contour at the specified index (cv.Mat).
