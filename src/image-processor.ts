@@ -52,14 +52,58 @@ export class ImageProcessor {
     }
   }
 
+  /**
+   * Convert array buffer to canvas
+   */
   static async prepareCanvas(file: ArrayBuffer): Promise<Canvas> {
-    const img = await loadImage(file);
+    if (file instanceof Canvas) return file;
 
+    const img = await loadImage(file);
     const canvas = createCanvas(img.width, img.height);
     const ctx = canvas.getContext("2d");
 
     ctx.drawImage(img, 0, 0);
     return canvas;
+  }
+
+  /**
+   * Convert canvas to array buffer
+   */
+  static async prepareBuffer(canvas: Canvas): Promise<ArrayBuffer> {
+    if (canvas instanceof ArrayBuffer) return canvas;
+
+    if (typeof canvas.toBuffer === "function") {
+      const buffer = canvas.toBuffer("image/png");
+      const arrayBuffer = new ArrayBuffer(buffer.byteLength);
+
+      new Uint8Array(arrayBuffer).set(new Uint8Array(buffer));
+      return arrayBuffer;
+    }
+
+    if (typeof canvas.toDataURL === "function") {
+      const dataURL = canvas.toDataURL("image/png");
+      const base64Data = dataURL.replace(/^data:image\/png;base64,/, "");
+
+      const buffer = Buffer.from(base64Data, "base64");
+      const arrayBuffer = new ArrayBuffer(buffer.byteLength);
+
+      new Uint8Array(arrayBuffer).set(new Uint8Array(buffer));
+      return arrayBuffer;
+    }
+
+    const ctx = canvas.getContext("2d");
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    let canvasBuffer = new ArrayBuffer(imageData.data.byteLength);
+
+    new Uint8Array(canvasBuffer).set(
+      new Uint8Array(
+        imageData.data.buffer,
+        imageData.data.byteOffset,
+        imageData.data.byteLength,
+      ),
+    );
+
+    return canvasBuffer;
   }
 
   /**
@@ -84,7 +128,7 @@ export class ImageProcessor {
    */
   execute<Name extends NameWithRequiredOptions>(
     operationName: Name,
-    options: OperationOptions<Name>
+    options: OperationOptions<Name>,
   ): this;
 
   /**
@@ -94,7 +138,7 @@ export class ImageProcessor {
    */
   execute<Name extends NameWithOptionalOptions>(
     operationName: Name,
-    options?: Partial<OperationOptions<Name>>
+    options?: Partial<OperationOptions<Name>>,
   ): this;
 
   /**
@@ -104,7 +148,7 @@ export class ImageProcessor {
    */
   execute<Name extends OperationName>(
     operationName: Name,
-    options?: OperationOptions<Name> | Partial<OperationOptions<Name>>
+    options?: OperationOptions<Name> | Partial<OperationOptions<Name>>,
   ): this {
     if (!registry.hasOperation(operationName)) {
       throw new Error(`Operation "${operationName}" not found`);
@@ -114,7 +158,7 @@ export class ImageProcessor {
       const result = executeOperation(
         operationName,
         this.img,
-        options as Partial<OperationOptions<Name>> | undefined
+        options as Partial<OperationOptions<Name>> | undefined,
       );
 
       this.img = result.img;
@@ -196,7 +240,7 @@ export class ImageProcessor {
    */
 
   morphologicalGradient(
-    options: Partial<MorphologicalGradientOptions> = {}
+    options: Partial<MorphologicalGradientOptions> = {},
   ): this {
     return this.execute("morphologicalGradient", options);
   }

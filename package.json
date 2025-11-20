@@ -1,6 +1,6 @@
 {
   "name": "ppu-ocv",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "A type-safe, modular, chainable image processing library built on top of OpenCV.js with a fluent API leveraging pipeline processing.",
   "keywords": [
     "open-cv",
@@ -37,6 +37,7 @@
     "eslint": "latest",
     "eslint-plugin-jsdoc": "latest",
     "mitata": "latest",
+    "prettier": "^3.6.2",
     "tsx": "latest",
     "typescript": "latest",
     "typescript-eslint": "latest",
