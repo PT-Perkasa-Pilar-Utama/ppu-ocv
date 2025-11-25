@@ -1,4 +1,4 @@
-import { cpToLibNoFolder } from "./utils";
+import { cpToLibNoFolder, exec } from "./utils";
 
 // Write required files
 await Promise.all(
@@ -11,4 +11,4 @@ await Promise.all(
   ].map(cpToLibNoFolder)
 );
 
-// await exec`cd lib && bun publish --access=public`;
+await exec`cd lib && bun publish --access=public`;
