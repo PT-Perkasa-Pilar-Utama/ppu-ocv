@@ -90,8 +90,8 @@ test("saveImage and clearOutput manage files correctly", async () => {
 
   const files = readdirSync(join(process.cwd(), outDir));
 
-  expect(files).toContain("3. first.png");
-  expect(files).toContain("4. second.png");
+  expect(files).toContain("0. first.png");
+  expect(files).toContain("1. second.png");
 
   toolkit.clearOutput(outDir);
   const afterClear = readdirSync(join(process.cwd(), outDir));
