@@ -1,5 +1,4 @@
 import { readFileSync } from "fs";
-import { join } from "path";
 import { Canvas, cv, ImageProcessor } from "./index";
 import type {
   BoundingBox,
@@ -17,15 +16,10 @@ export class FaceDetector {
    * Private constructor to prevent direct instantiation
    */
   private constructor() {
-    const basePath = join(process.cwd(), "src");
+    const frontalFaceData = readFileSync("haarcascade_frontalface_default.xml");
 
-    const frontalFaceData = readFileSync(
-      join(basePath, "haarcascade_frontalface_default.xml"),
-    );
-    const eyeData = readFileSync(join(basePath, "haarcascade_eye.xml"));
-    const eyeGlassData = readFileSync(
-      join(basePath, "haarcascade_eye_tree_eyeglasses.xml"),
-    );
+    const eyeData = readFileSync("haarcascade_eye.xml");
+    const eyeGlassData = readFileSync("haarcascade_eye_tree_eyeglasses.xml");
 
     // Write files to Emscripten virtual file system
     // @ts-expect-error - FS exists in opencv.js runtime but not in type definitions
@@ -74,7 +68,7 @@ export class FaceDetector {
       scaleFactor?: number;
       minNeighbors?: number;
       minSize?: { width: number; height: number };
-    } = {},
+    } = {}
   ): Promise<FaceDetectorResult> {
     const {
       scaleFactor = 1.1,
@@ -98,7 +92,7 @@ export class FaceDetector {
         scaleFactor,
         minNeighbors,
         0,
-        minSizeMat,
+        minSizeMat
       );
 
       for (let i = 0; i < faces.size(); i++) {
@@ -135,7 +129,7 @@ export class FaceDetector {
       minNeighbors?: number;
       minSize?: { width: number; height: number };
       useFallback?: boolean;
-    } = {},
+    } = {}
   ): Promise<EyesDetectorResult> {
     const {
       scaleFactor = 1.05,
@@ -159,7 +153,7 @@ export class FaceDetector {
         scaleFactor,
         minNeighbors,
         0,
-        minSizeMat,
+        minSizeMat
       );
 
       if (eyes.size() === 0 && useFallback) {
@@ -217,7 +211,7 @@ export class FaceDetector {
       scaleFactor: number;
       minNeighbors: number;
       minSize: { width: number; height: number };
-    },
+    }
   ): EyesDetectorResult {
     const { scaleFactor, minNeighbors, minSize } = options;
 
@@ -230,7 +224,7 @@ export class FaceDetector {
       scaleFactor,
       minNeighbors,
       0,
-      minSizeMat,
+      minSizeMat
     );
 
     const detectedEyes: { left: BoundingBox; right: BoundingBox }[] = [];
@@ -267,7 +261,7 @@ export class FaceDetector {
    */
   async alignFace(
     canvas: Canvas,
-    eyes: [BoundingBox, BoundingBox],
+    eyes: [BoundingBox, BoundingBox]
   ): Promise<Canvas> {
     const [leftEye, rightEye] = eyes;
 
