@@ -1,6 +1,6 @@
 {
   "name": "@snowfluke/ppu-ocv",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "license": "MIT",
   "exports": "./src/index.ts",
   "publish": {
@@ -10,9 +10,9 @@
       "package.json",
       "tsconfig.json",
       "src/**/*.ts",
-      "./haarcascade_eye_tree_eyeglasses.xml",
-      "./haarcascade_eye.xml",
-      "./haarcascade_frontalface_default.xml"
+      "./src/haarcascade_eye_tree_eyeglasses.xml",
+      "./src/haarcascade_eye.xml",
+      "./src/haarcascade_frontalface_default.xml"
     ],
     "exclude": [
       "tests",

@@ -1,4 +1,6 @@
 import { readFileSync } from "fs";
+import { dirname, join } from "path";
+import { fileURLToPath } from "url";
 import { Canvas, cv, ImageProcessor } from "./index";
 import type {
   BoundingBox,
@@ -16,10 +18,15 @@ export class FaceDetector {
    * Private constructor to prevent direct instantiation
    */
   private constructor() {
-    const frontalFaceData = readFileSync("haarcascade_frontalface_default.xml");
+    const __dirname = dirname(fileURLToPath(import.meta.url));
 
-    const eyeData = readFileSync("haarcascade_eye.xml");
-    const eyeGlassData = readFileSync("haarcascade_eye_tree_eyeglasses.xml");
+    const frontalFaceData = readFileSync(
+      join(__dirname, "haarcascade_frontalface_default.xml")
+    );
+    const eyeData = readFileSync(join(__dirname, "haarcascade_eye.xml"));
+    const eyeGlassData = readFileSync(
+      join(__dirname, "haarcascade_eye_tree_eyeglasses.xml")
+    );
 
     // Write files to Emscripten virtual file system
     // @ts-expect-error - FS exists in opencv.js runtime but not in type definitions

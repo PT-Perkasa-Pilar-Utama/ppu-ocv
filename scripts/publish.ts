@@ -5,9 +5,9 @@ await Promise.all(
   [
     "./README.md",
     "./package.json",
-    "./haarcascade_eye_tree_eyeglasses.xml",
-    "./haarcascade_eye.xml",
-    "./haarcascade_frontalface_default.xml",
+    "./src/haarcascade_eye_tree_eyeglasses.xml",
+    "./src/haarcascade_eye.xml",
+    "./src/haarcascade_frontalface_default.xml",
   ].map(cpToLib)
 );
 
