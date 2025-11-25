@@ -1,4 +1,4 @@
-import { cpToLib, exec } from "./utils";
+import { cpToLibNoFolder } from "./utils";
 
 // Write required files
 await Promise.all(
@@ -8,7 +8,7 @@ await Promise.all(
     "./src/haarcascade_eye_tree_eyeglasses.xml",
     "./src/haarcascade_eye.xml",
     "./src/haarcascade_frontalface_default.xml",
-  ].map(cpToLib)
+  ].map(cpToLibNoFolder)
 );
 
-await exec`cd lib && bun publish --access=public`;
+// await exec`cd lib && bun publish --access=public`;

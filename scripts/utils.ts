@@ -9,6 +9,13 @@ export const cpToLib = async (path: string): Promise<number> => {
   return write(join("./lib", path), file(path));
 };
 
+export const cpToLibNoFolder = async (path: string): Promise<number> => {
+  const fileName = path.split("/").pop()!;
+
+  await mkdir("./lib", { recursive: true });
+  return write(join("./lib", fileName), file(path));
+};
+
 export const cpDirToLib = async (
   sourcePath: string,
   targetSubPath?: string
