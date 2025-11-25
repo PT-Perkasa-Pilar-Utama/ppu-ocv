@@ -16,14 +16,3 @@ export interface BoundingBox {
   x1: number;
   y1: number;
 }
-
-export interface FaceDetectorResult {
-  faces: BoundingBox[];
-}
-
-export interface EyesDetectorResult {
-  eyes: {
-    left: BoundingBox;
-    right: BoundingBox;
-  }[];
-}

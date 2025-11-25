@@ -165,42 +165,6 @@ See: [How to extend ppu-ocv operations](./docs/how-to-extend-ppu-ocv-operations.
 | `getCornerPoints`       | Canvas, contour | Get four corner points for a given contour. Useful for perspective transformation (warp). |
 | `destroy`               |                 | Destroy & clean-up the memory from the contours                                           |
 
-#### `FaceDetector`
-
-Singleton class for face and eye detection using Haar Cascade classifiers.
-
-| Method        | Args                        | Description                                                            |
-| ------------- | --------------------------- | ---------------------------------------------------------------------- |
-| `getInstance` |                             | Get the singleton instance of FaceDetector                             |
-| `detectFace`  | Canvas, options             | Detect faces in the given canvas, returns `{ faces: BoundingBox[] }`   |
-| `detectEye`   | Canvas, options             | Detect eyes in the given canvas, returns `{ eyes: { left, right }[] }` |
-| `alignFace`   | Canvas, [leftEye, rightEye] | Align face based on eye positions, returns aligned Canvas              |
-
-**Usage Example:**
-
-```ts
-import { FaceDetector, ImageProcessor } from "ppu-ocv";
-
-await ImageProcessor.initRuntime();
-const file = Bun.file("./image.jpg");
-const canvas = await ImageProcessor.prepareCanvas(await file.arrayBuffer());
-
-const faceDetector = await FaceDetector.getInstance();
-
-// Detect faces
-const faceResult = await faceDetector.detectFace(canvas);
-console.log(`Found ${faceResult.faces.length} faces`);
-
-// Detect eyes
-const eyeResult = await faceDetector.detectEye(canvas);
-
-// Align face if eyes detected
-if (eyeResult.eyes.length > 0) {
-  const { left, right } = eyeResult.eyes[0];
-  const alignedCanvas = await faceDetector.alignFace(canvas, [left, right]);
-}
-```
-
 #### `ImageAnalysis`
 
 Just a collection of utility functions for analyzing image properties.

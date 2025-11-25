@@ -3,7 +3,7 @@ export { cv };
 
 export { Canvas, createCanvas, ImageData, loadImage } from "@napi-rs/canvas";
 export type { SKRSContext2D } from "@napi-rs/canvas";
-export type { BoundingBox, Coordinate, Points, EyesDetectorResult, FaceDetectorResult } from "./index.interface";
+export type { BoundingBox, Coordinate, Points } from "./index.interface";
 export { executeOperation, OperationRegistry, registry } from "./pipeline";
 
 export { CanvasToolkit } from "./canvas-toolkit";
@@ -14,7 +14,6 @@ export {
   type CalculateMeanLightnessOptions,
 } from "./image-analysis";
 export { ImageProcessor } from "./image-processor";
-export { FaceDetector } from "./face-detector";
 
 export type {
   AdaptiveThresholdOptions,
