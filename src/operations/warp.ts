@@ -3,8 +3,8 @@ import type {
   OperationResult,
   Points,
   RequiredOptions,
-} from "../index";
-import { cv, registry } from "../index";
+} from "../index.js";
+import { cv, registry } from "../index.js";
 
 declare module "../index" {
   interface RegisteredOperations {

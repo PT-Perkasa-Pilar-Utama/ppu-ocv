@@ -1,4 +1,4 @@
-export { executeOperation, OperationRegistry, registry } from "./registry";
+export { executeOperation, OperationRegistry, registry } from "./registry.js";
 export type {
   OperationFunction,
   OperationName,
@@ -7,34 +7,34 @@ export type {
   PartialOptions,
   RegisteredOperations,
   RequiredOptions,
-} from "./types";
+} from "./types.js";
 
-import "../operations/adaptive-threshold";
-import "../operations/blur";
-import "../operations/border";
-import "../operations/canny";
-import "../operations/convert";
-import "../operations/dilate";
-import "../operations/erode";
-import "../operations/grayscale";
-import "../operations/invert";
-import "../operations/morphological-gradient";
-import "../operations/resize";
-import "../operations/rotate";
-import "../operations/threshold";
-import "../operations/warp";
+import "../operations/adaptive-threshold.js";
+import "../operations/blur.js";
+import "../operations/border.js";
+import "../operations/canny.js";
+import "../operations/convert.js";
+import "../operations/dilate.js";
+import "../operations/erode.js";
+import "../operations/grayscale.js";
+import "../operations/invert.js";
+import "../operations/morphological-gradient.js";
+import "../operations/resize.js";
+import "../operations/rotate.js";
+import "../operations/threshold.js";
+import "../operations/warp.js";
 
-export type { AdaptiveThresholdOptions } from "../operations/adaptive-threshold";
-export type { BlurOptions } from "../operations/blur";
-export type { BorderOptions } from "../operations/border";
-export type { CannyOptions } from "../operations/canny";
-export type { ConvertOptions } from "../operations/convert";
-export type { DilateOptions } from "../operations/dilate";
-export type { ErodeOptions } from "../operations/erode";
-export type { GrayscaleOptions } from "../operations/grayscale";
-export type { InvertOptions } from "../operations/invert";
-export type { MorphologicalGradientOptions } from "../operations/morphological-gradient";
-export type { ResizeOptions } from "../operations/resize";
-export type { RotateOptions } from "../operations/rotate";
-export type { ThresholdOptions } from "../operations/threshold";
-export type { WarpOptions } from "../operations/warp";
+export type { AdaptiveThresholdOptions } from "../operations/adaptive-threshold.js";
+export type { BlurOptions } from "../operations/blur.js";
+export type { BorderOptions } from "../operations/border.js";
+export type { CannyOptions } from "../operations/canny.js";
+export type { ConvertOptions } from "../operations/convert.js";
+export type { DilateOptions } from "../operations/dilate.js";
+export type { ErodeOptions } from "../operations/erode.js";
+export type { GrayscaleOptions } from "../operations/grayscale.js";
+export type { InvertOptions } from "../operations/invert.js";
+export type { MorphologicalGradientOptions } from "../operations/morphological-gradient.js";
+export type { ResizeOptions } from "../operations/resize.js";
+export type { RotateOptions } from "../operations/rotate.js";
+export type { ThresholdOptions } from "../operations/threshold.js";
+export type { WarpOptions } from "../operations/warp.js";

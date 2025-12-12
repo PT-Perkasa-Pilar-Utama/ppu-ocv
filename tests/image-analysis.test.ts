@@ -4,7 +4,7 @@ import {
   calculateMeanNormalizedLabLightness,
   createCanvas,
   ImageProcessor,
-} from "../src/index";
+} from "../src/index.js";
 
 beforeAll(async () => {
   await ImageProcessor.initRuntime();

@@ -1,7 +1,12 @@
 import { afterAll, beforeAll, expect, test } from "bun:test";
 import { existsSync, readdirSync, rmdirSync, unlinkSync } from "fs";
 import { join } from "path";
-import { CanvasToolkit, createCanvas, cv, ImageProcessor } from "../src/index";
+import {
+  CanvasToolkit,
+  createCanvas,
+  cv,
+  ImageProcessor,
+} from "../src/index.js";
 
 const outDir = "test-out";
 

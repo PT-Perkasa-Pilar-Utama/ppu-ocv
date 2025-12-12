@@ -1,5 +1,5 @@
-import type { BoundingBox, SKRSContext2D } from "./index";
-import { Canvas, createCanvas, cv } from "./index";
+import type { BoundingBox, SKRSContext2D } from "./index.js";
+import { Canvas, createCanvas, cv } from "./index.js";
 
 import {
   createWriteStream,

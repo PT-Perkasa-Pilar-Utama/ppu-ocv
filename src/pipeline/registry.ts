@@ -1,10 +1,10 @@
-import { cv } from "../index";
+import { cv } from "../index.js";
 import type {
   OperationFunction,
   OperationName,
   OperationOptions,
   OperationResult,
-} from "./index";
+} from "./index.js";
 
 export class OperationRegistry {
   private operations: Map<string, OperationFunction<any>> = new Map();
@@ -54,7 +54,7 @@ export function executeOperation<Name extends OperationName>(
   const defaultOptionsGenerator: () => OperationOptions<Name> =
     typeof maybeGenerator === "function"
       ? maybeGenerator
-      : () => ({} as OperationOptions<Name>);
+      : () => ({}) as OperationOptions<Name>;
 
   const mergedOptions = {
     ...defaultOptionsGenerator(),

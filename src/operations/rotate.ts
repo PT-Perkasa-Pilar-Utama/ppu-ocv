@@ -1,5 +1,5 @@
-import type { OperationResult, RequiredOptions } from "../index";
-import { cv, registry } from "../index";
+import type { OperationResult, RequiredOptions } from "../index.js";
+import { cv, registry } from "../index.js";
 
 declare module "../index" {
   interface RegisteredOperations {

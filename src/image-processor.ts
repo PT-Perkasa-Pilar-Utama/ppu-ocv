@@ -1,4 +1,4 @@
-import { Canvas, createCanvas, cv, loadImage } from "./index";
+import { Canvas, createCanvas, cv, loadImage } from "./index.js";
 
 import type {
   AdaptiveThresholdOptions,
@@ -17,9 +17,9 @@ import type {
   RotateOptions,
   ThresholdOptions,
   WarpOptions,
-} from "./index";
-import { executeOperation, registry } from "./index";
-import type { ConvertOptions } from "./pipeline";
+} from "./index.js";
+import { executeOperation, registry } from "./index.js";
+import type { ConvertOptions } from "./pipeline/index.js";
 
 type NameWithRequiredOptions = {
   [N in OperationName]: OperationOptions<N> extends RequiredOptions ? N : never;
@@ -99,8 +99,8 @@ export class ImageProcessor {
       new Uint8Array(
         imageData.data.buffer,
         imageData.data.byteOffset,
-        imageData.data.byteLength,
-      ),
+        imageData.data.byteLength
+      )
     );
 
     return canvasBuffer;
@@ -128,7 +128,7 @@ export class ImageProcessor {
    */
   execute<Name extends NameWithRequiredOptions>(
     operationName: Name,
-    options: OperationOptions<Name>,
+    options: OperationOptions<Name>
   ): this;
 
   /**
@@ -138,7 +138,7 @@ export class ImageProcessor {
    */
   execute<Name extends NameWithOptionalOptions>(
     operationName: Name,
-    options?: Partial<OperationOptions<Name>>,
+    options?: Partial<OperationOptions<Name>>
   ): this;
 
   /**
@@ -148,7 +148,7 @@ export class ImageProcessor {
    */
   execute<Name extends OperationName>(
     operationName: Name,
-    options?: OperationOptions<Name> | Partial<OperationOptions<Name>>,
+    options?: OperationOptions<Name> | Partial<OperationOptions<Name>>
   ): this {
     if (!registry.hasOperation(operationName)) {
       throw new Error(`Operation "${operationName}" not found`);
@@ -158,7 +158,7 @@ export class ImageProcessor {
       const result = executeOperation(
         operationName,
         this.img,
-        options as Partial<OperationOptions<Name>> | undefined,
+        options as Partial<OperationOptions<Name>> | undefined
       );
 
       this.img = result.img;
@@ -240,7 +240,7 @@ export class ImageProcessor {
    */
 
   morphologicalGradient(
-    options: Partial<MorphologicalGradientOptions> = {},
+    options: Partial<MorphologicalGradientOptions> = {}
   ): this {
     return this.execute("morphologicalGradient", options);
   }

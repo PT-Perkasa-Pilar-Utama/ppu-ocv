@@ -6,8 +6,8 @@
  * once before using any functions from this module.
  */
 
-import type { Canvas } from "./index";
-import { ImageProcessor, cv } from "./index";
+import type { Canvas } from "./index.js";
+import { ImageProcessor, cv } from "./index.js";
 
 /**
  * Options for calculating mean Lab lightness.
