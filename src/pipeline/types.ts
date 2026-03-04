@@ -1,4 +1,4 @@
-import cv from "@techstark/opencv-js";
+import { cv } from "../cv-provider.js";
 
 export interface OperationResult {
   img: cv.Mat;

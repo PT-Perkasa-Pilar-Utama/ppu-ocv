@@ -1,7 +1,8 @@
-import type { OperationResult, PartialOptions } from "../index.js";
-import { cv, registry } from "../index.js";
+import type { OperationResult, PartialOptions } from "../pipeline/types.js";
+import { cv } from "../cv-provider.js";
+import { registry } from "../pipeline/registry.js";
 
-declare module "../index" {
+declare module "../pipeline/types" {
   interface RegisteredOperations {
     morphologicalGradient: MorphologicalGradientOptions;
   }
@@ -20,12 +21,12 @@ function defaultOptions(): MorphologicalGradientOptions {
 
 export function morphologicalGradient(
   img: cv.Mat,
-  options: MorphologicalGradientOptions
+  options: MorphologicalGradientOptions,
 ): OperationResult {
   const imgMorphologicalGradient = new cv.Mat();
   const kernel = cv.getStructuringElement(
     cv.MORPH_RECT,
-    new cv.Size(options.size[0], options.size[1])
+    new cv.Size(options.size[0], options.size[1]),
   );
 
   cv.morphologyEx(img, imgMorphologicalGradient, cv.MORPH_GRADIENT, kernel);
@@ -41,5 +42,5 @@ export function morphologicalGradient(
 registry.register(
   "morphologicalGradient",
   morphologicalGradient,
-  defaultOptions
+  defaultOptions,
 );

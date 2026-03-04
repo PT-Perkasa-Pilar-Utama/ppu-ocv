@@ -1,7 +1,8 @@
-import type { OperationResult, PartialOptions } from "../index.js";
-import { cv, registry } from "../index.js";
+import { cv } from "../cv-provider.js";
+import { registry } from "../pipeline/registry.js";
+import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 
-declare module "../index" {
+declare module "../pipeline/types" {
   interface RegisteredOperations {
     blur: BlurOptions;
   }
@@ -25,7 +26,7 @@ export function blur(img: cv.Mat, options: BlurOptions): OperationResult {
     img,
     imgBlur,
     new cv.Size(options.size[0], options.size[1]),
-    options.sigma
+    options.sigma,
   );
   img.delete();
 

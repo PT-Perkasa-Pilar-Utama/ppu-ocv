@@ -1,6 +1,6 @@
 {
   "name": "ppu-ocv",
-  "version": "1.7.0",
+  "version": "2.0.0",
   "description": "A type-safe, modular, chainable image processing library built on top of OpenCV.js with a fluent API leveraging pipeline processing.",
   "keywords": [
     "open-cv",
@@ -16,28 +16,38 @@
     "type-safe",
     "modular",
     "chainable",
-    "bun"
+    "bun",
+    "browser",
+    "web"
   ],
   "author": "snowfluke",
   "license": "MIT",
   "type": "module",
   "main": "./index.js",
   "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./web": {
+      "types": "./index.web.d.ts",
+      "default": "./index.web.js"
+    }
+  },
   "scripts": {
     "task": "bun scripts/task.ts",
     "build:test": "bun task build && bun test",
     "build:publish": "bun task build && bun task report-size && bun task publish",
-    "lint": "eslint ./src",
-    "lint:fix": "eslint ./src --fix"
+    "lint": "prettier --check ./src",
+    "lint:fix": "prettier --write ./src"
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "latest",
     "@types/bun": "latest",
     "@types/uglify-js": "latest",
-    "eslint": "latest",
-    "eslint-plugin-jsdoc": "latest",
     "mitata": "latest",
-    "prettier": "^3.6.2",
+    "prettier": "^3.8.1",
     "tsx": "latest",
     "typescript": "latest",
     "typescript-eslint": "latest",

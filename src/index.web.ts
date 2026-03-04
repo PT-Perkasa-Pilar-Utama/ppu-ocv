@@ -1,20 +1,9 @@
-import _cv from "@techstark/opencv-js";
-import { cv, setCv } from "./cv-provider.js";
-setCv(_cv);
+import { cv } from "./cv-provider.js";
 export { cv };
 
 import { setPlatform } from "./canvas-factory.js";
-import { nodePlatform } from "./platform/node.js";
-setPlatform(nodePlatform);
-
-export { Canvas, createCanvas, ImageData, loadImage } from "@napi-rs/canvas";
-export type { SKRSContext2D } from "@napi-rs/canvas";
-export type { BoundingBox, Coordinate, Points } from "./index.interface.js";
-export {
-  executeOperation,
-  OperationRegistry,
-  registry,
-} from "./pipeline/index.js";
+import { webPlatform } from "./platform/web.js";
+setPlatform(webPlatform);
 
 export { getPlatform, setPlatform } from "./canvas-factory.js";
 export type {
@@ -22,9 +11,19 @@ export type {
   CanvasPlatform,
   Context2DLike,
 } from "./canvas-factory.js";
+export { webPlatform } from "./platform/web.js";
 
-export { CanvasToolkitBase } from "./canvas-toolkit.base.js";
-export { CanvasToolkit } from "./canvas-toolkit.js";
+export type { BoundingBox, Coordinate, Points } from "./index.interface.js";
+export {
+  executeOperation,
+  OperationRegistry,
+  registry,
+} from "./pipeline/index.js";
+
+export {
+  CanvasToolkitBase as CanvasToolkit,
+  CanvasToolkitBase,
+} from "./canvas-toolkit.base.js";
 export { Contours } from "./contours.js";
 export {
   calculateMeanGrayscaleValue,

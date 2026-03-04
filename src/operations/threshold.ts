@@ -1,7 +1,8 @@
-import type { OperationResult, PartialOptions } from "../index.js";
-import { cv, registry } from "../index.js";
+import type { OperationResult, PartialOptions } from "../pipeline/types.js";
+import { cv } from "../cv-provider.js";
+import { registry } from "../pipeline/registry.js";
 
-declare module "../index" {
+declare module "../pipeline/types" {
   interface RegisteredOperations {
     threshold: ThresholdOptions;
   }
@@ -26,7 +27,7 @@ function defaultOptions(): ThresholdOptions {
 
 export function threshold(
   img: cv.Mat,
-  options: ThresholdOptions
+  options: ThresholdOptions,
 ): OperationResult {
   const imgThreshold = new cv.Mat();
   cv.threshold(img, imgThreshold, options.lower, options.upper, options.type);

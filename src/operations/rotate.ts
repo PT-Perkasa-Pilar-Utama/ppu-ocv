@@ -1,7 +1,8 @@
-import type { OperationResult, RequiredOptions } from "../index.js";
-import { cv, registry } from "../index.js";
+import type { OperationResult, RequiredOptions } from "../pipeline/types.js";
+import { cv } from "../cv-provider.js";
+import { registry } from "../pipeline/registry.js";
 
-declare module "../index" {
+declare module "../pipeline/types" {
   interface RegisteredOperations {
     rotate: RotateOptions;
   }
@@ -27,7 +28,7 @@ export function rotate(img: cv.Mat, options: RotateOptions): OperationResult {
     dsize,
     cv.INTER_LINEAR,
     cv.BORDER_CONSTANT,
-    new cv.Scalar()
+    new cv.Scalar(),
   );
 
   img.delete();

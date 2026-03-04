@@ -153,5 +153,5 @@ test("execute throws for unknown operation", () => {
   expect(() => {
     // @ts-expect-error
     processor.execute("unknownOperation", {});
-  }).toThrow(/^Operation "unknownOperation" not found$/);
+  }).toThrow(/^Operation "unknownOperation" not found in registry$/);
 });

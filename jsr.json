@@ -1,8 +1,11 @@
 {
   "name": "@snowfluke/ppu-ocv",
-  "version": "1.7.0",
+  "version": "2.0.0",
   "license": "MIT",
-  "exports": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./web": "./src/index.web.ts"
+  },
   "publish": {
     "include": [
       "LICENSE",

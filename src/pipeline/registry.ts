@@ -1,4 +1,4 @@
-import { cv } from "../index.js";
+import { cv } from "../cv-provider.js";
 import type {
   OperationFunction,
   OperationName,
@@ -13,7 +13,7 @@ export class OperationRegistry {
   register<Name extends OperationName>(
     name: Name,
     operation: OperationFunction<OperationOptions<Name>>,
-    defaultOptions?: () => Partial<OperationOptions<Name>>
+    defaultOptions?: () => Partial<OperationOptions<Name>>,
   ): void {
     this.operations.set(name, operation as OperationFunction<any>);
     if (defaultOptions) {
@@ -43,7 +43,7 @@ export const registry: OperationRegistry = new OperationRegistry();
 export function executeOperation<Name extends OperationName>(
   operationName: Name,
   img: cv.Mat,
-  options?: Partial<OperationOptions<Name>>
+  options?: Partial<OperationOptions<Name>>,
 ): OperationResult {
   const operation = registry.getOperation(operationName);
   if (!operation) {

@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Interactive demo of ppu-ocv — a type-safe, chainable image processing library built on OpenCV.js" />
+  <title>ppu-ocv — Interactive Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-card: #1a1a26;
+      --bg-card-hover: #22222e;
+      --border: #2a2a3a;
+      --border-active: #6366f1;
+      --text-primary: #e8e8f0;
+      --text-secondary: #9898b0;
+      --text-muted: #68688a;
+      --accent: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.25);
+      --accent-secondary: #818cf8;
+      --success: #34d399;
+      --warning: #fbbf24;
+      --error: #f87171;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --radius-xs: 6px;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+      --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --sidebar-w: 280px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* --- Top Bar --- */
+    .topbar {
+      background: linear-gradient(180deg, rgba(99, 102, 241, 0.08) 0%, transparent 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      background-color: rgba(10, 10, 15, 0.85);
+    }
+
+    .topbar-brand {
+      display: flex; align-items: center; gap: 0.6rem;
+      font-size: 1rem; font-weight: 700; letter-spacing: -0.02em;
+      color: var(--text-primary); margin-right: auto;
+    }
+
+    .topbar-brand svg { width: 18px; height: 18px; color: var(--accent-secondary); }
+
+    .topbar-badge {
+      font-size: 0.65rem; font-weight: 500;
+      padding: 0.2rem 0.55rem;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 100px;
+      color: var(--accent-secondary);
+    }
+
+    .topbar-links {
+      display: flex; align-items: center; gap: 0.75rem; margin-left: 0.5rem;
+    }
+    .topbar-links a {
+      color: var(--text-secondary); transition: color var(--transition);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .topbar-links a:hover { color: var(--text-primary); }
+    .topbar-links svg { width: 18px; height: 18px; }
+
+    .status-indicator {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.75rem; color: var(--text-secondary);
+    }
+
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0; }
+    .status-dot.ready { background: var(--success); box-shadow: 0 0 8px rgba(52, 211, 153, 0.4); }
+    .status-dot.loading { background: var(--warning); animation: pulse 1.2s ease-in-out infinite; }
+    .status-dot.error { background: var(--error); }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    /* Upload row */
+    .upload-row {
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+
+    .btn-upload {
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.5rem 1rem; border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg-card); color: var(--text-primary);
+      font-family: inherit; font-size: 0.8rem; font-weight: 500;
+      cursor: pointer; transition: all var(--transition);
+    }
+    .btn-upload:hover { border-color: var(--accent); background: var(--bg-card-hover); }
+    .btn-upload svg { width: 15px; height: 15px; }
+
+    .btn-process {
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.5rem 1.2rem; border: none; border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--accent) 0%, #4f46e5 100%);
+      color: white; font-family: inherit; font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: all var(--transition);
+    }
+    .btn-process:hover { transform: translateY(-1px); box-shadow: 0 4px 20px var(--accent-glow); }
+    .btn-process:active { transform: translateY(0); }
+    .btn-process:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .file-name {
+      font-size: 0.75rem; color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      max-width: 200px; overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    #file-input { display: none; }
+
+    /* --- Main Layout --- */
+    .app {
+      display: grid;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      height: calc(100vh - 57px); /* minus topbar */
+    }
+
+    @media (max-width: 800px) {
+      .app { grid-template-columns: 1fr; height: auto; }
+      .sidebar { max-height: 40vh; }
+    }
+
+    /* --- Sidebar --- */
+    .sidebar {
+      border-right: 1px solid var(--border);
+      background: var(--bg-secondary);
+      overflow-y: auto;
+      padding: 1rem;
+    }
+
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .section-title {
+      font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--text-muted);
+      margin-bottom: 0.6rem; padding: 0 0.25rem;
+    }
+
+    .pipeline-list { display: flex; flex-direction: column; gap: 0.35rem; list-style: none; }
+
+    .pipeline-item {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.45rem 0.6rem; background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: var(--radius-xs);
+      cursor: pointer; transition: all var(--transition); user-select: none;
+      flex-wrap: wrap;
+    }
+    .pipeline-item:hover { background: var(--bg-card-hover); border-color: var(--border-active); }
+    .pipeline-item.active { border-color: var(--accent); background: rgba(99, 102, 241, 0.08); }
+
+    .pipeline-checkbox {
+      appearance: none; -webkit-appearance: none;
+      width: 16px; height: 16px; border: 2px solid var(--border);
+      border-radius: 3px; background: var(--bg-primary);
+      cursor: pointer; position: relative; flex-shrink: 0;
+      transition: all var(--transition);
+    }
+    .pipeline-checkbox:checked { background: var(--accent); border-color: var(--accent); }
+    .pipeline-checkbox:checked::after {
+      content: ''; position: absolute; left: 3px; top: 0px;
+      width: 5px; height: 8px; border: solid white;
+      border-width: 0 2px 2px 0; transform: rotate(45deg);
+    }
+
+    .pipeline-label { font-size: 0.78rem; font-weight: 500; color: var(--text-primary); flex: 1; }
+    .pipeline-order {
+      font-size: 0.6rem; font-weight: 600; width: 18px; height: 18px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 4px; background: rgba(99, 102, 241, 0.12); color: var(--accent-secondary);
+    }
+
+    .param-group { width: 100%; margin-top: 0.3rem; padding: 0.4rem 0.5rem; background: var(--bg-primary); border-radius: var(--radius-xs); }
+    .param-row { display: flex; align-items: center; justify-content: space-between; }
+    .param-label { font-size: 0.68rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+    .param-value { font-size: 0.68rem; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; }
+
+    .param-slider {
+      -webkit-appearance: none; appearance: none; width: 100%; height: 3px;
+      background: var(--border); border-radius: 2px; margin-top: 0.25rem;
+    }
+    .param-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%;
+      background: var(--accent); cursor: pointer; box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    /* --- Content Area --- */
+    .content {
+      display: flex; flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* Canvas area */
+    .canvas-area {
+      flex: 1; display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px; background: var(--border);
+      min-height: 0;
+    }
+
+    @media (max-width: 600px) { .canvas-area { grid-template-columns: 1fr; } }
+
+    .canvas-panel {
+      position: relative; background: var(--bg-primary);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; min-height: 250px;
+    }
+
+    .canvas-panel canvas { max-width: 100%; max-height: 100%; display: block; object-fit: contain; }
+
+    .canvas-label {
+      position: absolute; top: 0.6rem; left: 0.6rem;
+      padding: 0.2rem 0.6rem; background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(8px); border-radius: 100px;
+      font-size: 0.65rem; font-weight: 500; color: var(--text-secondary); z-index: 2;
+    }
+
+    .placeholder {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.5rem; text-align: center; color: var(--text-muted);
+    }
+    .placeholder svg { width: 36px; height: 36px; opacity: 0.25; }
+    .placeholder p { font-size: 0.78rem; }
+
+    .timing-badge {
+      position: absolute; bottom: 0.6rem; right: 0.6rem;
+      padding: 0.2rem 0.6rem; background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(8px); border-radius: 100px;
+      font-size: 0.65rem; font-family: 'JetBrains Mono', monospace;
+      color: var(--success); z-index: 2; display: none;
+    }
+
+    /* --- Code Section (bottom, full width) --- */
+    .code-section {
+      border-top: 1px solid var(--border);
+      background: var(--bg-secondary);
+      padding: 0.75rem 1rem;
+    }
+
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .code-title {
+      font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--text-muted);
+    }
+
+    .btn-copy {
+      display: flex; align-items: center; gap: 0.35rem;
+      padding: 0.3rem 0.7rem; border: 1px solid var(--border);
+      border-radius: var(--radius-xs); background: var(--bg-card);
+      color: var(--text-secondary); font-family: inherit;
+      font-size: 0.7rem; font-weight: 500; cursor: pointer;
+      transition: all var(--transition);
+    }
+    .btn-copy:hover { border-color: var(--accent); color: var(--text-primary); }
+    .btn-copy.copied { border-color: var(--success); color: var(--success); }
+    .btn-copy svg { width: 13px; height: 13px; }
+
+    .code-block {
+      background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 0.75rem 1rem; overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; line-height: 1.7;
+      color: var(--text-secondary); white-space: pre;
+    }
+    .code-block .kw { color: #c792ea; }
+    .code-block .fn { color: #82aaff; }
+    .code-block .str { color: #c3e88d; }
+    .code-block .num { color: #f78c6c; }
+    .code-block .cm { color: #546e7a; }
+
+    /* Dropzone overlay */
+    .dropzone-overlay {
+      position: fixed; inset: 0; z-index: 999;
+      background: rgba(99, 102, 241, 0.08);
+      border: 3px dashed var(--accent);
+      display: none; align-items: center; justify-content: center;
+      pointer-events: none;
+    }
+    .dropzone-overlay.visible { display: flex; }
+    .dropzone-overlay-text {
+      padding: 1rem 2rem; background: var(--bg-card);
+      border-radius: var(--radius); font-size: 1rem;
+      font-weight: 600; color: var(--accent-secondary);
+      box-shadow: var(--shadow);
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+  </style>
+</head>
+<body>
+
+  <!-- Full-page drop overlay -->
+  <div class="dropzone-overlay" id="drop-overlay">
+    <div class="dropzone-overlay-text">📷 Drop image to process</div>
+  </div>
+
+  <!-- Top Bar -->
+  <nav class="topbar">
+    <div class="topbar-brand">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/></svg>
+      ppu-ocv
+      <span class="topbar-badge">v2.0.0</span>
+      <div class="topbar-links">
+        <a href="https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv" target="_blank" rel="noopener noreferrer" title="GitHub">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+        </a>
+        <a href="https://www.npmjs.com/package/ppu-ocv" target="_blank" rel="noopener noreferrer" title="npm">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H3.334v-4h3.332v4zm4 1.336H8V8.668h2.666v6.666zm10.666-1.336H14.666v-4h2.666v4h1.334v-4h2.666v4z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="upload-row">
+      <button class="btn-upload" id="btn-upload">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload Image
+      </button>
+      <span class="file-name" id="file-name"></span>
+      <input type="file" id="file-input" accept="image/*" />
+      <button class="btn-process" id="btn-process" disabled>▶ Process</button>
+    </div>
+
+    <div class="status-indicator">
+      <div class="status-dot loading" id="status-dot"></div>
+      <span id="status-text">Loading OpenCV…</span>
+    </div>
+  </nav>
+
+  <!-- App Layout -->
+  <div class="app">
+    <!-- Sidebar: Pipeline Config -->
+    <aside class="sidebar">
+      <div class="section-title">Pipeline Operations</div>
+      <ul class="pipeline-list">
+        <li class="pipeline-item active">
+          <input class="pipeline-checkbox" type="checkbox" id="op-grayscale" checked />
+          <label class="pipeline-label" for="op-grayscale">Grayscale</label>
+          <span class="pipeline-order">1</span>
+        </li>
+        <li class="pipeline-item active">
+          <input class="pipeline-checkbox" type="checkbox" id="op-blur" checked />
+          <label class="pipeline-label" for="op-blur">Gaussian Blur</label>
+          <span class="pipeline-order">2</span>
+          <div class="param-group">
+            <div class="param-row">
+              <span class="param-label">size</span>
+              <span class="param-value" id="blur-val">5</span>
+            </div>
+            <input class="param-slider" type="range" id="blur-size" min="1" max="31" step="2" value="5" />
+          </div>
+        </li>
+        <li class="pipeline-item active">
+          <input class="pipeline-checkbox" type="checkbox" id="op-threshold" checked />
+          <label class="pipeline-label" for="op-threshold">Threshold</label>
+          <span class="pipeline-order">3</span>
+        </li>
+        <li class="pipeline-item">
+          <input class="pipeline-checkbox" type="checkbox" id="op-invert" />
+          <label class="pipeline-label" for="op-invert">Invert</label>
+          <span class="pipeline-order">4</span>
+        </li>
+        <li class="pipeline-item">
+          <input class="pipeline-checkbox" type="checkbox" id="op-canny" />
+          <label class="pipeline-label" for="op-canny">Canny Edge</label>
+          <span class="pipeline-order">5</span>
+        </li>
+        <li class="pipeline-item">
+          <input class="pipeline-checkbox" type="checkbox" id="op-dilate" />
+          <label class="pipeline-label" for="op-dilate">Dilate</label>
+          <span class="pipeline-order">6</span>
+          <div class="param-group">
+            <div class="param-row">
+              <span class="param-label">size</span>
+              <span class="param-value" id="dilate-val">3</span>
+            </div>
+            <input class="param-slider" type="range" id="dilate-size" min="1" max="21" step="2" value="3" />
+          </div>
+        </li>
+        <li class="pipeline-item">
+          <input class="pipeline-checkbox" type="checkbox" id="op-erode" />
+          <label class="pipeline-label" for="op-erode">Erode</label>
+          <span class="pipeline-order">7</span>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="content">
+      <!-- Canvas Results (always visible) -->
+      <div class="canvas-area">
+        <div class="canvas-panel" id="original-panel">
+          <div class="canvas-label">Original</div>
+          <div class="placeholder" id="original-placeholder">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <p>Upload an image to begin</p>
+          </div>
+          <canvas id="original-canvas" style="display:none;"></canvas>
+        </div>
+        <div class="canvas-panel" id="result-panel">
+          <div class="canvas-label">Processed</div>
+          <div class="placeholder" id="result-placeholder">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7m0-18H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7m0-18v18"/></svg>
+            <p>Result will appear here</p>
+          </div>
+          <canvas id="result-canvas" style="display:none;"></canvas>
+          <div class="timing-badge" id="timing-badge"></div>
+        </div>
+      </div>
+
+      <!-- Code Preview (full width, bottom) -->
+      <div class="code-section">
+        <div class="code-header">
+          <span class="code-title">Generated Code</span>
+          <button class="btn-copy" id="btn-copy">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span id="copy-label">Copy</span>
+          </button>
+        </div>
+        <pre class="code-block" id="code-preview"></pre>
+        <!-- Hidden element for copy-to-clipboard (plain text) -->
+        <textarea id="code-raw" style="position:absolute;left:-9999px;" aria-hidden="true"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { ImageProcessor, cv } from './lib/index.web.js';
+
+    // -- DOM refs --
+    const btnUpload         = document.getElementById('btn-upload');
+    const fileInput         = document.getElementById('file-input');
+    const fileNameEl        = document.getElementById('file-name');
+    const btnProcess        = document.getElementById('btn-process');
+    const statusDot         = document.getElementById('status-dot');
+    const statusText        = document.getElementById('status-text');
+    const originalCanvas    = document.getElementById('original-canvas');
+    const resultCanvas      = document.getElementById('result-canvas');
+    const origPlaceholder   = document.getElementById('original-placeholder');
+    const resultPlaceholder = document.getElementById('result-placeholder');
+    const codePreview       = document.getElementById('code-preview');
+    const codeRaw           = document.getElementById('code-raw');
+    const timingBadge       = document.getElementById('timing-badge');
+    const blurSlider        = document.getElementById('blur-size');
+    const blurValEl         = document.getElementById('blur-val');
+    const dilateSlider      = document.getElementById('dilate-size');
+    const dilateValEl       = document.getElementById('dilate-val');
+    const dropOverlay       = document.getElementById('drop-overlay');
+    const btnCopy           = document.getElementById('btn-copy');
+    const copyLabel         = document.getElementById('copy-label');
+
+    let loadedImage = null;
+
+    // -- Init OpenCV --
+    try {
+      await ImageProcessor.initRuntime();
+      setStatus('ready', 'Ready');
+    } catch (err) {
+      setStatus('error', 'OpenCV failed');
+      console.error(err);
+    }
+
+    function setStatus(state, text) {
+      statusDot.className = 'status-dot ' + state;
+      statusText.textContent = text;
+    }
+
+    // -- Upload --
+    btnUpload.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) handleFile(e.target.files[0]);
+    });
+
+    // -- Full-page drag & drop --
+    let dragCounter = 0;
+    document.addEventListener('dragenter', (e) => { e.preventDefault(); dragCounter++; dropOverlay.classList.add('visible'); });
+    document.addEventListener('dragleave', (e) => { e.preventDefault(); dragCounter--; if (dragCounter <= 0) { dragCounter = 0; dropOverlay.classList.remove('visible'); } });
+    document.addEventListener('dragover', (e) => e.preventDefault());
+    document.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dragCounter = 0;
+      dropOverlay.classList.remove('visible');
+      if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+    });
+
+    async function handleFile(file) {
+      if (!file.type.startsWith('image/')) { setStatus('error', 'Invalid file'); return; }
+      setStatus('loading', 'Loading…');
+      fileNameEl.textContent = file.name;
+
+      const arrayBuffer = await file.arrayBuffer();
+      const blob = new Blob([arrayBuffer], { type: file.type });
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => {
+        loadedImage = img;
+        originalCanvas.width = img.width;
+        originalCanvas.height = img.height;
+        originalCanvas.getContext('2d').drawImage(img, 0, 0);
+        originalCanvas.style.display = 'block';
+        origPlaceholder.style.display = 'none';
+        URL.revokeObjectURL(url);
+        btnProcess.disabled = false;
+        setStatus('ready', `${img.width}×${img.height}`);
+      };
+      img.src = url;
+    }
+
+    // -- Sliders --
+    blurSlider.addEventListener('input', () => { blurValEl.textContent = blurSlider.value; updateCodePreview(); });
+    dilateSlider.addEventListener('input', () => { dilateValEl.textContent = dilateSlider.value; updateCodePreview(); });
+
+    // -- Checkboxes --
+    document.querySelectorAll('.pipeline-checkbox').forEach((cb) => {
+      cb.addEventListener('change', () => {
+        cb.closest('.pipeline-item').classList.toggle('active', cb.checked);
+        updateCodePreview();
+      });
+    });
+
+    // -- Steps --
+    function getActiveSteps() {
+      const steps = [];
+      if (document.getElementById('op-grayscale').checked) steps.push({ name: 'grayscale' });
+      if (document.getElementById('op-blur').checked) {
+        const bsz = parseInt(blurSlider.value);
+        steps.push({ name: 'blur', opts: { size: [bsz, bsz] } });
+      }
+      if (document.getElementById('op-threshold').checked) steps.push({ name: 'threshold' });
+      if (document.getElementById('op-invert').checked) steps.push({ name: 'invert' });
+      if (document.getElementById('op-canny').checked) steps.push({ name: 'canny' });
+      if (document.getElementById('op-dilate').checked) {
+        const sz = parseInt(dilateSlider.value);
+        steps.push({ name: 'dilate', opts: { size: [sz, sz] } });
+      }
+      if (document.getElementById('op-erode').checked) steps.push({ name: 'erode' });
+      return steps;
+    }
+
+    // -- Code preview --
+    function updateCodePreview() {
+      const steps = getActiveSteps();
+      let raw = `import { ImageProcessor } from "ppu-ocv/web";\n\n`;
+      raw += `const processor = new ImageProcessor(canvas);\n`;
+
+      let html = `<span class="kw">import</span> { ImageProcessor } <span class="kw">from</span> <span class="str">"ppu-ocv/web"</span>;\n\n`;
+      html += `<span class="kw">const</span> processor = <span class="kw">new</span> <span class="fn">ImageProcessor</span>(canvas);\n`;
+
+      if (steps.length === 0) {
+        raw += `// No operations selected\n`;
+        html += `<span class="cm">// No operations selected</span>\n`;
+      } else {
+        for (const s of steps) {
+          if (s.opts) {
+            const optsStr = JSON.stringify(s.opts);
+            raw += `processor.${s.name}(${optsStr});\n`;
+            const htmlOpts = optsStr
+              .replace(/"([^"]+)":/g, '<span class="str">$1</span>: ')
+              .replace(/(\d+)/g, '<span class="num">$1</span>');
+            html += `processor.<span class="fn">${s.name}</span>(${htmlOpts});\n`;
+          } else {
+            raw += `processor.${s.name}();\n`;
+            html += `processor.<span class="fn">${s.name}</span>();\n`;
+          }
+        }
+      }
+
+      raw += `\nconst result = processor.toCanvas();\nprocessor.destroy();`;
+      html += `\n<span class="kw">const</span> result = processor.<span class="fn">toCanvas</span>();\nprocessor.<span class="fn">destroy</span>();`;
+
+      codePreview.innerHTML = html;
+      codeRaw.value = raw;
+    }
+
+    // -- Copy --
+    btnCopy.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(codeRaw.value);
+        copyLabel.textContent = 'Copied!';
+        btnCopy.classList.add('copied');
+        setTimeout(() => { copyLabel.textContent = 'Copy'; btnCopy.classList.remove('copied'); }, 1500);
+      } catch {
+        // Fallback
+        codeRaw.select();
+        document.execCommand('copy');
+        copyLabel.textContent = 'Copied!';
+        setTimeout(() => { copyLabel.textContent = 'Copy'; }, 1500);
+      }
+    });
+
+    // -- Process --
+    btnProcess.addEventListener('click', async () => {
+      if (!loadedImage) return;
+      const steps = getActiveSteps();
+      if (steps.length === 0) { setStatus('error', 'Select an operation'); return; }
+
+      btnProcess.disabled = true;
+      setStatus('loading', 'Processing…');
+      await new Promise(r => requestAnimationFrame(r));
+
+      try {
+        const t0 = performance.now();
+        const srcCanvas = document.createElement('canvas');
+        srcCanvas.width = loadedImage.width;
+        srcCanvas.height = loadedImage.height;
+        srcCanvas.getContext('2d').drawImage(loadedImage, 0, 0);
+
+        const processor = new ImageProcessor(srcCanvas);
+        for (const step of steps) processor.execute(step.name, step.opts);
+        const output = processor.toCanvas();
+        const elapsed = (performance.now() - t0).toFixed(1);
+
+        resultCanvas.width = output.width;
+        resultCanvas.height = output.height;
+        resultCanvas.getContext('2d').drawImage(output, 0, 0);
+        resultCanvas.style.display = 'block';
+        resultPlaceholder.style.display = 'none';
+        resultCanvas.className = 'fade-in';
+
+        timingBadge.textContent = `${elapsed} ms`;
+        timingBadge.style.display = 'block';
+
+        processor.destroy();
+        setStatus('ready', `Done in ${elapsed}ms`);
+      } catch (err) {
+        console.error(err);
+        setStatus('error', err.message);
+      } finally {
+        btnProcess.disabled = false;
+      }
+    });
+
+    updateCodePreview();
+  </script>
+
+</body>
+</html>

@@ -1,5 +1,6 @@
-import type { BoundingBox, Canvas, Coordinate, Points } from "./index.js";
-import { cv } from "./index.js";
+import type { CanvasLike } from "./canvas-factory.js";
+import { cv } from "./cv-provider.js";
+import type { BoundingBox, Coordinate, Points } from "./index.interface.js";
 
 export interface ContoursOptions {
   /** The contour retrieval mode. (cv.RETR_...) */
@@ -137,7 +138,7 @@ export class Contours {
    * @param options.contour - The contour to get the corner points for. If not provided, the largest contour area will be used.
    * @returns The four corner points of the contour (topLeft, topRight, bottomLeft, bottomRight) and the bounding box.
    */
-  getCornerPoints(options: { canvas: Canvas; contour?: cv.Mat }): {
+  getCornerPoints(options: { canvas: CanvasLike; contour?: cv.Mat }): {
     points: Points;
     bbox: BoundingBox;
   } {
@@ -162,8 +163,10 @@ export class Contours {
       };
     }
 
-    const rect = cv.minAreaRect(contour) as any;
-    const vertices = (cv.RotatedRect as any).points(rect) as Coordinate[];
+    const rect = cv.minAreaRect(contour);
+    const vertices = (
+      cv.RotatedRect as unknown as { points: (r: unknown) => Coordinate[] }
+    ).points(rect);
 
     const points = {
       topLeft: { x: 0, y: 0 },

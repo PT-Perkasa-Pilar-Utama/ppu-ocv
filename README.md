@@ -11,7 +11,7 @@ const processor = new ImageProcessor(canvas);
 
 const result = processor
   .grayscale()
-  .blur({ size: 5 })
+  .blur({ size: [5, 5] })
   .threshold()
   .invert()
   .dilate({ size: [20, 20], iter: 5 })
@@ -43,7 +43,7 @@ yarn add ppu-ocv
 bun add ppu-ocv
 ```
 
-## Usage
+## Usage (Node.js / Bun)
 
 Note that Operation order is matter, you should atleast know some basic in using OpenCV. See the operations table below this.
 
@@ -57,7 +57,7 @@ const canvas = await ImageProcessor.prepareCanvas(image);
 await ImageProcessor.initRuntime();
 
 const processor = new ImageProcessor(canvas);
-processor.grayscale().blur({ size: 5 }).threshold();
+processor.grayscale().blur({ size: [5, 5] }).threshold();
 
 const resultCanvas = processor.toCanvas();
 processor.destroy();
@@ -94,6 +94,80 @@ await canvasToolkit.saveImage({
 ```
 
 For more advanced usage, see: [Example usage of ppu-ocv](./examples)
+
+## Web / Browser Support
+
+Starting from v2.0.0, ppu-ocv supports running in the browser. Import from `ppu-ocv/web` instead of `ppu-ocv` to use the browser-native canvas APIs (`HTMLCanvasElement` / `OffscreenCanvas`) instead of `@napi-rs/canvas`.
+
+### With a bundler (Vite, webpack, etc.)
+
+```ts
+import { ImageProcessor, cv } from "ppu-ocv/web";
+
+await ImageProcessor.initRuntime();
+
+// From a file input or fetch
+const response = await fetch("/my-image.jpg");
+const buffer = await response.arrayBuffer();
+
+const canvas = await ImageProcessor.prepareCanvas(buffer);
+const processor = new ImageProcessor(canvas);
+
+processor.grayscale().blur({ size: [5, 5] }).threshold();
+
+const result = processor.toCanvas(); // returns HTMLCanvasElement
+document.body.appendChild(result);
+
+processor.destroy();
+```
+
+### Vanilla HTML (no bundler)
+
+`initRuntime()` automatically loads `@techstark/opencv-js` from the npm CDN if it's not already available. No extra script tags or import maps needed:
+
+```html
+<script type="module">
+  import { ImageProcessor } from "./lib/index.web.js";
+  await ImageProcessor.initRuntime();
+
+  const processor = new ImageProcessor(canvas);
+  processor.grayscale().blur({ size: [5, 5] }).threshold();
+
+  const result = processor.toCanvas();
+  processor.destroy();
+</script>
+```
+
+> **Note:** ES modules require HTTP/HTTPS — use a local server (`npx serve .`) for dev, or deploy to GitHub Pages.
+
+See the [interactive demo](./index.html) for a full working example.
+
+### Node vs Web differences
+
+| Feature | `ppu-ocv` (Node) | `ppu-ocv/web` (Browser) |
+| --- | --- | --- |
+| Canvas backend | `@napi-rs/canvas` | `HTMLCanvasElement` / `OffscreenCanvas` |
+| `CanvasToolkit` | Full (includes `saveImage`, `clearOutput`) | Base only (`crop`, `isDirty`, `drawLine`, `drawContour`) |
+| File I/O | ✅ `saveImage`, `clearOutput` | ❌ Not available (use download links or `toDataURL`) |
+| `ImageProcessor` | ✅ | ✅ Same API |
+| `Contours` | ✅ | ✅ Same API |
+| Image analysis | ✅ | ✅ Same API |
+
+### Platform abstraction
+
+Under the hood, ppu-ocv uses a platform abstraction layer. The `ppu-ocv` entry point auto-registers the Node platform, and `ppu-ocv/web` auto-registers the browser platform. You can also set a custom platform:
+
+```ts
+import { setPlatform, type CanvasPlatform } from "ppu-ocv/web";
+
+const myPlatform: CanvasPlatform = {
+  createCanvas(width, height) { /* ... */ },
+  loadImage(source) { /* ... */ },
+  isCanvas(value) { /* ... */ },
+};
+
+setPlatform(myPlatform);
+```
 
 ## Built-in pipeline operations
 

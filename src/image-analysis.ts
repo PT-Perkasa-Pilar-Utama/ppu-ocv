@@ -6,15 +6,16 @@
  * once before using any functions from this module.
  */
 
-import type { Canvas } from "./index.js";
-import { ImageProcessor, cv } from "./index.js";
+import type { CanvasLike } from "./canvas-factory.js";
+import { cv } from "./cv-provider.js";
+import { ImageProcessor } from "./image-processor.js";
 
 /**
  * Options for calculating mean Lab lightness.
  */
 export interface CalculateMeanLightnessOptions {
   /** The canvas containing the image to be processed. */
-  canvas: Canvas;
+  canvas: CanvasLike;
   /** The target dimensions for analysis (resizes internally). */
   dimension: { width: number; height: number };
 }
@@ -28,7 +29,7 @@ export interface CalculateMeanLightnessOptions {
  * @throws Error if OpenCV operations fail.
  */
 export function calculateMeanNormalizedLabLightness(
-  options: CalculateMeanLightnessOptions
+  options: CalculateMeanLightnessOptions,
 ): number {
   const { canvas, dimension } = options;
 
@@ -70,7 +71,7 @@ export function calculateMeanNormalizedLabLightness(
       L.rows,
       L.cols,
       L.type(),
-      new cv.Scalar(maxPixelValue)
+      new cv.Scalar(maxPixelValue),
     );
     cv.divide(L, scalarMat, L, 1.0, -1);
 
@@ -93,7 +94,7 @@ export function calculateMeanNormalizedLabLightness(
  * @returns Mean grayscale value (typically 0-255).
  * @throws Error if OpenCV operations fail.
  */
-export function calculateMeanGrayscaleValue(canvas: Canvas): number {
+export function calculateMeanGrayscaleValue(canvas: CanvasLike): number {
   let processor: ImageProcessor | null = null;
   let grayscaleImg: cv.Mat | null = null;
 
