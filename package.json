@@ -40,7 +40,8 @@
     "build:test": "bun task build && bun test",
     "build:publish": "bun task build && bun task report-size && bun task publish",
     "lint": "prettier --check ./src",
-    "lint:fix": "prettier --write ./src"
+    "lint:fix": "prettier --write ./src",
+    "demo": "bunx -y serve -l 4567 ."
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "latest",
