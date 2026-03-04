@@ -32,6 +32,7 @@ OpenCV is powerful but can be cumbersome to use directly. This library provides:
 3. **Development Speed**: Add image processing to your app in minutes, not hours
 4. **Extensibility**: Custom operations for your specific needs without library modifications
 5. **TypeScript Integration**: Full IntelliSense support with parameter validation
+6. **Web Support**: Supports running directly in the browser
 
 ## Installation
 
@@ -57,7 +58,10 @@ const canvas = await ImageProcessor.prepareCanvas(image);
 await ImageProcessor.initRuntime();
 
 const processor = new ImageProcessor(canvas);
-processor.grayscale().blur({ size: [5, 5] }).threshold();
+processor
+  .grayscale()
+  .blur({ size: [5, 5] })
+  .threshold();
 
 const resultCanvas = processor.toCanvas();
 processor.destroy();
@@ -113,7 +117,10 @@ const buffer = await response.arrayBuffer();
 const canvas = await ImageProcessor.prepareCanvas(buffer);
 const processor = new ImageProcessor(canvas);
 
-processor.grayscale().blur({ size: [5, 5] }).threshold();
+processor
+  .grayscale()
+  .blur({ size: [5, 5] })
+  .threshold();
 
 const result = processor.toCanvas(); // returns HTMLCanvasElement
 document.body.appendChild(result);
@@ -131,7 +138,10 @@ processor.destroy();
   await ImageProcessor.initRuntime();
 
   const processor = new ImageProcessor(canvas);
-  processor.grayscale().blur({ size: [5, 5] }).threshold();
+  processor
+    .grayscale()
+    .blur({ size: [5, 5] })
+    .threshold();
 
   const result = processor.toCanvas();
   processor.destroy();
@@ -144,14 +154,14 @@ See the [interactive demo](./index.html) for a full working example.
 
 ### Node vs Web differences
 
-| Feature | `ppu-ocv` (Node) | `ppu-ocv/web` (Browser) |
-| --- | --- | --- |
-| Canvas backend | `@napi-rs/canvas` | `HTMLCanvasElement` / `OffscreenCanvas` |
-| `CanvasToolkit` | Full (includes `saveImage`, `clearOutput`) | Base only (`crop`, `isDirty`, `drawLine`, `drawContour`) |
-| File I/O | ✅ `saveImage`, `clearOutput` | ❌ Not available (use download links or `toDataURL`) |
-| `ImageProcessor` | ✅ | ✅ Same API |
-| `Contours` | ✅ | ✅ Same API |
-| Image analysis | ✅ | ✅ Same API |
+| Feature          | `ppu-ocv` (Node)                           | `ppu-ocv/web` (Browser)                                  |
+| ---------------- | ------------------------------------------ | -------------------------------------------------------- |
+| Canvas backend   | `@napi-rs/canvas`                          | `HTMLCanvasElement` / `OffscreenCanvas`                  |
+| `CanvasToolkit`  | Full (includes `saveImage`, `clearOutput`) | Base only (`crop`, `isDirty`, `drawLine`, `drawContour`) |
+| File I/O         | ✅ `saveImage`, `clearOutput`              | ❌ Not available (use download links or `toDataURL`)     |
+| `ImageProcessor` | ✅                                         | ✅ Same API                                              |
+| `Contours`       | ✅                                         | ✅ Same API                                              |
+| Image analysis   | ✅                                         | ✅ Same API                                              |
 
 ### Platform abstraction
 
@@ -161,9 +171,15 @@ Under the hood, ppu-ocv uses a platform abstraction layer. The `ppu-ocv` entry p
 import { setPlatform, type CanvasPlatform } from "ppu-ocv/web";
 
 const myPlatform: CanvasPlatform = {
-  createCanvas(width, height) { /* ... */ },
-  loadImage(source) { /* ... */ },
-  isCanvas(value) { /* ... */ },
+  createCanvas(width, height) {
+    /* ... */
+  },
+  loadImage(source) {
+    /* ... */
+  },
+  isCanvas(value) {
+    /* ... */
+  },
 };
 
 setPlatform(myPlatform);
