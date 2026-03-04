@@ -127,7 +127,7 @@ processor.destroy();
 
 ```html
 <script type="module">
-  import { ImageProcessor } from "./lib/index.web.js";
+  import { ImageProcessor } from "https://cdn.jsdelivr.net/npm/ppu-ocv@2/index.web.js";
   await ImageProcessor.initRuntime();
 
   const processor = new ImageProcessor(canvas);

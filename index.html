@@ -455,7 +455,19 @@
   </div>
 
   <script type="module">
-    import { ImageProcessor, cv } from './lib/index.web.js';
+    let ImageProcessor, cv;
+    try {
+      // Try local build first (for development)
+      const local = await import('./lib/index.web.js');
+      ImageProcessor = local.ImageProcessor;
+      cv = local.cv;
+    } catch (e) {
+      // Fallback to npm CDN if local build is missing or deployed to GH Pages
+      console.log("Local build not found, falling back to CDN...");
+      const cdn = await import('https://cdn.jsdelivr.net/npm/ppu-ocv@2/index.web.js');
+      ImageProcessor = cdn.ImageProcessor;
+      cv = cdn.cv;
+    }
 
     // -- DOM refs --
     const btnUpload         = document.getElementById('btn-upload');
