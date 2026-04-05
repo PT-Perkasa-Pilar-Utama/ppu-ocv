@@ -1,5 +1,41 @@
 # Changelog
 
+## [3.1.1] — 2026-04-06
+
+### Improvements
+
+#### `findRegions()` — new `thresh` option for resized binary images
+
+The default `thresh: 127` caused accuracy loss when `findRegions` was called on a
+**resized** binary image. Resizing introduces anti-aliased border pixels with
+grayscale values in the 1–127 range that the old threshold ignored, while
+OpenCV's `findContours` treats any non-zero pixel as foreground. The new `thresh`
+option lets you match that behaviour:
+
+```ts
+// Use thresh: 0 so any non-zero pixel is treated as foreground,
+// matching OpenCV findContours on resized binary images.
+const regions = new CanvasProcessor(resizedBinaryCanvas).findRegions({
+  foreground: "light",
+  thresh: 0,
+  minArea: 20,
+  padding: { vertical: 0.4, horizontal: 0.6 },
+  scale: 1 / resizeRatio,
+});
+```
+
+With `thresh: 0`, `padding`, and `scale`, the full pipeline matches the
+production `extractBoxesFromContours()` output at **mean IoU 98.4%**
+(all 21/21 boxes matched).
+
+#### Example script
+
+`examples/find-region-vs-get-contours.ts` — side-by-side comparison of
+`CanvasProcessor.findRegions` vs OpenCV contours on a real receipt image,
+producing annotated PNG output files.
+
+---
+
 ## [3.1.0] — 2026-04-06
 
 ### New Features

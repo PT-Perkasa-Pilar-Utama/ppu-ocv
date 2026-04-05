@@ -17,8 +17,11 @@ export interface DetectedRegion {
  *
  * Provides two distinct APIs:
  * - **Static I/O** (`prepareCanvas`, `prepareBuffer`) — format conversion helpers.
- * - **Chainable instance operations** (`resize`, `grayscale`, `convert`) — lightweight
- *   canvas-native pipeline, usable in constrained environments where OpenCV cannot run.
+ * - **Chainable instance operations** (`resize`, `grayscale`, `convert`, `invert`,
+ *   `threshold`, `border`, `rotate`) — lightweight canvas-native pipeline, usable
+ *   in constrained environments where OpenCV cannot run.
+ * - **Region detection** (`findRegions`) — 8-connected flood-fill bbox detection
+ *   on binary images, with optional padding and coordinate scaling.
  *
  * @example
  * ```ts
@@ -26,11 +29,21 @@ export interface DetectedRegion {
  *
  * const canvas = await CanvasProcessor.prepareCanvas(arrayBuffer);
  *
+ * // Pixel pipeline
  * const result = new CanvasProcessor(canvas)
  *   .resize({ width: 800, height: 600 })
  *   .grayscale()
- *   .convert({ alpha: 1.2, beta: -10 })
+ *   .threshold({ thresh: 127 })
+ *   .border({ size: 10, color: "white" })
  *   .toCanvas();
+ *
+ * // Region detection (equivalent to findContours + boundingRect)
+ * const regions = new CanvasProcessor(binaryCanvas).findRegions({
+ *   foreground: "light",
+ *   minArea: 20,
+ *   padding: { vertical: 0.4, horizontal: 0.6 },
+ *   scale: originalWidth / processedWidth,
+ * });
  * ```
  */
 export class CanvasProcessor {
@@ -259,6 +272,13 @@ export class CanvasProcessor {
    *
    * @param options.foreground  Which pixel tone is the foreground to detect:
    *                            `"light"` (white regions, default) or `"dark"` (black regions).
+   * @param options.thresh      Luma threshold that separates foreground from background (default 127).
+   *                            For `foreground: "light"`: pixel is foreground when `r > thresh`.
+   *                            For `foreground: "dark"`:  pixel is foreground when `r <= thresh`.
+   *                            **Use `thresh: 0` when working on a resized binary image** — resizing
+   *                            introduces anti-aliased gray border pixels (values 1–127) that the
+   *                            default threshold would miss, matching OpenCV's behaviour of treating
+   *                            any non-zero pixel as contour-adjacent.
    * @param options.minArea     Ignore regions smaller than this many pixels (default 1).
    * @param options.maxArea     Ignore regions larger than this many pixels (default unlimited).
    * @param options.padding     Expand each detected bbox by a fraction of its **height**.
@@ -285,6 +305,7 @@ export class CanvasProcessor {
   findRegions(
     options: {
       foreground?: "light" | "dark";
+      thresh?: number;
       minArea?: number;
       maxArea?: number;
       padding?: { vertical?: number; horizontal?: number };
@@ -293,6 +314,7 @@ export class CanvasProcessor {
   ): DetectedRegion[] {
     const {
       foreground = "light",
+      thresh = 127,
       minArea = 1,
       maxArea = Infinity,
       padding,
@@ -322,7 +344,7 @@ export class CanvasProcessor {
 
     const isForeground = (pixelIdx: number): boolean => {
       const r = data[pixelIdx]!;
-      return foreground === "light" ? r > 127 : r <= 127;
+      return foreground === "light" ? r > thresh : r <= thresh;
     };
 
     for (let startY = 0; startY < height; startY++) {

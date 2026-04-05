@@ -1,11 +1,17 @@
-// import { CanvasToolkit, Contours, ImageProcessor, cv  } from "ppu-ocv"
-import { CanvasToolkit, Contours, ImageProcessor, cv } from "../src/index";
+// import { CanvasProcessor, CanvasToolkit, Contours, ImageProcessor, cv  } from "ppu-ocv"
+import {
+  CanvasProcessor,
+  CanvasToolkit,
+  Contours,
+  ImageProcessor,
+  cv,
+} from "../src/index";
 
 const file = Bun.file("./assets/receipt.jpg");
 const image = await file.arrayBuffer();
 const DEBUG_FOLDER = "out";
 
-const canvas = await ImageProcessor.prepareCanvas(image);
+const canvas = await CanvasProcessor.prepareCanvas(image);
 await ImageProcessor.initRuntime();
 
 const canvasToolkit = CanvasToolkit.getInstance();
