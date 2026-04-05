@@ -261,13 +261,25 @@ export class CanvasProcessor {
    *                            `"light"` (white regions, default) or `"dark"` (black regions).
    * @param options.minArea     Ignore regions smaller than this many pixels (default 1).
    * @param options.maxArea     Ignore regions larger than this many pixels (default unlimited).
+   * @param options.padding     Expand each detected bbox by a fraction of its **height**.
+   *                            Mirrors `extractBoxesFromContours` padding logic:
+   *                            `vertical` and `horizontal` are both applied as
+   *                            `Math.round(bboxHeight × factor)` and clamped to the canvas bounds.
+   *                            Default: no padding.
+   * @param options.scale       Multiply all bbox coordinates by this factor after padding.
+   *                            Use `originalWidth / processedWidth` (i.e. `1 / resizeRatio`)
+   *                            to convert from a resized canvas back to original image coordinates.
+   *                            Default: 1 (no scaling).
    *
    * @example
    * ```ts
-   * const regions = new CanvasProcessor(binaryCanvas)
-   *   .findRegions({ foreground: "light", minArea: 20 });
-   *
-   * regions.sort((a, b) => b.area - a.area); // largest first
+   * // Direct equivalent of extractBoxesFromContours with default padding:
+   * const regions = new CanvasProcessor(binaryCanvas).findRegions({
+   *   foreground: "light",
+   *   minArea: 20,
+   *   padding: { vertical: 0.4, horizontal: 0.6 },
+   *   scale: originalWidth / processedWidth,
+   * });
    * ```
    */
   findRegions(
@@ -275,9 +287,17 @@ export class CanvasProcessor {
       foreground?: "light" | "dark";
       minArea?: number;
       maxArea?: number;
+      padding?: { vertical?: number; horizontal?: number };
+      scale?: number;
     } = {},
   ): DetectedRegion[] {
-    const { foreground = "light", minArea = 1, maxArea = Infinity } = options;
+    const {
+      foreground = "light",
+      minArea = 1,
+      maxArea = Infinity,
+      padding,
+      scale = 1,
+    } = options;
 
     const { width, height } = this._canvas;
     const data = this._canvas
@@ -345,10 +365,31 @@ export class CanvasProcessor {
         }
 
         if (area >= minArea && area <= maxArea) {
-          regions.push({
-            bbox: { x0: minX, y0: minY, x1: maxX + 1, y1: maxY + 1 },
-            area,
-          });
+          let x0 = minX;
+          let y0 = minY;
+          let x1 = maxX + 1;
+          let y1 = maxY + 1;
+
+          // Apply padding relative to bbox height (mirrors extractBoxesFromContours)
+          if (padding) {
+            const bboxH = y1 - y0;
+            const vPad = Math.round(bboxH * (padding.vertical ?? 0));
+            const hPad = Math.round(bboxH * (padding.horizontal ?? 0));
+            x0 = Math.max(0, x0 - hPad);
+            y0 = Math.max(0, y0 - vPad);
+            x1 = Math.min(width, x1 + hPad);
+            y1 = Math.min(height, y1 + vPad);
+          }
+
+          // Scale coordinates (e.g. processed → original image space)
+          if (scale !== 1) {
+            x0 = Math.max(0, Math.round(x0 * scale));
+            y0 = Math.max(0, Math.round(y0 * scale));
+            x1 = Math.round(x1 * scale);
+            y1 = Math.round(y1 * scale);
+          }
+
+          regions.push({ bbox: { x0, y0, x1, y1 }, area });
         }
       }
     }

@@ -550,4 +550,136 @@ describe("findRegions: canvas-native vs OpenCV Contours", () => {
     // strip is a 10% relative error). 0.85 is a realistic lower bound.
     expect(meanIou).toBeGreaterThanOrEqual(0.85);
   });
+
+  /**
+   * Full pipeline comparison: replicates extractBoxesFromContours() exactly.
+   *
+   * OpenCV pipeline (from production code):
+   *   RETR_LIST + CHAIN_APPROX_SIMPLE
+   *   → filter: rect.width * rect.height > minBoxArea
+   *   → applyPaddingToRect: vPad = round(h * 0.4), hPad = round(h * 0.6)
+   *   → convertToOriginalCoordinates: coords / resizeRatio, clamped
+   *   → filter: width > 5 && height > 5
+   *
+   * Canvas pipeline (using findRegions padding + scale options):
+   *   findRegions({ foreground: "light", minArea, padding, scale })
+   *   → same padding and scale math applied internally
+   *   → filter: width > 5 && height > 5 after scale
+   */
+  test("full extractBoxesFromContours pipeline — padding + scale", async () => {
+    const MIN_BOX_AREA = 20;
+    const PADDING_V = 0.4;
+    const PADDING_H = 0.6;
+
+    // Simulate a resize ratio (processed image is 60% of original size)
+    const RESIZE_RATIO = 0.6;
+    const SCALE = 1 / RESIZE_RATIO;
+
+    const file = Bun.file("./assets/binary-text-detection.png");
+    const original = await CanvasProcessor.prepareCanvas(await file.arrayBuffer());
+
+    // Resize to simulate the processed canvas that gets passed to contour detection
+    const processedW = Math.round(original.width * RESIZE_RATIO);
+    const processedH = Math.round(original.height * RESIZE_RATIO);
+    const processed = createCanvas(processedW, processedH);
+    processed.getContext("2d").drawImage(original, 0, 0, processedW, processedH);
+
+    // ── OpenCV pipeline ───────────────────────────────────────────────────────
+    const ocvProcessed = createCanvas(processedW, processedH);
+    ocvProcessed.getContext("2d").drawImage(processed, 0, 0);
+    const mat = new ImageProcessor(ocvProcessed).grayscale().toMat();
+    const contours = new Contours(mat, {
+      mode: cv.RETR_LIST,
+      method: cv.CHAIN_APPROX_SIMPLE,
+    });
+
+    const ocvBoxes: BoundingBox[] = [];
+    contours.iterate((contour) => {
+      const rect = contours.getRect(contour);
+      if (rect.width * rect.height <= MIN_BOX_AREA) return;
+
+      // applyPaddingToRect
+      const vPad = Math.round(rect.height * PADDING_V);
+      const hPad = Math.round(rect.height * PADDING_H);
+      let px = Math.max(0, rect.x - hPad);
+      let py = Math.max(0, rect.y - vPad);
+      const rightEdge = Math.min(processedW, rect.x + rect.width + hPad);
+      const bottomEdge = Math.min(processedH, rect.y + rect.height + vPad);
+      const pw = rightEdge - px;
+      const ph = bottomEdge - py;
+
+      // convertToOriginalCoordinates
+      const fx = Math.max(0, Math.round(px / RESIZE_RATIO));
+      const fy = Math.max(0, Math.round(py / RESIZE_RATIO));
+      const fw = Math.min(original.width - fx, Math.round(pw / RESIZE_RATIO));
+      const fh = Math.min(original.height - fy, Math.round(ph / RESIZE_RATIO));
+
+      if (fw > 5 && fh > 5) {
+        ocvBoxes.push({ x0: fx, y0: fy, x1: fx + fw, y1: fy + fh });
+      }
+    });
+    contours.destroy();
+    mat.delete();
+
+    // ── Canvas pipeline ───────────────────────────────────────────────────────
+    const canvasRaw = new CanvasProcessor(processed).findRegions({
+      foreground: "light",
+      minArea: MIN_BOX_AREA + 1,
+      padding: { vertical: PADDING_V, horizontal: PADDING_H },
+      scale: SCALE,
+    });
+    const canvasBoxes = canvasRaw
+      .map((r) => r.bbox)
+      .filter((b) => b.x1 - b.x0 > 5 && b.y1 - b.y0 > 5);
+
+    const sortByPos = (boxes: BoundingBox[]) =>
+      [...boxes].sort((a, b) =>
+        a.y0 !== b.y0 ? a.y0 - b.y0 : a.x0 - b.x0,
+      );
+
+    const sortedCanvas = sortByPos(canvasBoxes);
+    const sortedOcv = sortByPos(ocvBoxes);
+
+    console.log(`\n  full pipeline (resize=${RESIZE_RATIO}, padding v=${PADDING_V} h=${PADDING_H}):`);
+    console.log(`    canvas boxes: ${canvasBoxes.length}`);
+    console.log(`    OpenCV boxes: ${ocvBoxes.length}`);
+
+    const iou = (a: BoundingBox, b: BoundingBox): number => {
+      const ix0 = Math.max(a.x0, b.x0), iy0 = Math.max(a.y0, b.y0);
+      const ix1 = Math.min(a.x1, b.x1), iy1 = Math.min(a.y1, b.y1);
+      if (ix1 <= ix0 || iy1 <= iy0) return 0;
+      const inter = (ix1 - ix0) * (iy1 - iy0);
+      const areaA = (a.x1 - a.x0) * (a.y1 - a.y0);
+      const areaB = (b.x1 - b.x0) * (b.y1 - b.y0);
+      return inter / (areaA + areaB - inter);
+    };
+
+    const usedOcv = new Set<number>();
+    let totalIou = 0;
+    let matched = 0;
+    for (const cb of sortedCanvas) {
+      let best = 0, bestIdx = -1;
+      for (let i = 0; i < sortedOcv.length; i++) {
+        if (usedOcv.has(i)) continue;
+        const score = iou(cb, sortedOcv[i]!);
+        if (score > best) { best = score; bestIdx = i; }
+      }
+      if (bestIdx >= 0 && best > 0.5) {
+        usedOcv.add(bestIdx);
+        totalIou += best;
+        matched++;
+      }
+    }
+    const meanIou = matched > 0 ? totalIou / matched : 0;
+
+    console.log(`    matched: ${matched}  unmatched canvas: ${canvasBoxes.length - matched}  unmatched ocv: ${ocvBoxes.length - matched}`);
+    console.log(`    mean IoU: ${(meanIou * 100).toFixed(2)}%`);
+
+    // After padding and 1/resizeRatio scaling, ±1px boundary differences at
+    // the processed scale become ±1.7px at original scale, reducing IoU more
+    // than the raw bbox comparison. 0.75 is a realistic floor for this pipeline.
+    expect(canvasBoxes.length - matched).toBeLessThanOrEqual(3);
+    expect(ocvBoxes.length - matched).toBeLessThanOrEqual(3);
+    expect(meanIou).toBeGreaterThanOrEqual(0.75);
+  });
 });
