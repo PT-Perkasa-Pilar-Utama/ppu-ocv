@@ -15,4 +15,4 @@ export {
   CanvasToolkitBase,
   type ContourLike,
 } from "./canvas-toolkit.base.js";
-export { CanvasProcessor } from "./canvas-processor.js";
+export { CanvasProcessor, type DetectedRegion } from "./canvas-processor.js";

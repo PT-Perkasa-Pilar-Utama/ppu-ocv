@@ -251,12 +251,59 @@ See: [How to extend ppu-ocv operations](./docs/how-to-extend-ppu-ocv-operations.
 
 #### `CanvasProcessor`
 
-Canvas I/O utilities with **no OpenCV dependency**. Available from all entry points including `ppu-ocv/canvas` and `ppu-ocv/canvas-web`.
+Canvas-native image processing with **no OpenCV dependency**. Available from all entry points including `ppu-ocv/canvas` and `ppu-ocv/canvas-web`. Provides a chainable instance API alongside static I/O helpers.
+
+```ts
+const result = new CanvasProcessor(canvas)
+  .resize({ width: 360, height: 640 })
+  .grayscale()
+  .threshold({ thresh: 127 })
+  .invert()
+  .border({ size: 10, color: "white" })
+  .toCanvas();
+
+// Detect connected white regions on a binary image
+const regions = new CanvasProcessor(binaryCanvas).findRegions({
+  foreground: "light",
+  minArea: 20,
+});
+regions.sort((a, b) => b.area - a.area); // largest first
+// regions[0] → { bbox: { x0, y0, x1, y1 }, area }
+```
+
+**Static I/O**
 
 | Method                 | Args        | Description                                           |
 | ---------------------- | ----------- | ----------------------------------------------------- |
 | static `prepareCanvas` | ArrayBuffer | Load image bytes into a `CanvasLike`                  |
 | static `prepareBuffer` | CanvasLike  | Export a `CanvasLike` to an `ArrayBuffer` (PNG bytes) |
+
+**Instance operations** (chainable, return `this`)
+
+| Method      | Options                            | OpenCV equivalent         | Fidelity       |
+| ----------- | ---------------------------------- | ------------------------- | -------------- |
+| `resize`    | `width`, `height`                  | `cv.resize` INTER_LINEAR  | 1:1 (↓), ≈ (↑) |
+| `grayscale` | —                                  | `COLOR_RGBA2GRAY`         | **1:1**        |
+| `convert`   | `alpha?`, `beta?`                  | `Mat.convertTo` (α·x + β) | **1:1**        |
+| `invert`    | —                                  | `cv.bitwise_not`          | **1:1** ¹      |
+| `threshold` | `thresh?` (127), `maxValue?` (255) | `THRESH_BINARY`           | **1:1**        |
+| `border`    | `size?` (10), `color?` (CSS)       | `BORDER_CONSTANT`         | **1:1**        |
+| `rotate`    | `angle`, `cx?`, `cy?`              | `warpAffine`              | ≈ (±6 px) ²    |
+| `toCanvas`  | —                                  | —                         | —              |
+
+**Region detection** (returns data, does not mutate)
+
+| Method        | Options                                          | Description                                                  |
+| ------------- | ------------------------------------------------ | ------------------------------------------------------------ |
+| `findRegions` | `foreground?` (`"light"`), `minArea?`, `maxArea?` | 8-connected flood-fill on a binary canvas → `DetectedRegion[]` |
+
+`DetectedRegion` shape: `{ bbox: BoundingBox, area: number }` where `bbox` is `{ x0, y0, x1, y1 }` (x1/y1 exclusive). Equivalent to OpenCV's `findContours(RETR_EXTERNAL) + boundingRect` — all matched bboxes agree within ±1 px on solid binary images. ³
+
+> ¹ Canvas `invert` preserves the alpha channel; OpenCV `bitwise_not` also inverts alpha. Results are identical when the source is opaque (alpha=255).
+>
+> ² Canvas uses anti-aliased bilinear interpolation; OpenCV uses plain bilinear. Difference is visually imperceptible and has no impact on OCR quality.
+>
+> ³ `RETR_LIST` may return additional inner-hole contours for white regions that contain dark sub-regions; `findRegions` counts each connected white component once regardless of interior holes.
 
 #### `ImageProcessor`
 

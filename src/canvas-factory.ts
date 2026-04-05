@@ -32,6 +32,12 @@ export interface Context2DLike {
   strokeRect(x: number, y: number, w: number, h: number): void;
   strokeStyle: string | CanvasGradient | CanvasPattern;
   lineWidth: number;
+  fillStyle: string | CanvasGradient | CanvasPattern;
+  fillRect(x: number, y: number, w: number, h: number): void;
+  save(): void;
+  restore(): void;
+  translate(x: number, y: number): void;
+  rotate(angle: number): void;
 }
 
 /** Platform-specific canvas operations */
