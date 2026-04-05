@@ -1,14 +1,20 @@
 import { beforeAll, expect, test } from "bun:test";
-import { Canvas, createCanvas, cv, ImageProcessor } from "../src/index.js";
+import {
+  Canvas,
+  CanvasProcessor,
+  createCanvas,
+  cv,
+  ImageProcessor,
+} from "../src/index.js";
 
 beforeAll(async () => {
   await ImageProcessor.initRuntime();
 });
 
-test("prepareCanvas creates a canvas from an image file", async () => {
+test("CanvasProcessor.prepareCanvas creates a canvas from an image file", async () => {
   const file = Bun.file("./assets/receipt.jpg");
   const image = await file.arrayBuffer();
-  const canvas = await ImageProcessor.prepareCanvas(image);
+  const canvas = await CanvasProcessor.prepareCanvas(image);
 
   expect(canvas).toBeInstanceOf(Canvas);
   expect(canvas.width).toBe(720);

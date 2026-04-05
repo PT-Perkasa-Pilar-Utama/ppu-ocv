@@ -151,12 +151,31 @@
       border-right: 1px solid var(--border);
       background: var(--bg-secondary);
       overflow-y: auto;
-      padding: 1rem;
+      display: flex; flex-direction: column;
     }
 
     .sidebar::-webkit-scrollbar { width: 4px; }
     .sidebar::-webkit-scrollbar-track { background: transparent; }
     .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* --- Mode Tabs --- */
+    .mode-tabs {
+      display: flex; border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .mode-tab {
+      flex: 1; padding: 0.6rem 0.5rem;
+      font-size: 0.75rem; font-weight: 600;
+      text-align: center; cursor: pointer;
+      color: var(--text-muted); background: none; border: none;
+      font-family: inherit; transition: all var(--transition);
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+    }
+    .mode-tab:hover { color: var(--text-secondary); }
+    .mode-tab.active { color: var(--accent-secondary); border-bottom-color: var(--accent); }
+
+    .sidebar-panel { padding: 1rem; flex: 1; }
+    .sidebar-panel.hidden { display: none; }
 
     .section-title {
       font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
@@ -211,6 +230,54 @@
       background: var(--accent); cursor: pointer; box-shadow: 0 0 0 3px var(--accent-glow);
     }
 
+    /* --- Deskew sidebar --- */
+    .deskew-settings { display: flex; flex-direction: column; gap: 0.6rem; }
+
+    .deskew-field {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); padding: 0.55rem 0.7rem;
+    }
+
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .toggle-label { font-size: 0.78rem; font-weight: 500; color: var(--text-primary); }
+    .toggle-desc { font-size: 0.68rem; color: var(--text-muted); margin-top: 0.15rem; }
+
+    .toggle {
+      position: relative; width: 32px; height: 18px; flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute; inset: 0; background: var(--border);
+      border-radius: 100px; cursor: pointer; transition: background var(--transition);
+    }
+    .toggle-track::before {
+      content: ''; position: absolute; width: 12px; height: 12px;
+      left: 3px; top: 3px; background: white; border-radius: 50%;
+      transition: transform var(--transition);
+    }
+    .toggle input:checked + .toggle-track { background: var(--accent); }
+    .toggle input:checked + .toggle-track::before { transform: translateX(14px); }
+
+    .deskew-result-info {
+      margin-top: 0.75rem; padding: 0.6rem 0.75rem;
+      background: var(--bg-primary); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); display: none;
+    }
+    .deskew-result-info.visible { display: block; }
+    .deskew-angle-label {
+      font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 0.05em; font-weight: 600;
+    }
+    .deskew-angle-value {
+      font-size: 1.4rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-secondary); line-height: 1.2; margin-top: 0.1rem;
+    }
+    .deskew-angle-sub {
+      font-size: 0.68rem; color: var(--text-muted); margin-top: 0.2rem;
+    }
+
     /* --- Content Area --- */
     .content {
       display: flex; flex-direction: column;
@@ -255,6 +322,14 @@
       backdrop-filter: blur(8px); border-radius: 100px;
       font-size: 0.65rem; font-family: 'JetBrains Mono', monospace;
       color: var(--success); z-index: 2; display: none;
+    }
+
+    .angle-badge {
+      position: absolute; bottom: 0.6rem; left: 0.6rem;
+      padding: 0.2rem 0.7rem; background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px); border-radius: 100px;
+      font-size: 0.65rem; font-family: 'JetBrains Mono', monospace;
+      color: var(--warning); z-index: 2; display: none;
     }
 
     /* --- Code Section (bottom, full width) --- */
@@ -330,7 +405,7 @@
     <div class="topbar-brand">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/></svg>
       ppu-ocv
-      <span class="topbar-badge">v2.0.0</span>
+      <span class="topbar-badge">v3.0.0</span>
       <div class="topbar-links">
         <a href="https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv" target="_blank" rel="noopener noreferrer" title="GitHub">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
@@ -359,65 +434,110 @@
 
   <!-- App Layout -->
   <div class="app">
-    <!-- Sidebar: Pipeline Config -->
+    <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="section-title">Pipeline Operations</div>
-      <ul class="pipeline-list">
-        <li class="pipeline-item active">
-          <input class="pipeline-checkbox" type="checkbox" id="op-grayscale" checked />
-          <label class="pipeline-label" for="op-grayscale">Grayscale</label>
-          <span class="pipeline-order">1</span>
-        </li>
-        <li class="pipeline-item active">
-          <input class="pipeline-checkbox" type="checkbox" id="op-blur" checked />
-          <label class="pipeline-label" for="op-blur">Gaussian Blur</label>
-          <span class="pipeline-order">2</span>
-          <div class="param-group">
-            <div class="param-row">
-              <span class="param-label">size</span>
-              <span class="param-value" id="blur-val">5</span>
+      <!-- Mode tabs -->
+      <div class="mode-tabs">
+        <button class="mode-tab active" id="tab-pipeline">Pipeline</button>
+        <button class="mode-tab" id="tab-deskew">Deskew</button>
+      </div>
+
+      <!-- Pipeline panel -->
+      <div class="sidebar-panel" id="panel-pipeline">
+        <div class="section-title">Pipeline Operations</div>
+        <ul class="pipeline-list">
+          <li class="pipeline-item active">
+            <input class="pipeline-checkbox" type="checkbox" id="op-grayscale" checked />
+            <label class="pipeline-label" for="op-grayscale">Grayscale</label>
+            <span class="pipeline-order">1</span>
+          </li>
+          <li class="pipeline-item active">
+            <input class="pipeline-checkbox" type="checkbox" id="op-blur" checked />
+            <label class="pipeline-label" for="op-blur">Gaussian Blur</label>
+            <span class="pipeline-order">2</span>
+            <div class="param-group">
+              <div class="param-row">
+                <span class="param-label">size</span>
+                <span class="param-value" id="blur-val">5</span>
+              </div>
+              <input class="param-slider" type="range" id="blur-size" min="1" max="31" step="2" value="5" />
             </div>
-            <input class="param-slider" type="range" id="blur-size" min="1" max="31" step="2" value="5" />
-          </div>
-        </li>
-        <li class="pipeline-item active">
-          <input class="pipeline-checkbox" type="checkbox" id="op-threshold" checked />
-          <label class="pipeline-label" for="op-threshold">Threshold</label>
-          <span class="pipeline-order">3</span>
-        </li>
-        <li class="pipeline-item">
-          <input class="pipeline-checkbox" type="checkbox" id="op-invert" />
-          <label class="pipeline-label" for="op-invert">Invert</label>
-          <span class="pipeline-order">4</span>
-        </li>
-        <li class="pipeline-item">
-          <input class="pipeline-checkbox" type="checkbox" id="op-canny" />
-          <label class="pipeline-label" for="op-canny">Canny Edge</label>
-          <span class="pipeline-order">5</span>
-        </li>
-        <li class="pipeline-item">
-          <input class="pipeline-checkbox" type="checkbox" id="op-dilate" />
-          <label class="pipeline-label" for="op-dilate">Dilate</label>
-          <span class="pipeline-order">6</span>
-          <div class="param-group">
-            <div class="param-row">
-              <span class="param-label">size</span>
-              <span class="param-value" id="dilate-val">3</span>
+          </li>
+          <li class="pipeline-item active">
+            <input class="pipeline-checkbox" type="checkbox" id="op-threshold" checked />
+            <label class="pipeline-label" for="op-threshold">Threshold</label>
+            <span class="pipeline-order">3</span>
+          </li>
+          <li class="pipeline-item">
+            <input class="pipeline-checkbox" type="checkbox" id="op-invert" />
+            <label class="pipeline-label" for="op-invert">Invert</label>
+            <span class="pipeline-order">4</span>
+          </li>
+          <li class="pipeline-item">
+            <input class="pipeline-checkbox" type="checkbox" id="op-canny" />
+            <label class="pipeline-label" for="op-canny">Canny Edge</label>
+            <span class="pipeline-order">5</span>
+          </li>
+          <li class="pipeline-item">
+            <input class="pipeline-checkbox" type="checkbox" id="op-dilate" />
+            <label class="pipeline-label" for="op-dilate">Dilate</label>
+            <span class="pipeline-order">6</span>
+            <div class="param-group">
+              <div class="param-row">
+                <span class="param-label">size</span>
+                <span class="param-value" id="dilate-val">3</span>
+              </div>
+              <input class="param-slider" type="range" id="dilate-size" min="1" max="21" step="2" value="3" />
             </div>
-            <input class="param-slider" type="range" id="dilate-size" min="1" max="21" step="2" value="3" />
+          </li>
+          <li class="pipeline-item">
+            <input class="pipeline-checkbox" type="checkbox" id="op-erode" />
+            <label class="pipeline-label" for="op-erode">Erode</label>
+            <span class="pipeline-order">7</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Deskew panel -->
+      <div class="sidebar-panel hidden" id="panel-deskew">
+        <div class="section-title">Deskew Settings</div>
+        <div class="deskew-settings">
+
+          <div class="deskew-field">
+            <div class="param-row">
+              <span class="param-label">minimumAreaThreshold</span>
+              <span class="param-value" id="deskew-area-val">20</span>
+            </div>
+            <input class="param-slider" type="range" id="deskew-area" min="5" max="200" step="5" value="20" />
+            <div class="toggle-desc" style="margin-top:0.3rem;">Min contour area (px) for text region detection</div>
           </div>
-        </li>
-        <li class="pipeline-item">
-          <input class="pipeline-checkbox" type="checkbox" id="op-erode" />
-          <label class="pipeline-label" for="op-erode">Erode</label>
-          <span class="pipeline-order">7</span>
-        </li>
-      </ul>
+
+          <div class="deskew-field">
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">Verbose</div>
+                <div class="toggle-desc">Log analysis steps to console</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="deskew-verbose" />
+                <span class="toggle-track"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="deskew-result-info" id="deskew-result-info">
+            <div class="deskew-angle-label">Detected Skew</div>
+            <div class="deskew-angle-value" id="deskew-angle-value">—</div>
+            <div class="deskew-angle-sub" id="deskew-angle-sub"></div>
+          </div>
+
+        </div>
+      </div>
     </aside>
 
     <!-- Main Content -->
     <div class="content">
-      <!-- Canvas Results (always visible) -->
+      <!-- Canvas Results -->
       <div class="canvas-area">
         <div class="canvas-panel" id="original-panel">
           <div class="canvas-label">Original</div>
@@ -426,9 +546,10 @@
             <p>Upload an image to begin</p>
           </div>
           <canvas id="original-canvas" style="display:none;"></canvas>
+          <div class="angle-badge" id="angle-badge"></div>
         </div>
         <div class="canvas-panel" id="result-panel">
-          <div class="canvas-label">Processed</div>
+          <div class="canvas-label" id="result-label">Processed</div>
           <div class="placeholder" id="result-placeholder">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7m0-18H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7m0-18v18"/></svg>
             <p>Result will appear here</p>
@@ -438,7 +559,7 @@
         </div>
       </div>
 
-      <!-- Code Preview (full width, bottom) -->
+      <!-- Code Preview -->
       <div class="code-section">
         <div class="code-header">
           <span class="code-title">Generated Code</span>
@@ -448,50 +569,66 @@
           </button>
         </div>
         <pre class="code-block" id="code-preview"></pre>
-        <!-- Hidden element for copy-to-clipboard (plain text) -->
         <textarea id="code-raw" style="position:absolute;left:-9999px;" aria-hidden="true"></textarea>
       </div>
     </div>
   </div>
 
   <script type="module">
-    let ImageProcessor, cv;
+    let ImageProcessor, CanvasProcessor, DeskewService, cv;
     try {
       // Try local build first (for development)
       const local = await import('./lib/index.web.js');
       ImageProcessor = local.ImageProcessor;
+      CanvasProcessor = local.CanvasProcessor;
+      DeskewService = local.DeskewService;
       cv = local.cv;
     } catch (e) {
       // Fallback to npm CDN if local build is missing or deployed to GH Pages
       console.log("Local build not found, falling back to CDN...");
-      const cdn = await import('https://cdn.jsdelivr.net/npm/ppu-ocv@2/index.web.js');
+      const cdn = await import('https://cdn.jsdelivr.net/npm/ppu-ocv@3/index.web.js');
       ImageProcessor = cdn.ImageProcessor;
+      CanvasProcessor = cdn.CanvasProcessor;
+      DeskewService = cdn.DeskewService;
       cv = cdn.cv;
     }
 
     // -- DOM refs --
-    const btnUpload         = document.getElementById('btn-upload');
-    const fileInput         = document.getElementById('file-input');
-    const fileNameEl        = document.getElementById('file-name');
-    const btnProcess        = document.getElementById('btn-process');
-    const statusDot         = document.getElementById('status-dot');
-    const statusText        = document.getElementById('status-text');
-    const originalCanvas    = document.getElementById('original-canvas');
-    const resultCanvas      = document.getElementById('result-canvas');
-    const origPlaceholder   = document.getElementById('original-placeholder');
-    const resultPlaceholder = document.getElementById('result-placeholder');
-    const codePreview       = document.getElementById('code-preview');
-    const codeRaw           = document.getElementById('code-raw');
-    const timingBadge       = document.getElementById('timing-badge');
-    const blurSlider        = document.getElementById('blur-size');
-    const blurValEl         = document.getElementById('blur-val');
-    const dilateSlider      = document.getElementById('dilate-size');
-    const dilateValEl       = document.getElementById('dilate-val');
-    const dropOverlay       = document.getElementById('drop-overlay');
-    const btnCopy           = document.getElementById('btn-copy');
-    const copyLabel         = document.getElementById('copy-label');
+    const btnUpload          = document.getElementById('btn-upload');
+    const fileInput          = document.getElementById('file-input');
+    const fileNameEl         = document.getElementById('file-name');
+    const btnProcess         = document.getElementById('btn-process');
+    const statusDot          = document.getElementById('status-dot');
+    const statusText         = document.getElementById('status-text');
+    const originalCanvas     = document.getElementById('original-canvas');
+    const resultCanvas       = document.getElementById('result-canvas');
+    const origPlaceholder    = document.getElementById('original-placeholder');
+    const resultPlaceholder  = document.getElementById('result-placeholder');
+    const resultLabel        = document.getElementById('result-label');
+    const codePreview        = document.getElementById('code-preview');
+    const codeRaw            = document.getElementById('code-raw');
+    const timingBadge        = document.getElementById('timing-badge');
+    const angleBadge         = document.getElementById('angle-badge');
+    const blurSlider         = document.getElementById('blur-size');
+    const blurValEl          = document.getElementById('blur-val');
+    const dilateSlider       = document.getElementById('dilate-size');
+    const dilateValEl        = document.getElementById('dilate-val');
+    const dropOverlay        = document.getElementById('drop-overlay');
+    const btnCopy            = document.getElementById('btn-copy');
+    const copyLabel          = document.getElementById('copy-label');
+    const tabPipeline        = document.getElementById('tab-pipeline');
+    const tabDeskew          = document.getElementById('tab-deskew');
+    const panelPipeline      = document.getElementById('panel-pipeline');
+    const panelDeskew        = document.getElementById('panel-deskew');
+    const deskewAreaSlider   = document.getElementById('deskew-area');
+    const deskewAreaValEl    = document.getElementById('deskew-area-val');
+    const deskewVerbose      = document.getElementById('deskew-verbose');
+    const deskewResultInfo   = document.getElementById('deskew-result-info');
+    const deskewAngleValue   = document.getElementById('deskew-angle-value');
+    const deskewAngleSub     = document.getElementById('deskew-angle-sub');
 
     let loadedImage = null;
+    let currentMode = 'pipeline'; // 'pipeline' | 'deskew'
 
     // -- Init OpenCV --
     try {
@@ -505,6 +642,23 @@
     function setStatus(state, text) {
       statusDot.className = 'status-dot ' + state;
       statusText.textContent = text;
+    }
+
+    // -- Mode tabs --
+    tabPipeline.addEventListener('click', () => setMode('pipeline'));
+    tabDeskew.addEventListener('click', () => setMode('deskew'));
+
+    function setMode(mode) {
+      currentMode = mode;
+      tabPipeline.classList.toggle('active', mode === 'pipeline');
+      tabDeskew.classList.toggle('active', mode === 'deskew');
+      panelPipeline.classList.toggle('hidden', mode !== 'pipeline');
+      panelDeskew.classList.toggle('hidden', mode !== 'deskew');
+      btnProcess.textContent = mode === 'deskew' ? '▶ Deskew' : '▶ Process';
+      resultLabel.textContent = mode === 'deskew' ? 'Deskewed' : 'Processed';
+      angleBadge.style.display = 'none';
+      timingBadge.style.display = 'none';
+      updateCodePreview();
     }
 
     // -- Upload --
@@ -543,6 +697,11 @@
         origPlaceholder.style.display = 'none';
         URL.revokeObjectURL(url);
         btnProcess.disabled = false;
+        deskewResultInfo.classList.remove('visible');
+        angleBadge.style.display = 'none';
+        timingBadge.style.display = 'none';
+        resultCanvas.style.display = 'none';
+        resultPlaceholder.style.display = '';
         setStatus('ready', `${img.width}×${img.height}`);
       };
       img.src = url;
@@ -551,6 +710,8 @@
     // -- Sliders --
     blurSlider.addEventListener('input', () => { blurValEl.textContent = blurSlider.value; updateCodePreview(); });
     dilateSlider.addEventListener('input', () => { dilateValEl.textContent = dilateSlider.value; updateCodePreview(); });
+    deskewAreaSlider.addEventListener('input', () => { deskewAreaValEl.textContent = deskewAreaSlider.value; updateCodePreview(); });
+    deskewVerbose.addEventListener('change', () => updateCodePreview());
 
     // -- Checkboxes --
     document.querySelectorAll('.pipeline-checkbox').forEach((cb) => {
@@ -560,7 +721,7 @@
       });
     });
 
-    // -- Steps --
+    // -- Pipeline steps --
     function getActiveSteps() {
       const steps = [];
       if (document.getElementById('op-grayscale').checked) steps.push({ name: 'grayscale' });
@@ -581,11 +742,23 @@
 
     // -- Code preview --
     function updateCodePreview() {
+      if (currentMode === 'deskew') {
+        updateDeskewCodePreview();
+      } else {
+        updatePipelineCodePreview();
+      }
+    }
+
+    function updatePipelineCodePreview() {
       const steps = getActiveSteps();
-      let raw = `import { ImageProcessor } from "ppu-ocv/web";\n\n`;
+      let raw = `import { CanvasProcessor, ImageProcessor } from "ppu-ocv/web";\n\n`;
+      raw += `await ImageProcessor.initRuntime();\n`;
+      raw += `const canvas = await CanvasProcessor.prepareCanvas(buffer);\n\n`;
       raw += `const processor = new ImageProcessor(canvas);\n`;
 
-      let html = `<span class="kw">import</span> { ImageProcessor } <span class="kw">from</span> <span class="str">"ppu-ocv/web"</span>;\n\n`;
+      let html = `<span class="kw">import</span> { CanvasProcessor, ImageProcessor } <span class="kw">from</span> <span class="str">"ppu-ocv/web"</span>;\n\n`;
+      html += `<span class="kw">await</span> ImageProcessor.<span class="fn">initRuntime</span>();\n`;
+      html += `<span class="kw">const</span> canvas = <span class="kw">await</span> CanvasProcessor.<span class="fn">prepareCanvas</span>(buffer);\n\n`;
       html += `<span class="kw">const</span> processor = <span class="kw">new</span> <span class="fn">ImageProcessor</span>(canvas);\n`;
 
       if (steps.length === 0) {
@@ -614,6 +787,40 @@
       codeRaw.value = raw;
     }
 
+    function updateDeskewCodePreview() {
+      const area = deskewAreaSlider.value;
+      const verbose = deskewVerbose.checked;
+
+      const optsObj = { minimumAreaThreshold: parseInt(area), ...(verbose ? { verbose: true } : {}) };
+      const optsStr = JSON.stringify(optsObj, null, 2);
+
+      let raw = `import { CanvasProcessor, DeskewService, ImageProcessor } from "ppu-ocv/web";\n\n`;
+      raw += `await ImageProcessor.initRuntime();\n`;
+      raw += `const canvas = await CanvasProcessor.prepareCanvas(buffer);\n\n`;
+      raw += `const service = new DeskewService(${optsStr});\n\n`;
+      raw += `// Detect skew angle only\n`;
+      raw += `const angle = await service.calculateSkewAngle(canvas);\n\n`;
+      raw += `// Or deskew the image directly\n`;
+      raw += `const deskewed = await service.deskewImage(canvas);`;
+
+      const htmlOpts = optsStr
+        .replace(/("minimumAreaThreshold"|"verbose")/g, '<span class="str">$1</span>')
+        .replace(/:\s*(\d+)/g, ': <span class="num">$1</span>')
+        .replace(/:\s*(true|false)/g, ': <span class="kw">$1</span>');
+
+      let html = `<span class="kw">import</span> { CanvasProcessor, DeskewService, ImageProcessor } <span class="kw">from</span> <span class="str">"ppu-ocv/web"</span>;\n\n`;
+      html += `<span class="kw">await</span> ImageProcessor.<span class="fn">initRuntime</span>();\n`;
+      html += `<span class="kw">const</span> canvas = <span class="kw">await</span> CanvasProcessor.<span class="fn">prepareCanvas</span>(buffer);\n\n`;
+      html += `<span class="kw">const</span> service = <span class="kw">new</span> <span class="fn">DeskewService</span>(${htmlOpts});\n\n`;
+      html += `<span class="cm">// Detect skew angle only</span>\n`;
+      html += `<span class="kw">const</span> angle = <span class="kw">await</span> service.<span class="fn">calculateSkewAngle</span>(canvas);\n\n`;
+      html += `<span class="cm">// Or deskew the image directly</span>\n`;
+      html += `<span class="kw">const</span> deskewed = <span class="kw">await</span> service.<span class="fn">deskewImage</span>(canvas);`;
+
+      codePreview.innerHTML = html;
+      codeRaw.value = raw;
+    }
+
     // -- Copy --
     btnCopy.addEventListener('click', async () => {
       try {
@@ -622,7 +829,6 @@
         btnCopy.classList.add('copied');
         setTimeout(() => { copyLabel.textContent = 'Copy'; btnCopy.classList.remove('copied'); }, 1500);
       } catch {
-        // Fallback
         codeRaw.select();
         document.execCommand('copy');
         copyLabel.textContent = 'Copied!';
@@ -633,6 +839,14 @@
     // -- Process --
     btnProcess.addEventListener('click', async () => {
       if (!loadedImage) return;
+      if (currentMode === 'deskew') {
+        await runDeskew();
+      } else {
+        await runPipeline();
+      }
+    });
+
+    async function runPipeline() {
       const steps = getActiveSteps();
       if (steps.length === 0) { setStatus('error', 'Select an operation'); return; }
 
@@ -659,6 +873,7 @@
         resultPlaceholder.style.display = 'none';
         resultCanvas.className = 'fade-in';
 
+        angleBadge.style.display = 'none';
         timingBadge.textContent = `${elapsed} ms`;
         timingBadge.style.display = 'block';
 
@@ -670,7 +885,62 @@
       } finally {
         btnProcess.disabled = false;
       }
-    });
+    }
+
+    async function runDeskew() {
+      btnProcess.disabled = true;
+      setStatus('loading', 'Analysing skew…');
+      await new Promise(r => requestAnimationFrame(r));
+
+      try {
+        const t0 = performance.now();
+
+        // Build source canvas from the loaded image
+        const srcCanvas = document.createElement('canvas');
+        srcCanvas.width = loadedImage.width;
+        srcCanvas.height = loadedImage.height;
+        srcCanvas.getContext('2d').drawImage(loadedImage, 0, 0);
+
+        const service = new DeskewService({
+          minimumAreaThreshold: parseInt(deskewAreaSlider.value),
+          verbose: deskewVerbose.checked,
+        });
+
+        const angle = await service.calculateSkewAngle(srcCanvas);
+        const deskewed = await service.deskewImage(srcCanvas);
+        const elapsed = (performance.now() - t0).toFixed(1);
+
+        // Show deskewed result
+        resultCanvas.width = deskewed.width;
+        resultCanvas.height = deskewed.height;
+        resultCanvas.getContext('2d').drawImage(deskewed, 0, 0);
+        resultCanvas.style.display = 'block';
+        resultPlaceholder.style.display = 'none';
+        resultCanvas.className = 'fade-in';
+
+        // Angle badge on original
+        const sign = angle > 0 ? '+' : '';
+        angleBadge.textContent = `Skew: ${sign}${angle.toFixed(2)}°`;
+        angleBadge.style.display = 'block';
+
+        timingBadge.textContent = `${elapsed} ms`;
+        timingBadge.style.display = 'block';
+
+        // Sidebar result info
+        deskewAngleValue.textContent = `${sign}${angle.toFixed(2)}°`;
+        deskewAngleSub.textContent = angle === 0
+          ? 'No skew detected'
+          : `Rotated by ${sign}${(-angle).toFixed(2)}° to correct`;
+        deskewResultInfo.classList.add('visible');
+
+        setStatus('ready', `Deskewed in ${elapsed}ms`);
+      } catch (err) {
+        console.error(err);
+        setStatus('error', err.message);
+      } finally {
+        btnProcess.disabled = false;
+      }
+    }
 
     updateCodePreview();
   </script>

@@ -7,6 +7,7 @@ import {
 } from "../src/canvas-factory.js";
 import { CanvasToolkitBase } from "../src/canvas-toolkit.base.js";
 import { nodePlatform } from "../src/platform/node.js";
+import { CanvasProcessor } from "../src/canvas-processor.js";
 
 // Ensure nodePlatform is set before any tests
 beforeAll(async () => {
@@ -160,8 +161,7 @@ describe("ImageProcessor with platform abstraction", () => {
     processor.destroy();
   });
 
-  test("prepareCanvas returns CanvasLike from ArrayBuffer", async () => {
-    const { ImageProcessor } = await import("../src/index.js");
+  test("CanvasProcessor.prepareCanvas returns CanvasLike from ArrayBuffer", async () => {
     const { createCanvas } = await import("@napi-rs/canvas");
 
     const c = createCanvas(4, 4);
@@ -171,17 +171,16 @@ describe("ImageProcessor with platform abstraction", () => {
     const buf = c.toBuffer("image/png");
     const ab = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
 
-    const prepared = await ImageProcessor.prepareCanvas(ab);
+    const prepared = await CanvasProcessor.prepareCanvas(ab);
     expect(prepared.width).toBe(4);
     expect(prepared.height).toBe(4);
   });
 
-  test("prepareBuffer returns ArrayBuffer from CanvasLike", async () => {
-    const { ImageProcessor } = await import("../src/index.js");
+  test("CanvasProcessor.prepareBuffer returns ArrayBuffer from CanvasLike", async () => {
     const platform = getPlatform();
     const canvas = platform.createCanvas(4, 4);
 
-    const buffer = await ImageProcessor.prepareBuffer(canvas);
+    const buffer = await CanvasProcessor.prepareBuffer(canvas);
     expect(buffer).toBeInstanceOf(ArrayBuffer);
     expect(buffer.byteLength).toBeGreaterThan(0);
   });

@@ -33,6 +33,7 @@ OpenCV is powerful but can be cumbersome to use directly. This library provides:
 4. **Extensibility**: Custom operations for your specific needs without library modifications
 5. **TypeScript Integration**: Full IntelliSense support with parameter validation
 6. **Web Support**: Supports running directly in the browser
+7. **Loosely Coupled**: Canvas utilities are fully decoupled from OpenCV. Usable in Browser Extensions, Service Workers, and other constrained environments where OpenCV cannot be initialised
 
 ## Installation
 
@@ -46,16 +47,16 @@ bun add ppu-ocv
 
 ## Usage (Node.js / Bun)
 
-Note that Operation order is matter, you should atleast know some basic in using OpenCV. See the operations table below this.
+Note that operation order matters — you should have at least basic familiarity with OpenCV. See the operations table below.
 
 ```ts
-import { ImageProcessor } from "ppu-ocv";
+import { CanvasProcessor, ImageProcessor } from "ppu-ocv";
 
 const file = Bun.file("./assets/receipt.jpg");
 const image = await file.arrayBuffer();
 
-const canvas = await ImageProcessor.prepareCanvas(image);
-await ImageProcessor.initRuntime();
+await ImageProcessor.initRuntime(); // init opencv
+const canvas = await CanvasProcessor.prepareCanvas(image);
 
 const processor = new ImageProcessor(canvas);
 processor
@@ -67,22 +68,22 @@ const resultCanvas = processor.toCanvas();
 processor.destroy();
 ```
 
-Or you can do directly via execute api:
+Or use the `execute` API directly:
 
 ```ts
-import { CanvasToolkit, ImageProcessor, cv } from "ppu-ocv";
+import { CanvasProcessor, CanvasToolkit, ImageProcessor, cv } from "ppu-ocv";
 
 const file = Bun.file("./assets/receipt.jpg");
 const image = await file.arrayBuffer();
 
 const canvasToolkit = CanvasToolkit.getInstance();
-const canvas = await ImageProcessor.prepareCanvas(image);
 await ImageProcessor.initRuntime();
+const canvas = await CanvasProcessor.prepareCanvas(image);
 
 const processor = new ImageProcessor(canvas);
 const grayscaleImg = processor.execute("grayscale").toCanvas();
 
-// the pipeline operation continued from grayscaled image
+// The pipeline continues from the grayscaled image
 const thresholdImg = processor
   .execute("blur")
   .execute("threshold", {
@@ -99,22 +100,51 @@ await canvasToolkit.saveImage({
 
 For more advanced usage, see: [Example usage of ppu-ocv](./examples)
 
+## Canvas-only usage (no OpenCV)
+
+Starting from v3.0.0, canvas utilities are fully decoupled from OpenCV. If you only need canvas I/O (e.g. loading/saving images, cropping, drawing) without any image processing, import from `ppu-ocv/canvas` (Node) or `ppu-ocv/canvas-web` (browser). OpenCV is **never imported or initialised** by these entry points, making them safe for use in Browser Extensions, Service Workers, and edge runtimes.
+
+```ts
+// Node.js — zero OpenCV dependency
+import { CanvasProcessor, CanvasToolkit } from "ppu-ocv/canvas";
+
+const file = Bun.file("./assets/image.jpg");
+const canvas = await CanvasProcessor.prepareCanvas(await file.arrayBuffer());
+
+const toolkit = CanvasToolkit.getInstance();
+const cropped = toolkit.crop({
+  canvas,
+  bbox: { x0: 0, y0: 0, x1: 100, y1: 100 },
+});
+
+const buffer = await CanvasProcessor.prepareBuffer(cropped);
+```
+
+```ts
+// Browser Extension background script — zero OpenCV dependency
+import { CanvasProcessor, CanvasToolkit } from "ppu-ocv/canvas-web";
+
+const response = await fetch("/image.jpg");
+const canvas = await CanvasProcessor.prepareCanvas(
+  await response.arrayBuffer(),
+);
+```
+
 ## Web / Browser Support
 
-Starting from v2.0.0, ppu-ocv supports running in the browser. Import from `ppu-ocv/web` instead of `ppu-ocv` to use the browser-native canvas APIs (`HTMLCanvasElement` / `OffscreenCanvas`) instead of `@napi-rs/canvas`.
+Import from `ppu-ocv/web` to use the browser-native canvas APIs (`HTMLCanvasElement` / `OffscreenCanvas`) instead of `@napi-rs/canvas`.
 
 ### With a bundler (Vite, webpack, etc.)
 
 ```ts
-import { ImageProcessor, cv } from "ppu-ocv/web";
+import { CanvasProcessor, ImageProcessor, cv } from "ppu-ocv/web";
 
 await ImageProcessor.initRuntime();
 
-// From a file input or fetch
 const response = await fetch("/my-image.jpg");
 const buffer = await response.arrayBuffer();
 
-const canvas = await ImageProcessor.prepareCanvas(buffer);
+const canvas = await CanvasProcessor.prepareCanvas(buffer);
 const processor = new ImageProcessor(canvas);
 
 processor
@@ -134,8 +164,16 @@ processor.destroy();
 
 ```html
 <script type="module">
-  import { ImageProcessor } from "https://cdn.jsdelivr.net/npm/ppu-ocv@2/index.web.js";
+  import {
+    CanvasProcessor,
+    ImageProcessor,
+  } from "https://cdn.jsdelivr.net/npm/ppu-ocv@3/index.web.js";
   await ImageProcessor.initRuntime();
+
+  const response = await fetch("/my-image.jpg");
+  const canvas = await CanvasProcessor.prepareCanvas(
+    await response.arrayBuffer(),
+  );
 
   const processor = new ImageProcessor(canvas);
   processor
@@ -152,20 +190,18 @@ processor.destroy();
 
 See the [interactive demo](./index.html) for a full working example.
 
-### Node vs Web differences
+### Entry point reference
 
-| Feature          | `ppu-ocv` (Node)                           | `ppu-ocv/web` (Browser)                                  |
-| ---------------- | ------------------------------------------ | -------------------------------------------------------- |
-| Canvas backend   | `@napi-rs/canvas`                          | `HTMLCanvasElement` / `OffscreenCanvas`                  |
-| `CanvasToolkit`  | Full (includes `saveImage`, `clearOutput`) | Base only (`crop`, `isDirty`, `drawLine`, `drawContour`) |
-| File I/O         | ✅ `saveImage`, `clearOutput`              | ❌ Not available (use download links or `toDataURL`)     |
-| `ImageProcessor` | ✅                                         | ✅ Same API                                              |
-| `Contours`       | ✅                                         | ✅ Same API                                              |
-| Image analysis   | ✅                                         | ✅ Same API                                              |
+| Import path          | OpenCV | Canvas backend                        | `CanvasToolkit`      | Use case                                   |
+| -------------------- | ------ | ------------------------------------- | -------------------- | ------------------------------------------ |
+| `ppu-ocv`            | ✅     | `@napi-rs/canvas`                     | Full (with file I/O) | Full pipeline, Node.js / Bun               |
+| `ppu-ocv/web`        | ✅     | `HTMLCanvasElement`/`OffscreenCanvas` | Base only            | Full pipeline, browser                     |
+| `ppu-ocv/canvas`     | ❌     | `@napi-rs/canvas`                     | Full (with file I/O) | Canvas-only, Node (extensions, edge, etc.) |
+| `ppu-ocv/canvas-web` | ❌     | `HTMLCanvasElement`/`OffscreenCanvas` | Base only            | Canvas-only, browser extensions / SW       |
 
 ### Platform abstraction
 
-Under the hood, ppu-ocv uses a platform abstraction layer. The `ppu-ocv` entry point auto-registers the Node platform, and `ppu-ocv/web` auto-registers the browser platform. You can also set a custom platform:
+Under the hood, ppu-ocv uses a platform abstraction layer. Each entry point auto-registers its platform. You can also register a custom platform:
 
 ```ts
 import { setPlatform, type CanvasPlatform } from "ppu-ocv/web";
@@ -207,23 +243,34 @@ To avoid bloat, we only ship essential operations for chaining. Currently shippe
 
 ## Extending operations
 
-You can easily add your own by creating a prototype method or extend the class of `ImageProcessor`.
+You can easily add your own by creating a prototype method or extending the `ImageProcessor` class.
 
 See: [How to extend ppu-ocv operations](./docs/how-to-extend-ppu-ocv-operations.md)
 
 ## Class documentation
 
+#### `CanvasProcessor`
+
+Canvas I/O utilities with **no OpenCV dependency**. Available from all entry points including `ppu-ocv/canvas` and `ppu-ocv/canvas-web`.
+
+| Method                 | Args        | Description                                           |
+| ---------------------- | ----------- | ----------------------------------------------------- |
+| static `prepareCanvas` | ArrayBuffer | Load image bytes into a `CanvasLike`                  |
+| static `prepareBuffer` | CanvasLike  | Export a `CanvasLike` to an `ArrayBuffer` (PNG bytes) |
+
 #### `ImageProcessor`
 
-| Method                 | Args             | Description                                                                 |
-| ---------------------- | ---------------- | --------------------------------------------------------------------------- |
-| constructor            | cv.Mat or Canvas | Instantiate processor with initial image                                    |
-| static `prepareCanvas` | ArrayBuffer      | Utility to load image from file buffer to canvas                            |
-| static `initRuntime`   |                  | Important open-cv runtime initialization, required to call once per runtime |
-| operations             | depends          | Chainable operations like `blur`, `grayscale`, `resize` and so on           |
-| `execute`              | name, options    | Chainable operations directly via `execute` api                             |
-| outputs                |                  | Non-chainable & non-interupting method for output like `toMat`, `toCanvas`  |
-| `destroy`              |                  | Non-chainable clean-up memory to destroy the object and the state           |
+Requires OpenCV. Available from `ppu-ocv` and `ppu-ocv/web`.
+
+| Method               | Args             | Description                                                        |
+| -------------------- | ---------------- | ------------------------------------------------------------------ |
+| constructor          | cv.Mat or Canvas | Instantiate processor with initial image                           |
+| static `initRuntime` |                  | OpenCV runtime initialization — required once per runtime          |
+| operations           | depends          | Chainable operations like `blur`, `grayscale`, `resize`, and so on |
+| `execute`            | name, options    | Chainable operations via the `execute` API                         |
+| `toMat`              |                  | Return the current image as a `cv.Mat`                             |
+| `toCanvas`           |                  | Return the current image as a `CanvasLike`                         |
+| `destroy`            |                  | Clean up `cv.Mat` memory                                           |
 
 #### `CanvasToolkit`
 
@@ -231,31 +278,41 @@ See: [How to extend ppu-ocv operations](./docs/how-to-extend-ppu-ocv-operations.
 | ------------- | ---------------------- | ----------------------------------------------------------------------------------------- |
 | `crop`        | BoundingBox, Canvas    | Crop a part of source canvas and return a new canvas of the cropped part                  |
 | `isDirty`     | Canvas, threshold      | Check whether a binary canvas is dirty (full of major color either black or white) or not |
-| `saveImage`   | Canvas, filename, path | Save a canvas to an image file                                                            |
-| `clearOutput` | path                   | Clear the output folder                                                                   |
+| `saveImage`   | Canvas, filename, path | Save a canvas to an image file _(Node only)_                                              |
+| `clearOutput` | path                   | Clear the output folder _(Node only)_                                                     |
 | `drawLine`    | ctx, coordinate, style | Draw a non-filled rectangle outline on the canvas                                         |
-| `drawContour` | ctx, contour, style    | Draw a contour on the canvas                                                              |
+| `drawContour` | ctx, contour, style    | Draw a contour on the canvas — accepts any `ContourLike` (`{ data32S }`)                  |
+
+#### `DeskewService`
+
+Detects and corrects text skew in document images using a multi-method consensus approach (minAreaRect, baseline analysis, Hough transform). Requires OpenCV. Available from `ppu-ocv` and `ppu-ocv/web`.
+
+| Method               | Args          | Description                          |
+| -------------------- | ------------- | ------------------------------------ |
+| constructor          | DeskewOptions | `verbose`, `minimumAreaThreshold`    |
+| `calculateSkewAngle` | CanvasLike    | Detect skew angle in degrees         |
+| `deskewImage`        | CanvasLike    | Return a deskewed copy of the canvas |
 
 #### `Contours`
 
-| Method                  | Args            | Description                                                                               |
-| ----------------------- | --------------- | ----------------------------------------------------------------------------------------- |
-| constructor             | cv.Mat, options | Instantiate Contours and automatically find & store contour list from args                |
-| `getAll`                |                 | Crop a part of source canvas and return a new canvas of the cropped part                  |
-| `getFromIndex`          | index           | Get contour at a specific index                                                           |
-| `getRect`               |                 | Get the rectangle that bounds the contour                                                 |
-| `iterate`               | callback        | Iterate over all contours and call the callback function for each contour                 |
-| `getLargestContourArea` |                 | Get the largest contour area                                                              |
-| `getCornerPoints`       | Canvas, contour | Get four corner points for a given contour. Useful for perspective transformation (warp). |
-| `destroy`               |                 | Destroy & clean-up the memory from the contours                                           |
+| Method                           | Args            | Description                                                      |
+| -------------------------------- | --------------- | ---------------------------------------------------------------- |
+| constructor                      | cv.Mat, options | Instantiate Contours and automatically find & store contour list |
+| `getAll`                         |                 | Return the full `cv.MatVector` of contours                       |
+| `getFromIndex`                   | index           | Get contour at a specific index                                  |
+| `getRect`                        | contour         | Get the bounding rectangle of a contour                          |
+| `iterate`                        | callback        | Iterate over all contours                                        |
+| `getLargestContourArea`          |                 | Return the contour with the largest area                         |
+| `getCornerPoints`                | options         | Get four corner points for perspective transformation (warp)     |
+| `getApproximateRectangleContour` | options         | Simplify a contour to an approximate rectangle                   |
+| `destroy`                        |                 | Destroy and clean up contour memory                              |
 
 #### `ImageAnalysis`
 
-Just a collection of utility functions for analyzing image properties.
+A collection of utility functions for analyzing image properties (requires OpenCV).
 
-- `calculateMeanNormalizedLabLightness`: Calculates the mean normalized lightness of an image using the L channel of the Lab color space. Lightness is normalized based on the image's own maximum lightness value before averaging.
-
-- `calculateMeanGrayscaleValue`: Calculates the mean pixel value of the image after converting it to grayscale.
+- `calculateMeanNormalizedLabLightness`: Calculates the mean normalized lightness of an image using the L channel of the Lab color space.
+- `calculateMeanGrayscaleValue`: Calculates the mean pixel value after converting to grayscale.
 
 ## Contributing
 
@@ -278,11 +335,9 @@ Ensure that all tests pass before submitting your pull request.
 
 ## Scripts
 
-Recommended development environment is in linux-based environment.
+Recommended development environment is in a Linux-based environment.
 
 Library template: https://github.com/aquapi/lib-template
-
-All script sources and usage.
 
 ### [Build](./scripts/build.ts)
 
@@ -291,6 +346,20 @@ Emit `.js` and `.d.ts` files to [`lib`](./lib).
 ### [Publish](./scripts/publish.ts)
 
 Move [`package.json`](./package.json), [`README.md`](./README.md) to [`lib`](./lib) and publish the package.
+
+## Migrating from v2
+
+See [MIGRATION.md](./MIGRATION.md) for a full guide. The short version:
+
+```diff
+- import { ImageProcessor } from "ppu-ocv";
+- const canvas = await ImageProcessor.prepareCanvas(buffer);
+- const buf    = await ImageProcessor.prepareBuffer(canvas);
+
++ import { CanvasProcessor } from "ppu-ocv";
++ const canvas = await CanvasProcessor.prepareCanvas(buffer);
++ const buf    = await CanvasProcessor.prepareBuffer(canvas);
+```
 
 ## License
 

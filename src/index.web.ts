@@ -23,7 +23,9 @@ export {
 export {
   CanvasToolkitBase as CanvasToolkit,
   CanvasToolkitBase,
+  type ContourLike,
 } from "./canvas-toolkit.base.js";
+export { CanvasProcessor } from "./canvas-processor.js";
 export { Contours } from "./contours.js";
 export {
   calculateMeanGrayscaleValue,
@@ -31,6 +33,7 @@ export {
   type CalculateMeanLightnessOptions,
 } from "./image-analysis.js";
 export { ImageProcessor } from "./image-processor.js";
+export { DeskewService, type DeskewOptions } from "./deskew.js";
 
 export type {
   AdaptiveThresholdOptions,

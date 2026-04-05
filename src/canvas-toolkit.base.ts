@@ -1,7 +1,11 @@
 import type { BoundingBox } from "./index.interface.js";
 import type { CanvasLike, Context2DLike } from "./canvas-factory.js";
 import { getPlatform } from "./canvas-factory.js";
-import { cv } from "./cv-provider.js";
+
+/** Structural interface for contour-like objects with 32-bit signed integer point data */
+export interface ContourLike {
+  data32S: Int32Array | number[];
+}
 
 /**
  * Cross-platform base class for canvas manipulation utilities.
@@ -123,7 +127,7 @@ export class CanvasToolkitBase {
    */
   drawContour(options: {
     ctx: Context2DLike;
-    contour: cv.Mat;
+    contour: ContourLike;
     strokeStyle?: string;
     lineWidth?: number;
   }): void {

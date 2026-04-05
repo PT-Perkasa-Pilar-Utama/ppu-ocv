@@ -53,7 +53,8 @@ export function getPlatform(): CanvasPlatform {
   if (!_platform) {
     throw new Error(
       "No canvas platform registered. " +
-        'Import "ppu-ocv" (Node) or "ppu-ocv/web" (browser) to auto-register.',
+        'Import "ppu-ocv" (Node), "ppu-ocv/web" (browser), ' +
+        '"ppu-ocv/canvas" (Node canvas-only), or "ppu-ocv/canvas-web" (browser canvas-only) to auto-register.',
     );
   }
   return _platform;
