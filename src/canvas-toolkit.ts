@@ -45,7 +45,9 @@ export class CanvasToolkit extends CanvasToolkitBase {
 
     const filePath = join(folderPath, `${this.step++}. ${filename}.png`);
     const out = createWriteStream(filePath);
-    const buffer = canvas.toBuffer!("image/png");
+    if (typeof canvas.toBuffer !== "function")
+      throw new Error("toBuffer not available on this canvas");
+    const buffer = canvas.toBuffer("image/png");
 
     return new Promise<void>((res, rej) => {
       out.write(buffer, (err) => {

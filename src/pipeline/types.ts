@@ -14,21 +14,35 @@ import type { RotateOptions } from "../operations/rotate.js";
 import type { ThresholdOptions } from "../operations/threshold.js";
 import type { WarpOptions } from "../operations/warp.js";
 
+/** The output produced by every pipeline operation: the transformed Mat plus its dimensions. */
 export interface OperationResult {
+  /** Resulting OpenCV Mat after the operation. The caller is responsible for deleting it. */
   img: cv.Mat;
+  /** Width of the resulting image in pixels. */
   width: number;
+  /** Height of the resulting image in pixels. */
   height: number;
 }
 
 declare const RequiredBrand: unique symbol;
+/**
+ * Marker interface for operation options that have no usable defaults and
+ * must be supplied by the caller. Operation option types that extend this
+ * cannot be omitted when calling {@link ImageProcessor.execute}.
+ */
 export interface RequiredOptions {
   [RequiredBrand]?: never;
 }
 declare const PartialBrand: unique symbol;
+/**
+ * Marker interface for operation options that have sensible defaults.
+ * Operation option types that extend this may be omitted or partially supplied.
+ */
 export interface PartialOptions {
   [PartialBrand]?: never;
 }
 
+/** Signature every registered operation function must conform to. */
 export type OperationFunction<T> = (img: cv.Mat, options: T) => OperationResult;
 
 /**
@@ -61,6 +75,8 @@ export interface RegisteredOperations {
   warp: WarpOptions;
 }
 
+/** Union of all registered operation names. Extend {@link RegisteredOperations} to add new ones. */
 export type OperationName = keyof RegisteredOperations;
 
+/** Resolve the options type for a given operation name. */
 export type OperationOptions<N extends OperationName> = RegisteredOperations[N];

@@ -32,7 +32,7 @@ describe("canvas-factory", () => {
         ({ width: 0, height: 0, getContext: () => ({}) }) as unknown as CanvasLike,
       loadImage: async () =>
         ({ width: 0, height: 0, getContext: () => ({}) }) as unknown as CanvasLike,
-      isCanvas: (value: unknown): value is CanvasLike => false,
+      isCanvas: (_value: unknown): _value is CanvasLike => false,
     };
 
     setPlatform(mockPlatform);

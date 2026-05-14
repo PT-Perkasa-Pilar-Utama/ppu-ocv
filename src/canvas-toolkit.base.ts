@@ -17,6 +17,7 @@ export class CanvasToolkitBase {
 
   protected constructor() {}
 
+  /** Return the singleton instance of {@link CanvasToolkitBase}. */
   public static getInstance(): CanvasToolkitBase {
     if (!CanvasToolkitBase._baseInstance) {
       CanvasToolkitBase._baseInstance = new CanvasToolkitBase();
@@ -131,10 +132,10 @@ export class CanvasToolkitBase {
     ctx.lineWidth = lineWidth;
 
     ctx.beginPath();
-    ctx.moveTo(pts[0]!, pts[1]!);
+    ctx.moveTo(pts[0] ?? 0, pts[1] ?? 0);
 
     for (let i = 2; i < pts.length; i += 2) {
-      ctx.lineTo(pts[i]!, pts[i + 1]!);
+      ctx.lineTo(pts[i] ?? 0, pts[i + 1] ?? 0);
     }
 
     ctx.closePath();

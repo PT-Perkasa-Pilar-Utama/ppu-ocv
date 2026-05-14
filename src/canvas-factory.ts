@@ -7,14 +7,19 @@
 export interface CanvasLike {
   width: number;
   height: number;
+  // oxlint-disable-next-line typescript/no-explicit-any -- platform bridging type
   getContext(contextId: "2d"): any;
+  // oxlint-disable-next-line typescript/no-explicit-any -- platform bridging type
   toBuffer?: (...args: any[]) => Buffer;
+  // oxlint-disable-next-line typescript/no-explicit-any -- platform bridging type
   toDataURL?: (...args: any[]) => string;
 }
 
 /** Structural type for 2D rendering context */
 export interface Context2DLike {
+  // oxlint-disable-next-line typescript/no-explicit-any -- platform bridging type
   canvas: any;
+  // oxlint-disable-next-line typescript/no-explicit-any -- platform bridging type
   drawImage(...args: any[]): void;
   getImageData(
     sx: number,
@@ -22,7 +27,9 @@ export interface Context2DLike {
     sw: number,
     sh: number
   ): { data: Uint8ClampedArray; width: number; height: number };
+  // oxlint-disable-next-line typescript/no-explicit-any, typescript/explicit-module-boundary-types -- platform bridging type
   putImageData(imageData: any, dx: number, dy: number): void;
+  // oxlint-disable-next-line typescript/no-explicit-any -- platform bridging type
   createImageData(width: number, height: number): any;
   beginPath(): void;
   closePath(): void;

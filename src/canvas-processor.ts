@@ -49,14 +49,17 @@ export interface DetectedRegion {
 export class CanvasProcessor {
   private _canvas: CanvasLike;
 
+  /** Create a processor wrapping the given canvas. */
   constructor(source: CanvasLike) {
     this._canvas = source;
   }
 
+  /** Current canvas width in pixels. */
   get width(): number {
     return this._canvas.width;
   }
 
+  /** Current canvas height in pixels. */
   get height(): number {
     return this._canvas.height;
   }
@@ -86,7 +89,9 @@ export class CanvasProcessor {
     const d = imageData.data;
 
     for (let i = 0; i < d.length; i += 4) {
-      const luma = Math.round(0.299 * d[i]! + 0.587 * d[i + 1]! + 0.114 * d[i + 2]!);
+      const luma = Math.round(
+        0.299 * (d[i] ?? 0) + 0.587 * (d[i + 1] ?? 0) + 0.114 * (d[i + 2] ?? 0)
+      );
       d[i] = luma;
       d[i + 1] = luma;
       d[i + 2] = luma;
@@ -121,9 +126,9 @@ export class CanvasProcessor {
     const d = imageData.data;
 
     for (let i = 0; i < d.length; i += 4) {
-      d[i] = Math.round(d[i]! * alpha + beta);
-      d[i + 1] = Math.round(d[i + 1]! * alpha + beta);
-      d[i + 2] = Math.round(d[i + 2]! * alpha + beta);
+      d[i] = Math.round((d[i] ?? 0) * alpha + beta);
+      d[i + 1] = Math.round((d[i + 1] ?? 0) * alpha + beta);
+      d[i + 2] = Math.round((d[i + 2] ?? 0) * alpha + beta);
       // d[i + 3]: alpha channel unchanged
       // Uint8ClampedArray automatically clamps to [0, 255]
     }
@@ -145,9 +150,9 @@ export class CanvasProcessor {
     const d = imageData.data;
 
     for (let i = 0; i < d.length; i += 4) {
-      d[i] = 255 - d[i]!;
-      d[i + 1] = 255 - d[i + 1]!;
-      d[i + 2] = 255 - d[i + 2]!;
+      d[i] = 255 - (d[i] ?? 0);
+      d[i + 1] = 255 - (d[i + 1] ?? 0);
+      d[i + 2] = 255 - (d[i + 2] ?? 0);
       // d[i + 3]: alpha unchanged
     }
 
@@ -177,8 +182,8 @@ export class CanvasProcessor {
     for (let i = 0; i < d.length; i += 4) {
       const luma =
         d[i] === d[i + 1] && d[i + 1] === d[i + 2]
-          ? d[i]!
-          : Math.round(0.299 * d[i]! + 0.587 * d[i + 1]! + 0.114 * d[i + 2]!);
+          ? (d[i] ?? 0)
+          : Math.round(0.299 * (d[i] ?? 0) + 0.587 * (d[i + 1] ?? 0) + 0.114 * (d[i + 2] ?? 0));
       const val = luma > thresh ? maxValue : 0;
       d[i] = val;
       d[i + 1] = val;
@@ -327,7 +332,7 @@ export class CanvasProcessor {
     ] as const;
 
     const isForeground = (pixelIdx: number): boolean => {
-      const r = data[pixelIdx]!;
+      const r = data[pixelIdx] ?? 0;
       return foreground === "light" ? r > thresh : r <= thresh;
     };
 
@@ -348,7 +353,8 @@ export class CanvasProcessor {
         let area = 0;
 
         while (stack.length > 0) {
-          const flat = stack.pop()!;
+          const flat = stack.pop();
+          if (flat === undefined) break;
           area++;
 
           const x = flat % width;

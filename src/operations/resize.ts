@@ -2,6 +2,7 @@ import type { OperationResult, RequiredOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 
+/** Options for resizing the image to exact pixel dimensions. */
 export interface ResizeOptions extends RequiredOptions {
   /** Width of the resized image */
   width: number;
@@ -9,6 +10,7 @@ export interface ResizeOptions extends RequiredOptions {
   height: number;
 }
 
+/** Resize the image to the given width and height. */
 export function resize(img: cv.Mat, options: ResizeOptions): OperationResult {
   if (!options.width || !options.height) {
     throw new Error("Invalid options: width and height are required");

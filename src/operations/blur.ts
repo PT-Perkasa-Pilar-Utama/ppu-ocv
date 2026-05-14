@@ -2,6 +2,7 @@ import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 
+/** Options for the Gaussian blur operation. */
 export interface BlurOptions extends PartialOptions {
   /** Size of the blur [x, y] */
   size: [number, number];
@@ -13,6 +14,7 @@ function defaultOptions(): BlurOptions {
   return { size: [5, 5], sigma: 0 };
 }
 
+/** Apply Gaussian blur to reduce noise. */
 export function blur(img: cv.Mat, options: BlurOptions): OperationResult {
   const imgBlur = new cv.Mat();
 

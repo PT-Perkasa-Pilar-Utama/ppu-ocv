@@ -2,6 +2,7 @@ import type { OperationResult, RequiredOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 
+/** Options for rotating the image around a pivot point. */
 export interface RotateOptions extends RequiredOptions {
   /** Angle of rotation in degrees (positive for counter-clockwise) */
   angle: number;
@@ -9,6 +10,7 @@ export interface RotateOptions extends RequiredOptions {
   center?: cv.Point;
 }
 
+/** Rotate the image by the given angle around its centre (or a custom pivot). */
 export function rotate(img: cv.Mat, options: RotateOptions): OperationResult {
   const center = options.center || new cv.Point(img.cols / 2, img.rows / 2);
   const M = cv.getRotationMatrix2D(center, options.angle, 1);

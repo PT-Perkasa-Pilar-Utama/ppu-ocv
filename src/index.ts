@@ -1,3 +1,29 @@
+/**
+ * Default entry point — Node.js / Bun with OpenCV + `@napi-rs/canvas`.
+ *
+ * Use this when you want the full image-processing pipeline (OpenCV
+ * operations like `blur`, `threshold`, `findContours`, `warp`) in a
+ * server-side runtime. The OpenCV WASM is loaded on first call to
+ * `ImageProcessor.initRuntime()`. Canvas operations are backed by
+ * `@napi-rs/canvas` for fast native rendering.
+ *
+ * For browser usage, import from `ppu-ocv/web` instead. For canvas-only
+ * usage (no OpenCV), see `ppu-ocv/canvas` or `ppu-ocv/canvas-web`.
+ *
+ * @example
+ * ```ts
+ * import { ImageProcessor, CanvasProcessor } from "ppu-ocv";
+ *
+ * await ImageProcessor.initRuntime();
+ * const canvas = await CanvasProcessor.prepareCanvas(buffer);
+ * const result = new ImageProcessor(canvas)
+ *   .grayscale()
+ *   .threshold()
+ *   .toCanvas();
+ * ```
+ *
+ * @module
+ */
 import _cv from "@techstark/opencv-js";
 import { cv, setCv } from "./cv-provider.js";
 setCv(_cv);

@@ -89,7 +89,7 @@ describe("DeskewService", () => {
       expect(deskewedCanvas.height).toBeGreaterThan(0);
 
       console.log(`Deskew test completed in ${duration}ms with angle ${angle.toFixed(2)}°`);
-    } catch (error) {
+    } catch {
       console.warn("Skipping tilted image test - asset not found");
     }
   });
