@@ -46,7 +46,7 @@ function compareRGB(a: Uint8ClampedArray, b: Uint8ClampedArray): PixelStats {
 
     // Compare R, G, B channels only (alpha handling differs between impls)
     for (let c = 0; c < 3; c++) {
-      const diff = Math.abs(a[i + c]! - b[i + c]!);
+      const diff = Math.abs((a[i + c] ?? 0) - (b[i + c] ?? 0));
       if (diff > 0) pixelExact = false;
       if (diff > maxDiff) maxDiff = diff;
       sumDiff += diff;
@@ -72,7 +72,12 @@ function printStats(label: string, stats: PixelStats) {
   );
 }
 
-async function getPixels(canvas: { width: number; height: number; getContext: any }) {
+async function getPixels(canvas: {
+  width: number;
+  height: number;
+  // oxlint-disable-next-line typescript/no-explicit-any -- platform bridging type
+  getContext: (...args: any[]) => any;
+}) {
   return canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height)
     .data as Uint8ClampedArray;
 }
@@ -113,10 +118,10 @@ describe("grayscale: canvas-native vs OpenCV", () => {
     console.log(`\n  pure red (255,0,0):`);
     console.log(`    CanvasProcessor → R=${cp[0]}`);
     console.log(`    ImageProcessor  → R=${oc[0]}`);
-    console.log(`    diff: ${Math.abs(cp[0]! - oc[0]!)}`);
+    console.log(`    diff: ${Math.abs((cp[0] ?? 0) - (oc[0] ?? 0))}`);
 
     // Both implement BT.601; diff should be 0 or 1 due to rounding
-    expect(Math.abs(cp[0]! - oc[0]!)).toBeLessThanOrEqual(1);
+    expect(Math.abs((cp[0] ?? 0) - (oc[0] ?? 0))).toBeLessThanOrEqual(1);
   });
 
   test("single opaque pixel — pure green", async () => {
@@ -133,9 +138,9 @@ describe("grayscale: canvas-native vs OpenCV", () => {
     console.log(`\n  pure green (0,128,0):`);
     console.log(`    CanvasProcessor → R=${cp[0]}`);
     console.log(`    ImageProcessor  → R=${oc[0]}`);
-    console.log(`    diff: ${Math.abs(cp[0]! - oc[0]!)}`);
+    console.log(`    diff: ${Math.abs((cp[0] ?? 0) - (oc[0] ?? 0))}`);
 
-    expect(Math.abs(cp[0]! - oc[0]!)).toBeLessThanOrEqual(1);
+    expect(Math.abs((cp[0] ?? 0) - (oc[0] ?? 0))).toBeLessThanOrEqual(1);
   });
 
   test("real image — per-pixel statistics", async () => {
@@ -504,7 +509,10 @@ describe("findRegions: canvas-native vs OpenCV Contours", () => {
       let bestOi = -1;
       for (let oi = 0; oi < ocvRegions.length; oi++) {
         if (usedOcv.has(oi)) continue;
-        const score = iou(canvasRegions[ci]!.bbox, ocvRegions[oi]!.bbox);
+        const canvasRegion = canvasRegions[ci];
+        const ocvRegion = ocvRegions[oi];
+        if (canvasRegion === undefined || ocvRegion === undefined) continue;
+        const score = iou(canvasRegion.bbox, ocvRegion.bbox);
         if (score > bestIou) {
           bestIou = score;
           bestOi = oi;
@@ -652,7 +660,9 @@ describe("findRegions: canvas-native vs OpenCV Contours", () => {
         bestIdx = -1;
       for (let i = 0; i < sortedOcv.length; i++) {
         if (usedOcv.has(i)) continue;
-        const score = iou(cb, sortedOcv[i]!);
+        const ocvBox = sortedOcv[i];
+        if (ocvBox === undefined) continue;
+        const score = iou(cb, ocvBox);
         if (score > best) {
           best = score;
           bestIdx = i;

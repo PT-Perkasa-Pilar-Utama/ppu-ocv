@@ -29,6 +29,83 @@ type NameWithRequiredOptions = {
 
 type NameWithOptionalOptions = Exclude<OperationName, NameWithRequiredOptions>;
 
+/**
+ * Resolve when `cv.Mat` is constructable. Emscripten exposes `cv.Mat` before
+ * its primitive type bindings (`int` etc.) are wired up, so the right signal
+ * is "Mat actually constructs without UnboundTypeError," not "Mat exists".
+ *
+ * Listens for `onRuntimeInitialized` and polls in parallel — the callback
+ * does not fire if Emscripten has already completed initialization by the
+ * time we attach it, so polling is the fallback that catches that case.
+ * Times out after 30 s to avoid a permanent hang.
+ */
+function waitForCvReady(_cv: {
+  onRuntimeInitialized?: () => void;
+  Mat?: new () => { delete: () => void };
+}): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const start = Date.now();
+    const tryMat = (): boolean => {
+      try {
+        if (_cv.Mat) {
+          new _cv.Mat().delete();
+          return true;
+        }
+      } catch {
+        // bindings not ready
+      }
+      return false;
+    };
+    if (tryMat()) {
+      resolve();
+      return;
+    }
+    let done = false;
+    const finish = (err?: Error) => {
+      if (done) return;
+      done = true;
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    };
+    _cv.onRuntimeInitialized = () => finish();
+    const poll = (): void => {
+      if (done) return;
+      if (tryMat()) {
+        finish();
+        return;
+      }
+      if (Date.now() - start > 30000) {
+        finish(new Error("OpenCV runtime did not become ready within 30s"));
+        return;
+      }
+      setTimeout(poll, 50);
+    };
+    poll();
+  });
+}
+
+/**
+ * OpenCV-powered image processing pipeline.
+ *
+ * Wraps a `cv.Mat` and exposes a chainable API of named operations
+ * (grayscale, blur, threshold, etc.).  Each method mutates the internal
+ * state and returns `this`, so operations can be chained fluently.
+ *
+ * Call {@link ImageProcessor.initRuntime} once before creating any instances.
+ *
+ * @example
+ * ```ts
+ * await ImageProcessor.initRuntime();
+ * const result = new ImageProcessor(canvas)
+ *   .grayscale()
+ *   .blur()
+ *   .threshold()
+ *   .toCanvas();
+ * ```
+ */
 export class ImageProcessor {
   img: cv.Mat;
   width: number;
@@ -62,62 +139,61 @@ export class ImageProcessor {
    * - **Browser without bundler**: Falls back to loading `@techstark/opencv-js` from npm CDN.
    */
   static async initRuntime(): Promise<void> {
-    // Already initialized
-    if ((globalThis as any).cv?.Mat) {
-      setCv((globalThis as any).cv);
-      return;
-    }
+    // Concurrent callers (e.g. multiple test files each calling this in their
+    // own beforeAll) must share one in-flight init promise. Without this,
+    // a second caller would overwrite the first's `onRuntimeInitialized`
+    // callback, leaving the first promise pending forever and hanging the
+    // test runner.
+    const g = globalThis as { __ppuOcvInitPromise?: Promise<void> };
+    if (g.__ppuOcvInitPromise) return g.__ppuOcvInitPromise;
 
-    // Try dynamic import (works in Node + bundlers)
-    try {
-      const mod = await import("@techstark/opencv-js");
-      const _cv = mod.default || mod;
-      setCv(_cv);
-
-      // Wait for WASM init if needed
-      if (!_cv.Mat) {
-        await new Promise<void>((res) => {
-          _cv["onRuntimeInitialized"] = () => res();
-        });
-      }
-      return;
-    } catch {
-      // Bare specifier not resolvable — fall through to CDN
-    }
-
-    // Browser fallback: load @techstark/opencv-js from npm CDN
-    if (typeof document !== "undefined") {
-      await new Promise<void>((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src =
-          "https://cdn.jsdelivr.net/npm/@techstark/opencv-js@4.10.0-release.1/dist/opencv.js";
-        script.async = true;
-
-        script.onload = () => {
-          const g = globalThis as any;
-          if (g.cv?.Mat) {
-            setCv(g.cv);
-            resolve();
-          } else if (g.cv) {
-            g.cv["onRuntimeInitialized"] = () => {
-              setCv(g.cv);
-              resolve();
-            };
-          } else {
-            reject(new Error("OpenCV.js loaded but cv not found on globalThis"));
-          }
+    g.__ppuOcvInitPromise = (async () => {
+      // Try dynamic import (works in Node + bundlers)
+      try {
+        const mod = await import("@techstark/opencv-js");
+        const _cv = (mod.default || mod) as Parameters<typeof setCv>[0] & {
+          onRuntimeInitialized?: () => void;
+          Mat?: new () => { delete: () => void };
         };
+        setCv(_cv);
+        await waitForCvReady(_cv);
+        return;
+      } catch {
+        // Bare specifier not resolvable — fall through to CDN
+      }
 
-        script.onerror = () => reject(new Error("Failed to load @techstark/opencv-js from CDN"));
+      // Browser fallback: load @techstark/opencv-js from npm CDN
+      if (typeof document !== "undefined") {
+        await new Promise<void>((resolve, reject) => {
+          const script = document.createElement("script");
+          script.src =
+            "https://cdn.jsdelivr.net/npm/@techstark/opencv-js@4.10.0-release.1/dist/opencv.js";
+          script.async = true;
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error("Failed to load @techstark/opencv-js from CDN"));
+          document.head.appendChild(script);
+        });
+        const gw = globalThis as { cv?: Parameters<typeof setCv>[0] };
+        if (!gw.cv) {
+          throw new Error("OpenCV.js loaded but `cv` not found on globalThis");
+        }
+        setCv(gw.cv);
+        await waitForCvReady(gw.cv);
+        return;
+      }
 
-        document.head.appendChild(script);
-      });
-      return;
+      throw new Error(
+        "Cannot initialize OpenCV runtime. Install @techstark/opencv-js or run in a browser."
+      );
+    })();
+
+    try {
+      await g.__ppuOcvInitPromise;
+    } catch (err) {
+      // If init failed, clear the cached promise so the next caller can retry.
+      g.__ppuOcvInitPromise = undefined;
+      throw err;
     }
-
-    throw new Error(
-      "Cannot initialize OpenCV runtime. Install @techstark/opencv-js or run in a browser."
-    );
   }
 
   /**
@@ -292,7 +368,7 @@ export class ImageProcessor {
 
     try {
       cv.imshow(canvas as unknown as HTMLElement, this.img);
-    } catch (e) {
+    } catch {
       // Fallback for Node (napi-rs/canvas)
       const ctx = (canvas as unknown as HTMLCanvasElement).getContext("2d");
       if (!ctx) throw new Error("Could not get 2d context from canvas");

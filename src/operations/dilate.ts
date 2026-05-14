@@ -2,6 +2,7 @@ import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 
+/** Options for the morphological dilation operation. */
 export interface DilateOptions extends PartialOptions {
   /** Size of the block [x, y] */
   size: [number, number];
@@ -16,6 +17,7 @@ function defaultOptions(): DilateOptions {
   };
 }
 
+/** Dilate the image to expand foreground regions. */
 export function dilate(img: cv.Mat, options: DilateOptions): OperationResult {
   const imgDilate = new cv.Mat();
   const kernel = cv.getStructuringElement(

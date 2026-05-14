@@ -3,6 +3,7 @@ import type { BoundingBox, Points } from "../index.interface.js";
 import { registry } from "../pipeline/registry.js";
 import type { OperationResult, RequiredOptions } from "../pipeline/types.js";
 
+/** Options for the perspective warp (four-point transform) operation. */
 export interface WarpOptions extends RequiredOptions {
   /** Four points of the source image containing x and y point in
    * topLeft, topRight, bottomLeft and BottomRight.
@@ -14,6 +15,7 @@ export interface WarpOptions extends RequiredOptions {
   bbox: BoundingBox;
 }
 
+/** Apply a perspective warp using four source/destination corner points. */
 export function warp(img: cv.Mat, options: WarpOptions): OperationResult {
   if (!options.points || !options.bbox) {
     throw new Error("Invalid options: points and bbox are required");

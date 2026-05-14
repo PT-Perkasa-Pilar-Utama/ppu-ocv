@@ -10,7 +10,7 @@ export const cpToLib = async (path: string): Promise<number> => {
 };
 
 export const cpToLibNoFolder = async (path: string): Promise<number> => {
-  const fileName = path.split("/").pop()!;
+  const fileName = path.split("/").pop() ?? path;
 
   await mkdir("./lib", { recursive: true });
   return write(join("./lib", fileName), file(path));
@@ -46,5 +46,11 @@ export const cpDirToLib = async (sourcePath: string, targetSubPath?: string): Pr
   }
 };
 
-export const exec: (...args: Parameters<typeof $>) => Promise<any> = async (...args) =>
-  $(...args).catch((err: any) => process.stderr.write(err.stderr as any));
+export const exec: (...args: Parameters<typeof $>) => Promise<unknown> = async (...args) => {
+  try {
+    return await $(...args);
+  } catch (err: unknown) {
+    const e = err as { stderr?: unknown };
+    return process.stderr.write(String(e.stderr ?? ""));
+  }
+};

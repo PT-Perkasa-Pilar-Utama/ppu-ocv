@@ -42,7 +42,7 @@ test("constructor with cv.Mat source initializes width and height", () => {
 
 test("constructor throws on invalid source type", () => {
   expect(() => {
-    // @ts-expect-error
+    // @ts-expect-error -- testing invalid input behaviour
     new ImageProcessor({ invalid: true });
   }).toThrow("Invalid source type. Must be either Canvas or cv.Mat.");
 });
@@ -151,7 +151,7 @@ test("execute throws for unknown operation", () => {
   const canvas = createCanvas(2, 2);
   const processor = new ImageProcessor(canvas);
   expect(() => {
-    // @ts-expect-error
+    // @ts-expect-error -- testing invalid input behaviour
     processor.execute("unknownOperation", {});
   }).toThrow(/^Operation "unknownOperation" not found in registry$/);
 });

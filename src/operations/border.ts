@@ -2,6 +2,7 @@ import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 
+/** Options for adding a constant-color border around the image. */
 export interface BorderOptions extends PartialOptions {
   /** Size of the border in pixels */
   size: number;
@@ -19,6 +20,7 @@ function defaultOptions(): BorderOptions {
   };
 }
 
+/** Add a uniform border around the image using `cv.copyMakeBorder`. */
 export function border(img: cv.Mat, options: BorderOptions): OperationResult {
   const imgBorder = new cv.Mat();
 

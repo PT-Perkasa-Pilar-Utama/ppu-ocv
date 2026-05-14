@@ -1,3 +1,27 @@
+/**
+ * Web entry point — browsers with OpenCV + DOM canvas.
+ *
+ * Use this when you need the full image-processing pipeline in a browser.
+ * Canvas operations target `HTMLCanvasElement` / `OffscreenCanvas` instead
+ * of `@napi-rs/canvas`. OpenCV is loaded via `ImageProcessor.initRuntime()`
+ * — either from the bundled `@techstark/opencv-js` or from jsDelivr CDN
+ * when no bundler is in play.
+ *
+ * Not suitable for Manifest V3 Chrome extensions or other CSP-restricted
+ * runtimes — OpenCV.js uses Emscripten embind which calls `new Function`.
+ * For those environments, import `ppu-ocv/canvas-web` (no OpenCV).
+ *
+ * @example
+ * ```ts
+ * import { ImageProcessor, CanvasProcessor } from "ppu-ocv/web";
+ *
+ * await ImageProcessor.initRuntime();
+ * const canvas = await CanvasProcessor.prepareCanvas(await response.arrayBuffer());
+ * const result = new ImageProcessor(canvas).grayscale().toCanvas();
+ * ```
+ *
+ * @module
+ */
 import { cv } from "./cv-provider.js";
 export { cv };
 

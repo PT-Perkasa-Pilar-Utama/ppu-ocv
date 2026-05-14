@@ -2,6 +2,7 @@ import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 
+/** Options for the global threshold operation. */
 export interface ThresholdOptions extends PartialOptions {
   /** Lower threshold value (0-255) */
   lower: number;
@@ -19,6 +20,7 @@ function defaultOptions(): ThresholdOptions {
   };
 }
 
+/** Apply a global threshold to convert a grayscale image to binary. */
 export function threshold(img: cv.Mat, options: ThresholdOptions): OperationResult {
   const imgThreshold = new cv.Mat();
   cv.threshold(img, imgThreshold, options.lower, options.upper, options.type);

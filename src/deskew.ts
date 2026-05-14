@@ -193,7 +193,7 @@ export class DeskewService {
 
   private calculateMinRectAngles(
     textRegions: Array<{ contour: cv.Mat; area: number; aspectRatio: number }>,
-    contours: Contours
+    _contours: Contours
   ): Array<{ angle: number; weight: number }> {
     const angles: Array<{ angle: number; weight: number }> = [];
 
@@ -215,7 +215,7 @@ export class DeskewService {
         const weight = areaWeight * aspectWeight;
 
         angles.push({ angle, weight });
-      } catch (error) {
+      } catch {
         continue;
       }
     }
@@ -267,7 +267,7 @@ export class DeskewService {
 
           angles.push({ angle, weight });
         }
-      } catch (error) {
+      } catch {
         continue;
       }
     }
@@ -315,7 +315,7 @@ export class DeskewService {
       morphed.delete();
       lines.delete();
       kernel.delete();
-    } catch (error) {
+    } catch {
       this.log("Hough transform failed, skipping this method.");
     }
 

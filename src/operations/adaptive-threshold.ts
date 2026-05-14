@@ -2,6 +2,7 @@ import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 
+/** Options for the adaptive threshold operation. */
 export interface AdaptiveThresholdOptions extends PartialOptions {
   /** Upper threshold value (0-255) */
   upper: number;
@@ -25,6 +26,7 @@ function defaultOptions(): AdaptiveThresholdOptions {
   };
 }
 
+/** Apply adaptive thresholding to convert a grayscale image to binary. */
 export function adaptiveThreshold(img: cv.Mat, options: AdaptiveThresholdOptions): OperationResult {
   const imgAdaptiveThreshold = new cv.Mat();
 

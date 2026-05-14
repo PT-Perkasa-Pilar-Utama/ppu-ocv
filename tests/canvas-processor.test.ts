@@ -64,8 +64,11 @@ describe("CanvasProcessor (canvas-only, no OpenCV)", () => {
     expect(typeof canvasModule.CanvasToolkit).toBe("function");
     expect(typeof canvasModule.CanvasToolkitBase).toBe("function");
     // Ensure OpenCV-dependent classes are NOT exported
+    // oxlint-disable-next-line typescript/no-explicit-any -- testing that runtime export is absent
     expect((canvasModule as any).ImageProcessor).toBeUndefined();
+    // oxlint-disable-next-line typescript/no-explicit-any -- testing that runtime export is absent
     expect((canvasModule as any).DeskewService).toBeUndefined();
+    // oxlint-disable-next-line typescript/no-explicit-any -- testing that runtime export is absent
     expect((canvasModule as any).Contours).toBeUndefined();
   });
 });
@@ -345,8 +348,10 @@ describe("CanvasProcessor — findRegions", () => {
 
     const regions = new CanvasProcessor(c).findRegions();
     expect(regions).toHaveLength(1);
-    expect(regions[0]!.bbox).toEqual({ x0: 5, y0: 6, x1: 9, y1: 9 });
-    expect(regions[0]!.area).toBe(12); // 4 × 3
+    const region0 = regions[0];
+    if (region0 === undefined) throw new Error("unreachable");
+    expect(region0.bbox).toEqual({ x0: 5, y0: 6, x1: 9, y1: 9 });
+    expect(region0.area).toBe(12); // 4 × 3
   });
 
   test("two separate regions are counted independently", async () => {
@@ -375,7 +380,9 @@ describe("CanvasProcessor — findRegions", () => {
 
     const regions = new CanvasProcessor(c).findRegions({ minArea: 5 });
     expect(regions).toHaveLength(1);
-    expect(regions[0]!.area).toBe(16);
+    const region0 = regions[0];
+    if (region0 === undefined) throw new Error("unreachable");
+    expect(region0.area).toBe(16);
   });
 
   test("foreground=dark detects black regions on white background", async () => {
@@ -391,7 +398,9 @@ describe("CanvasProcessor — findRegions", () => {
 
     const regions = new CanvasProcessor(c).findRegions({ foreground: "dark" });
     expect(regions).toHaveLength(1);
-    expect(regions[0]!.area).toBe(36); // 6 × 6
+    const region0 = regions[0];
+    if (region0 === undefined) throw new Error("unreachable");
+    expect(region0.area).toBe(36); // 6 × 6
   });
 
   test("works correctly after grayscale + threshold pipeline", async () => {
@@ -409,7 +418,10 @@ describe("CanvasProcessor — findRegions", () => {
     expect(regions.length).toBeGreaterThan(10);
 
     const sorted = [...regions].sort((a, b) => b.area - a.area);
-    expect(sorted[0]!.area).toBeGreaterThanOrEqual(sorted[1]!.area);
+    const sorted0 = sorted[0];
+    const sorted1 = sorted[1];
+    if (sorted0 === undefined || sorted1 === undefined) throw new Error("unreachable");
+    expect(sorted0.area).toBeGreaterThanOrEqual(sorted1.area);
   });
 });
 

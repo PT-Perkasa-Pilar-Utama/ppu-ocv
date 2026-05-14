@@ -2,6 +2,7 @@ import type { CanvasLike } from "./canvas-factory.js";
 import { cv } from "./cv-provider.js";
 import type { BoundingBox, Coordinate, Points } from "./index.interface.js";
 
+/** Options for configuring contour detection. */
 export interface ContoursOptions {
   /** The contour retrieval mode. (cv.RETR_...) */
   mode: cv.RetrievalModes;
@@ -16,6 +17,10 @@ function defaultOptions(): ContoursOptions {
   };
 }
 
+/**
+ * Wrapper around OpenCV's `findContours` that provides convenient accessors
+ * for iterating, filtering, and analyzing contours in a binary image.
+ */
 export class Contours {
   private contours: cv.MatVector;
 
@@ -40,11 +45,7 @@ export class Contours {
       const contours = new cv.MatVector();
       const hierarchy = new cv.Mat();
 
-      try {
-        cv.findContours(img, contours, hierarchy, opts.mode, opts.method);
-      } catch (error) {
-        throw error;
-      }
+      cv.findContours(img, contours, hierarchy, opts.mode, opts.method);
 
       hierarchy.delete();
 
@@ -98,6 +99,7 @@ export class Contours {
    * The callback function takes a contour as a parameter.
    * @returns void
    */
+  // oxlint-disable-next-line typescript/no-explicit-any -- callback return value intentionally discarded
   iterate(callback: (contour: cv.Mat) => any): Contours {
     for (let i = 0, len = this.contours.size() as unknown as number; i < len; i++) {
       const contour = this.contours.get(i);
@@ -276,6 +278,6 @@ export class Contours {
   destroy(): void {
     try {
       this.contours.delete();
-    } catch (error) {}
+    } catch {}
   }
 }
