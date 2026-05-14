@@ -49,7 +49,7 @@
     "build:test": "bun task build && bun test",
     "build:publish": "bun task build && bun task report-size && bun task publish",
     "type-check": "bunx tsgo --noEmit",
-    "test": "bun test",
+    "test": "bun test --parallel=$(ls tests/*.test.ts | wc -l | tr -d ' ')",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt --check",
