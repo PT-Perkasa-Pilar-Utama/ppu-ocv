@@ -16,13 +16,8 @@ export const cpToLibNoFolder = async (path: string): Promise<number> => {
   return write(join("./lib", fileName), file(path));
 };
 
-export const cpDirToLib = async (
-  sourcePath: string,
-  targetSubPath?: string
-): Promise<void> => {
-  const sourcePathClean = sourcePath.startsWith("./")
-    ? sourcePath.slice(2)
-    : sourcePath;
+export const cpDirToLib = async (sourcePath: string, targetSubPath?: string): Promise<void> => {
+  const sourcePathClean = sourcePath.startsWith("./") ? sourcePath.slice(2) : sourcePath;
 
   const targetBasePath = targetSubPath
     ? join("./lib", targetSubPath)
@@ -40,11 +35,7 @@ export const cpDirToLib = async (
       const nestedTargetPath = join(targetSubPath || sourcePathClean, entry);
       await cpDirToLib(fullSourcePath, nestedTargetPath);
     } else {
-      const targetFilePath = join(
-        "./lib",
-        targetSubPath || sourcePathClean,
-        entry
-      );
+      const targetFilePath = join("./lib", targetSubPath || sourcePathClean, entry);
 
       await mkdir(join("./lib", targetSubPath || sourcePathClean), {
         recursive: true,
@@ -55,6 +46,5 @@ export const cpDirToLib = async (
   }
 };
 
-export const exec: (...args: Parameters<typeof $>) => Promise<any> = async (
-  ...args
-) => $(...args).catch((err: any) => process.stderr.write(err.stderr as any));
+export const exec: (...args: Parameters<typeof $>) => Promise<any> = async (...args) =>
+  $(...args).catch((err: any) => process.stderr.write(err.stderr as any));

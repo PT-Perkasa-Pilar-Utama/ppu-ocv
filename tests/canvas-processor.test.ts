@@ -21,10 +21,7 @@ describe("CanvasProcessor (canvas-only, no OpenCV)", () => {
 
     const c = createCanvas(8, 6);
     const buf = c.toBuffer("image/png");
-    const ab = buf.buffer.slice(
-      buf.byteOffset,
-      buf.byteOffset + buf.byteLength,
-    ) as ArrayBuffer;
+    const ab = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
 
     const canvas = await CanvasProcessor.prepareCanvas(ab);
     expect(canvas.width).toBe(8);
@@ -200,7 +197,7 @@ describe("CanvasProcessor — invert", () => {
 
     expect(pixel[0]).toBe(155); // 255 - 100
     expect(pixel[1]).toBe(105); // 255 - 150
-    expect(pixel[2]).toBe(55);  // 255 - 200
+    expect(pixel[2]).toBe(55); // 255 - 200
     expect(pixel[3]).toBe(255); // alpha unchanged
   });
 
@@ -213,8 +210,12 @@ describe("CanvasProcessor — invert", () => {
     c.getContext("2d").fillRect(0, 0, 1, 1);
 
     const orig = c.getContext("2d").getImageData(0, 0, 1, 1).data;
-    const pixel = new CanvasProcessor(c).invert().invert().toCanvas()
-      .getContext("2d").getImageData(0, 0, 1, 1).data;
+    const pixel = new CanvasProcessor(c)
+      .invert()
+      .invert()
+      .toCanvas()
+      .getContext("2d")
+      .getImageData(0, 0, 1, 1).data;
 
     expect(pixel[0]).toBe(orig[0]);
     expect(pixel[1]).toBe(orig[1]);
@@ -241,7 +242,9 @@ describe("CanvasProcessor — threshold", () => {
 
     const pixel = new CanvasProcessor(c)
       .threshold({ thresh: 127, maxValue: 255 })
-      .toCanvas().getContext("2d").getImageData(0, 0, 1, 1).data;
+      .toCanvas()
+      .getContext("2d")
+      .getImageData(0, 0, 1, 1).data;
 
     expect(pixel[0]).toBe(255);
     expect(pixel[1]).toBe(255);
@@ -259,7 +262,9 @@ describe("CanvasProcessor — threshold", () => {
 
     const pixel = new CanvasProcessor(c)
       .threshold({ thresh: 127 })
-      .toCanvas().getContext("2d").getImageData(0, 0, 1, 1).data;
+      .toCanvas()
+      .getContext("2d")
+      .getImageData(0, 0, 1, 1).data;
 
     expect(pixel[0]).toBe(0);
     expect(pixel[1]).toBe(0);
@@ -298,8 +303,8 @@ describe("CanvasProcessor — border", () => {
     // Top-left corner is in the border area
     const pixel = result.getContext("2d").getImageData(0, 0, 1, 1).data;
     expect(pixel[0]).toBe(255); // R
-    expect(pixel[1]).toBe(0);   // G
-    expect(pixel[2]).toBe(0);   // B
+    expect(pixel[1]).toBe(0); // G
+    expect(pixel[2]).toBe(0); // B
   });
 
   test("original image is preserved at offset", async () => {
@@ -311,13 +316,10 @@ describe("CanvasProcessor — border", () => {
     c.getContext("2d").fillRect(0, 0, 4, 4);
 
     const size = 3;
-    const result = new CanvasProcessor(c)
-      .border({ size, color: "white" })
-      .toCanvas();
+    const result = new CanvasProcessor(c).border({ size, color: "white" }).toCanvas();
 
     // Centre pixel should still be blue
-    const pixel = result.getContext("2d")
-      .getImageData(size + 2, size + 2, 1, 1).data;
+    const pixel = result.getContext("2d").getImageData(size + 2, size + 2, 1, 1).data;
     expect(pixel[2]).toBe(255); // B channel = blue
   });
 });
@@ -354,7 +356,7 @@ describe("CanvasProcessor — findRegions", () => {
     const c = createCanvas(30, 10);
     const ctx = c.getContext("2d");
     ctx.fillStyle = "white";
-    ctx.fillRect(2, 2, 4, 4);  // region A
+    ctx.fillRect(2, 2, 4, 4); // region A
     ctx.fillRect(20, 2, 4, 4); // region B (no pixel touches A)
 
     const regions = new CanvasProcessor(c).findRegions();
@@ -368,8 +370,8 @@ describe("CanvasProcessor — findRegions", () => {
     const c = createCanvas(30, 10);
     const ctx = c.getContext("2d");
     ctx.fillStyle = "white";
-    ctx.fillRect(2, 2, 1, 1);   // 1 px — too small
-    ctx.fillRect(20, 2, 4, 4);  // 16 px — passes filter
+    ctx.fillRect(2, 2, 1, 1); // 1 px — too small
+    ctx.fillRect(20, 2, 4, 4); // 16 px — passes filter
 
     const regions = new CanvasProcessor(c).findRegions({ minArea: 5 });
     expect(regions).toHaveLength(1);
@@ -383,9 +385,9 @@ describe("CanvasProcessor — findRegions", () => {
     const c = createCanvas(20, 20);
     const ctx = c.getContext("2d");
     ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, 20, 20);   // white background
+    ctx.fillRect(0, 0, 20, 20); // white background
     ctx.fillStyle = "black";
-    ctx.fillRect(5, 5, 6, 6);     // black region in centre
+    ctx.fillRect(5, 5, 6, 6); // black region in centre
 
     const regions = new CanvasProcessor(c).findRegions({ foreground: "dark" });
     expect(regions).toHaveLength(1);

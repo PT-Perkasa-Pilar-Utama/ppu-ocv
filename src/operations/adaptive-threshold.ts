@@ -2,12 +2,6 @@ import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 
-declare module "../pipeline/types" {
-  interface RegisteredOperations {
-    adaptiveThreshold: AdaptiveThresholdOptions;
-  }
-}
-
 export interface AdaptiveThresholdOptions extends PartialOptions {
   /** Upper threshold value (0-255) */
   upper: number;
@@ -31,10 +25,7 @@ function defaultOptions(): AdaptiveThresholdOptions {
   };
 }
 
-export function adaptiveThreshold(
-  img: cv.Mat,
-  options: AdaptiveThresholdOptions,
-): OperationResult {
+export function adaptiveThreshold(img: cv.Mat, options: AdaptiveThresholdOptions): OperationResult {
   const imgAdaptiveThreshold = new cv.Mat();
 
   cv.adaptiveThreshold(
@@ -44,7 +35,7 @@ export function adaptiveThreshold(
     options.method,
     options.type,
     options.size,
-    options.constant,
+    options.constant
   );
   img.delete();
 

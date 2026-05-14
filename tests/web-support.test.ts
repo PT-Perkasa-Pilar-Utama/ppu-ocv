@@ -1,10 +1,6 @@
 import { beforeAll, describe, expect, test } from "bun:test";
-import {
-  getPlatform,
-  setPlatform,
-  type CanvasLike,
-  type CanvasPlatform,
-} from "../src/canvas-factory.js";
+import { getPlatform, setPlatform } from "../src/canvas-factory.js";
+import type { CanvasLike, CanvasPlatform } from "../src/canvas-factory.js";
 import { CanvasToolkitBase } from "../src/canvas-toolkit.base.js";
 import { nodePlatform } from "../src/platform/node.js";
 import { CanvasProcessor } from "../src/canvas-processor.js";
@@ -32,8 +28,10 @@ describe("canvas-factory", () => {
     const saved = getPlatform();
 
     const mockPlatform: CanvasPlatform = {
-      createCanvas: () => ({ width: 0, height: 0, getContext: () => ({}) }) as unknown as CanvasLike,
-      loadImage: async () => ({ width: 0, height: 0, getContext: () => ({}) }) as unknown as CanvasLike,
+      createCanvas: () =>
+        ({ width: 0, height: 0, getContext: () => ({}) }) as unknown as CanvasLike,
+      loadImage: async () =>
+        ({ width: 0, height: 0, getContext: () => ({}) }) as unknown as CanvasLike,
       isCanvas: (value: unknown): value is CanvasLike => false,
     };
 
@@ -86,7 +84,7 @@ describe("Node platform", () => {
     const buffer = c.toBuffer("image/png");
     const ab = buffer.buffer.slice(
       buffer.byteOffset,
-      buffer.byteOffset + buffer.byteLength,
+      buffer.byteOffset + buffer.byteLength
     ) as ArrayBuffer;
 
     const loaded = await platform.loadImage(ab);

@@ -1,9 +1,5 @@
 import { mkdirSync, writeFileSync } from "fs";
-import {
-  CanvasProcessor,
-  CanvasToolkitBase,
-  getPlatform,
-} from "../src/index.canvas.js";
+import { CanvasProcessor, CanvasToolkitBase, getPlatform } from "../src/index.canvas.js";
 import { Contours, cv, ImageProcessor } from "../src/index.js";
 // import { CanvasProcessor, CanvasToolkitBase, getPlatform } from "ppu-ocv/canvas";
 // import { ImageProcessor, Contours, cv } from "ppu-ocv";
@@ -35,7 +31,7 @@ function applyPaddingToRect(
   maxWidth: number,
   maxHeight: number,
   paddingVertical: number,
-  paddingHorizontal: number,
+  paddingHorizontal: number
 ): Rect {
   const verticalPadding = Math.round(rect.height * paddingVertical);
   const horizontalPadding = Math.round(rect.height * paddingHorizontal);
@@ -43,10 +39,7 @@ function applyPaddingToRect(
   const x = Math.max(0, rect.x - horizontalPadding);
   const y = Math.max(0, rect.y - verticalPadding);
   const rightEdge = Math.min(maxWidth, rect.x + rect.width + horizontalPadding);
-  const bottomEdge = Math.min(
-    maxHeight,
-    rect.y + rect.height + verticalPadding,
-  );
+  const bottomEdge = Math.min(maxHeight, rect.y + rect.height + verticalPadding);
 
   return { x, y, width: rightEdge - x, height: bottomEdge - y };
 }
@@ -54,14 +47,10 @@ function applyPaddingToRect(
 // ─── load images ─────────────────────────────────────────────────────────────
 
 const binaryFile = Bun.file("./assets/binary-text-detection.png");
-const detectionCanvas = await CanvasProcessor.prepareCanvas(
-  await binaryFile.arrayBuffer(),
-);
+const detectionCanvas = await CanvasProcessor.prepareCanvas(await binaryFile.arrayBuffer());
 
 const receiptFile = Bun.file("./assets/receipt.jpg");
-const receiptCanvas = await CanvasProcessor.prepareCanvas(
-  await receiptFile.arrayBuffer(),
-);
+const receiptCanvas = await CanvasProcessor.prepareCanvas(await receiptFile.arrayBuffer());
 
 // Detection canvas dimensions (processed / model output space)
 const detW = detectionCanvas.width;
@@ -81,9 +70,7 @@ const scaleY = uniformScale;
 console.log(`Detection canvas: ${detW}×${detH}`);
 console.log(`Receipt:          ${origW}×${origH}`);
 console.log(`Uniform scale (height-based): ${uniformScale.toFixed(4)}`);
-console.log(
-  `Content width in mask: ${(origW / uniformScale).toFixed(1)}px (of ${detW}px)`,
-);
+console.log(`Content width in mask: ${(origW / uniformScale).toFixed(1)}px (of ${detW}px)`);
 
 // ─── OpenCV pipeline (postprocessDetection) ──────────────────────────────────
 
@@ -105,13 +92,7 @@ contours.iterate((contour) => {
   const rect = contours.getRect(contour);
   if (rect.width * rect.height <= MIN_BOX_AREA) return;
 
-  const padded = applyPaddingToRect(
-    rect,
-    detW,
-    detH,
-    PADDING_VERTICAL,
-    PADDING_HORIZONTAL,
-  );
+  const padded = applyPaddingToRect(rect, detW, detH, PADDING_VERTICAL, PADDING_HORIZONTAL);
 
   if (padded.width > 5 && padded.height > 5) {
     ocvBoxes.push(padded);
@@ -177,9 +158,5 @@ const canvasBuffer = await CanvasProcessor.prepareBuffer(canvasOutput);
 writeFileSync(`${outDir}/receipt-bboxes-canvas.png`, Buffer.from(canvasBuffer));
 
 console.log(`\nSaved:`);
-console.log(
-  `  out/receipt-bboxes-opencv.png  (blue, ${ocvBoxes.length} boxes)`,
-);
-console.log(
-  `  out/receipt-bboxes-canvas.png  (red,  ${canvasBoxes.length} boxes)`,
-);
+console.log(`  out/receipt-bboxes-opencv.png  (blue, ${ocvBoxes.length} boxes)`);
+console.log(`  out/receipt-bboxes-canvas.png  (red,  ${canvasBoxes.length} boxes)`);

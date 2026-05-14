@@ -1,13 +1,7 @@
 import type { CanvasLike } from "./canvas-factory.js";
 import { CanvasToolkitBase } from "./canvas-toolkit.base.js";
 
-import {
-  createWriteStream,
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  unlinkSync,
-} from "fs";
+import { createWriteStream, existsSync, mkdirSync, readdirSync, unlinkSync } from "fs";
 import { join } from "path";
 
 /**
@@ -41,11 +35,7 @@ export class CanvasToolkit extends CanvasToolkitBase {
    *   filename: "output.png",
    * });
    */
-  saveImage(options: {
-    canvas: CanvasLike;
-    filename: string;
-    path: string;
-  }): Promise<void> {
+  saveImage(options: { canvas: CanvasLike; filename: string; path: string }): Promise<void> {
     const { canvas, filename, path = "out" } = options;
 
     const folderPath = join(process.cwd(), path);

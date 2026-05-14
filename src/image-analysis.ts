@@ -29,7 +29,7 @@ export interface CalculateMeanLightnessOptions {
  * @throws Error if OpenCV operations fail.
  */
 export function calculateMeanNormalizedLabLightness(
-  options: CalculateMeanLightnessOptions,
+  options: CalculateMeanLightnessOptions
 ): number {
   const { canvas, dimension } = options;
 
@@ -67,12 +67,7 @@ export function calculateMeanNormalizedLabLightness(
       return 0;
     }
 
-    scalarMat = new cv.Mat(
-      L.rows,
-      L.cols,
-      L.type(),
-      new cv.Scalar(maxPixelValue),
-    );
+    scalarMat = new cv.Mat(L.rows, L.cols, L.type(), new cv.Scalar(maxPixelValue));
     cv.divide(L, scalarMat, L, 1.0, -1);
 
     const meanL = cv.mean(L)[0];

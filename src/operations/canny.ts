@@ -2,12 +2,6 @@ import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 
-declare module "../pipeline/types" {
-  interface RegisteredOperations {
-    canny: CannyOptions;
-  }
-}
-
 export interface CannyOptions extends PartialOptions {
   /** Lower threshold for the hysteresis procedure (0-255) */
   lower: number;

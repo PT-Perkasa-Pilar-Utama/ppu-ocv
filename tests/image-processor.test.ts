@@ -1,11 +1,5 @@
 import { beforeAll, expect, test } from "bun:test";
-import {
-  Canvas,
-  CanvasProcessor,
-  createCanvas,
-  cv,
-  ImageProcessor,
-} from "../src/index.js";
+import { Canvas, CanvasProcessor, createCanvas, cv, ImageProcessor } from "../src/index.js";
 
 beforeAll(async () => {
   await ImageProcessor.initRuntime();

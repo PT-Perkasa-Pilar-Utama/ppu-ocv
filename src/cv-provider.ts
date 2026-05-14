@@ -24,9 +24,7 @@ function getCv(): CV {
     _cv = (globalThis as { cv?: CV }).cv || null;
     return _cv!;
   }
-  throw new Error(
-    "OpenCV is not loaded. Call ImageProcessor.initRuntime() first.",
-  );
+  throw new Error("OpenCV is not loaded. Call ImageProcessor.initRuntime() first.");
 }
 
 /**

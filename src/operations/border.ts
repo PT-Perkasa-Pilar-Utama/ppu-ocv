@@ -2,12 +2,6 @@ import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 
-declare module "../pipeline/types" {
-  interface RegisteredOperations {
-    border: BorderOptions;
-  }
-}
-
 export interface BorderOptions extends PartialOptions {
   /** Size of the border in pixels */
   size: number;
@@ -36,7 +30,7 @@ export function border(img: cv.Mat, options: BorderOptions): OperationResult {
     options.size,
     options.size,
     options.borderType,
-    options.borderColor,
+    options.borderColor
   );
   img.delete();
 

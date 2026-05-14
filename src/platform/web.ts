@@ -35,16 +35,10 @@ export const webPlatform: CanvasPlatform = {
   },
 
   isCanvas(value: unknown): value is CanvasLike {
-    if (
-      typeof HTMLCanvasElement !== "undefined" &&
-      value instanceof HTMLCanvasElement
-    ) {
+    if (typeof HTMLCanvasElement !== "undefined" && value instanceof HTMLCanvasElement) {
       return true;
     }
-    if (
-      typeof OffscreenCanvas !== "undefined" &&
-      value instanceof OffscreenCanvas
-    ) {
+    if (typeof OffscreenCanvas !== "undefined" && value instanceof OffscreenCanvas) {
       return true;
     }
     return false;

@@ -1,11 +1,5 @@
 import { beforeAll, describe, expect, test } from "bun:test";
-import {
-  CanvasProcessor,
-  createCanvas,
-  cv,
-  DeskewService,
-  ImageProcessor,
-} from "../src";
+import { CanvasProcessor, createCanvas, cv, DeskewService, ImageProcessor } from "../src";
 
 beforeAll(async () => {
   await ImageProcessor.initRuntime();
@@ -78,7 +72,7 @@ describe("DeskewService", () => {
 
     // This test requires the tilted.png asset
     try {
-      const imagePath = import.meta.dir + "/../assets/tilted.png";
+      const imagePath = `${import.meta.dir}/../assets/tilted.png`;
       const imgFile = Bun.file(imagePath);
       const fileBuffer = await imgFile.arrayBuffer();
       const canvas = await CanvasProcessor.prepareCanvas(fileBuffer);

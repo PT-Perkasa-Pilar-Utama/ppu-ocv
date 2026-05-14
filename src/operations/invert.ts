@@ -2,12 +2,6 @@ import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 
-declare module "../pipeline/types" {
-  interface RegisteredOperations {
-    invert: InvertOptions;
-  }
-}
-
 export interface InvertOptions extends PartialOptions {}
 
 function defaultOptions(): InvertOptions {

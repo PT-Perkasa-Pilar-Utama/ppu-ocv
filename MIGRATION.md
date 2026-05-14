@@ -13,6 +13,7 @@ The changes are minimal — most code needs only a one-line import update.
 These static methods have moved to the new `CanvasProcessor` class.
 
 **Before (v2)**
+
 ```typescript
 import { ImageProcessor } from "ppu-ocv";
 
@@ -21,6 +22,7 @@ const buffer = await ImageProcessor.prepareBuffer(canvas);
 ```
 
 **After (v3)**
+
 ```typescript
 import { CanvasProcessor } from "ppu-ocv";
 
@@ -37,6 +39,7 @@ const buffer = await CanvasProcessor.prepareBuffer(canvas);
 If you only need canvas utilities and **not** OpenCV (e.g. in a Browser Extension background script), switch to the canvas-only entry point. OpenCV is never imported or initialised.
 
 **Node.js**
+
 ```typescript
 // Before — forced to load OpenCV
 import { ImageProcessor } from "ppu-ocv";
@@ -48,6 +51,7 @@ const canvas = await CanvasProcessor.prepareCanvas(buffer);
 ```
 
 **Browser**
+
 ```typescript
 // Before — forced to load OpenCV
 import { ImageProcessor } from "ppu-ocv/web";
@@ -96,9 +100,9 @@ function highlight(contour: ContourLike) {
 
 ## Entry point reference
 
-| Import path         | OpenCV? | Node canvas | Browser canvas | Use case                              |
-|---------------------|---------|-------------|----------------|---------------------------------------|
-| `ppu-ocv`           | yes     | yes         | —              | Full pipeline, Node.js                |
-| `ppu-ocv/web`       | yes     | —           | yes            | Full pipeline, browser                |
-| `ppu-ocv/canvas`    | **no**  | yes         | —              | Canvas-only, Node (extensions, etc.)  |
-| `ppu-ocv/canvas-web`| **no**  | —           | yes            | Canvas-only, browser (extensions, SW) |
+| Import path          | OpenCV? | Node canvas | Browser canvas | Use case                              |
+| -------------------- | ------- | ----------- | -------------- | ------------------------------------- |
+| `ppu-ocv`            | yes     | yes         | —              | Full pipeline, Node.js                |
+| `ppu-ocv/web`        | yes     | —           | yes            | Full pipeline, browser                |
+| `ppu-ocv/canvas`     | **no**  | yes         | —              | Canvas-only, Node (extensions, etc.)  |
+| `ppu-ocv/canvas-web` | **no**  | —           | yes            | Canvas-only, browser (extensions, SW) |
