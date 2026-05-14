@@ -1,5 +1,26 @@
 # Changelog
 
+## [3.1.5] — 2026-05-14
+
+### Dependencies
+
+- **`@napi-rs/canvas` 0.1.100 → 1.0.0.** Upstream marked the API stable after ~11M weekly downloads. The maintainer explicitly notes no breaking changes, so this is a drop-in upgrade for everyone using the Node entry points (`ppu-ocv`, `ppu-ocv/canvas`).
+
+### Infrastructure
+
+- Added `.github/dependabot.yml` so npm dependencies and GitHub Actions stay current automatically (weekly schedule).
+- Tightened `permissions:` on the CI quality-check workflow.
+- Bumped publish workflow Node runtime 20 → 22 (Node 20 reaches EOL April 2026).
+- Bumped CI actions to current majors: `actions/checkout` v4 → v6, `actions/setup-node` v4 → v6, `oven-sh/setup-bun` v1 → v2.
+- Bumped dev tooling: `lint-staged` 16.4.0 → 17.0.4 (now requires Node ≥22.22.1, matches the new CI baseline), `oxfmt` 0.48.0 → 0.49.0.
+
+### Documentation
+
+- Added launch article and SVG illustrations under `docs/`.
+- Added `skill-ppu-ocv/` at the repo root with usage guidance for AI coding assistants.
+
+No public API changes. Drop-in upgrade from 3.1.4.
+
 ## [3.1.4] — 2026-05-14
 
 ### Documentation
