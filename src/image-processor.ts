@@ -30,60 +30,34 @@ type NameWithRequiredOptions = {
 type NameWithOptionalOptions = Exclude<OperationName, NameWithRequiredOptions>;
 
 /**
- * Resolve when `cv.Mat` is constructable. Emscripten exposes `cv.Mat` before
- * its primitive type bindings (`int` etc.) are wired up, so the right signal
- * is "Mat actually constructs without UnboundTypeError," not "Mat exists".
+ * Resolve when the Emscripten OpenCV runtime is ready.
  *
- * Listens for `onRuntimeInitialized` and polls in parallel — the callback
- * does not fire if Emscripten has already completed initialization by the
- * time we attach it, so polling is the fallback that catches that case.
- * Times out after 30 s to avoid a permanent hang.
+ * Two signals are watched together to dodge the standard Emscripten race:
+ *
+ *   - Attach `onRuntimeInitialized`. Emscripten's `run()` flips
+ *     `calledRun = true` and then invokes the current `onRuntimeInitialized`
+ *     hook. Attach ours before init finishes and we get called.
+ *   - After attaching, immediately check `calledRun`. If it is already
+ *     true, init finished before our attach landed — `onRuntimeInitialized`
+ *     will never fire for us, so we resolve manually.
+ *
+ * An earlier `setTimeout` poll fallback was tried and would not yield
+ * reliably inside Bun's `beforeAll` setup on 1.2.x, causing the whole
+ * test runner to spin at 100% CPU forever. Attach-then-check has no timer.
  */
 function waitForCvReady(_cv: {
   onRuntimeInitialized?: () => void;
-  Mat?: new () => { delete: () => void };
+  calledRun?: boolean;
 }): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
-    const start = Date.now();
-    const tryMat = (): boolean => {
-      try {
-        if (_cv.Mat) {
-          new _cv.Mat().delete();
-          return true;
-        }
-      } catch {
-        // bindings not ready
-      }
-      return false;
-    };
-    if (tryMat()) {
-      resolve();
-      return;
-    }
+  return new Promise<void>((resolve) => {
     let done = false;
-    const finish = (err?: Error) => {
+    const finish = () => {
       if (done) return;
       done = true;
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
+      resolve();
     };
-    _cv.onRuntimeInitialized = () => finish();
-    const poll = (): void => {
-      if (done) return;
-      if (tryMat()) {
-        finish();
-        return;
-      }
-      if (Date.now() - start > 30000) {
-        finish(new Error("OpenCV runtime did not become ready within 30s"));
-        return;
-      }
-      setTimeout(poll, 50);
-    };
-    poll();
+    _cv.onRuntimeInitialized = finish;
+    if (_cv.calledRun) finish();
   });
 }
 
