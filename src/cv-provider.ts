@@ -40,6 +40,17 @@ export function setCv(instance: CV): void {
 }
 
 /**
+ * Return the raw cv module if it was already registered via `setCv`, or
+ * `null` otherwise. Used by `ImageProcessor.initRuntime` to avoid a second
+ * dynamic import of `@techstark/opencv-js` — re-importing the module in
+ * Bun causes Emscripten's embind to run its registration callbacks twice
+ * and throw `BindingError: Cannot register public name ... twice`.
+ */
+export function getRawCv(): CV | null {
+  return _cv;
+}
+
+/**
  * TypeScript Declaration Merging:
  * By exporting both a `namespace cv` and a `const cv`, consumers importing `{ cv }`
  * get BOTH the types (e.g. `cv.Mat`) AND the runtime Proxy object.
