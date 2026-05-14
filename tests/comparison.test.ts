@@ -16,10 +16,11 @@ import { createCanvas } from "@napi-rs/canvas";
 import { beforeAll, describe, expect, test } from "bun:test";
 import type { CanvasLike } from "../src/canvas-factory.js";
 import { setPlatform } from "../src/canvas-factory.js";
-import { CanvasProcessor } from "../src/canvas-processor.js";
-import { Contours } from "../src/contours.js";
-import { cv } from "../src/cv-provider.js";
-import { ImageProcessor } from "../src/image-processor.js";
+// Import via the package entry so the static `import _cv from "@techstark/opencv-js"`
+// in src/index.ts runs and registers cv with cv-provider before any test code
+// accesses the cv proxy. Importing cv from "../src/cv-provider.js" directly skips
+// that registration and leaves _cv null.
+import { CanvasProcessor, Contours, cv, ImageProcessor } from "../src/index.js";
 import type { BoundingBox } from "../src/index.interface.js";
 import { nodePlatform } from "../src/platform/node.js";
 

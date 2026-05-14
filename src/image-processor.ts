@@ -1,6 +1,6 @@
 import type { CanvasLike } from "./canvas-factory.js";
 import { getPlatform } from "./canvas-factory.js";
-import { cv, setCv } from "./cv-provider.js";
+import { cv } from "./cv-provider.js";
 
 import type {
   AdaptiveThresholdOptions,
@@ -28,38 +28,6 @@ type NameWithRequiredOptions = {
 }[OperationName];
 
 type NameWithOptionalOptions = Exclude<OperationName, NameWithRequiredOptions>;
-
-/**
- * Resolve when the Emscripten OpenCV runtime is ready.
- *
- * Two signals are watched together to dodge the standard Emscripten race:
- *
- *   - Attach `onRuntimeInitialized`. Emscripten's `run()` flips
- *     `calledRun = true` and then invokes the current `onRuntimeInitialized`
- *     hook. Attach ours before init finishes and we get called.
- *   - After attaching, immediately check `calledRun`. If it is already
- *     true, init finished before our attach landed — `onRuntimeInitialized`
- *     will never fire for us, so we resolve manually.
- *
- * An earlier `setTimeout` poll fallback was tried and would not yield
- * reliably inside Bun's `beforeAll` setup on 1.2.x, causing the whole
- * test runner to spin at 100% CPU forever. Attach-then-check has no timer.
- */
-function waitForCvReady(_cv: {
-  onRuntimeInitialized?: () => void;
-  calledRun?: boolean;
-}): Promise<void> {
-  return new Promise<void>((resolve) => {
-    let done = false;
-    const finish = () => {
-      if (done) return;
-      done = true;
-      resolve();
-    };
-    _cv.onRuntimeInitialized = finish;
-    if (_cv.calledRun) finish();
-  });
-}
 
 /**
  * OpenCV-powered image processing pipeline.
@@ -106,68 +74,19 @@ export class ImageProcessor {
   }
 
   /**
-   * Initialize OpenCV runtime. Must be called before any image processing.
-   *
-   * - **Node.js**: Uses `@techstark/opencv-js` from node_modules (loaded by entry point).
-   * - **Browser with bundler**: Resolves `@techstark/opencv-js` via the bundler.
-   * - **Browser without bundler**: Falls back to loading `@techstark/opencv-js` from npm CDN.
+   * Initialize OpenCV runtime. This is recommended to be called before any
+   * image processing.
    */
   static async initRuntime(): Promise<void> {
-    // Concurrent callers (e.g. multiple test files each calling this in their
-    // own beforeAll) must share one in-flight init promise. Without this,
-    // a second caller would overwrite the first's `onRuntimeInitialized`
-    // callback, leaving the first promise pending forever and hanging the
-    // test runner.
-    const g = globalThis as { __ppuOcvInitPromise?: Promise<void> };
-    if (g.__ppuOcvInitPromise) return g.__ppuOcvInitPromise;
-
-    g.__ppuOcvInitPromise = (async () => {
-      // Try dynamic import (works in Node + bundlers)
-      try {
-        const mod = await import("@techstark/opencv-js");
-        const _cv = (mod.default || mod) as Parameters<typeof setCv>[0] & {
-          onRuntimeInitialized?: () => void;
-          Mat?: new () => { delete: () => void };
+    return new Promise((res) => {
+      if (cv && cv.Mat) {
+        res();
+      } else {
+        cv["onRuntimeInitialized"] = () => {
+          res();
         };
-        setCv(_cv);
-        await waitForCvReady(_cv);
-        return;
-      } catch {
-        // Bare specifier not resolvable — fall through to CDN
       }
-
-      // Browser fallback: load @techstark/opencv-js from npm CDN
-      if (typeof document !== "undefined") {
-        await new Promise<void>((resolve, reject) => {
-          const script = document.createElement("script");
-          script.src =
-            "https://cdn.jsdelivr.net/npm/@techstark/opencv-js@4.10.0-release.1/dist/opencv.js";
-          script.async = true;
-          script.onload = () => resolve();
-          script.onerror = () => reject(new Error("Failed to load @techstark/opencv-js from CDN"));
-          document.head.appendChild(script);
-        });
-        const gw = globalThis as { cv?: Parameters<typeof setCv>[0] };
-        if (!gw.cv) {
-          throw new Error("OpenCV.js loaded but `cv` not found on globalThis");
-        }
-        setCv(gw.cv);
-        await waitForCvReady(gw.cv);
-        return;
-      }
-
-      throw new Error(
-        "Cannot initialize OpenCV runtime. Install @techstark/opencv-js or run in a browser."
-      );
-    })();
-
-    try {
-      await g.__ppuOcvInitPromise;
-    } catch (err) {
-      // If init failed, clear the cached promise so the next caller can retry.
-      g.__ppuOcvInitPromise = undefined;
-      throw err;
-    }
+    });
   }
 
   /**
