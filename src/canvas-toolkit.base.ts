@@ -30,10 +30,7 @@ export class CanvasToolkitBase {
   crop(options: { bbox: BoundingBox; canvas: CanvasLike }): CanvasLike {
     const { bbox, canvas } = options;
 
-    const croppedCanvas = getPlatform().createCanvas(
-      bbox.x1 - bbox.x0,
-      bbox.y1 - bbox.y0,
-    );
+    const croppedCanvas = getPlatform().createCanvas(bbox.x1 - bbox.x0, bbox.y1 - bbox.y0);
     const croppedCtx = croppedCanvas.getContext("2d");
 
     croppedCtx.drawImage(
@@ -45,7 +42,7 @@ export class CanvasToolkitBase {
       0,
       0,
       croppedCanvas.width,
-      croppedCanvas.height,
+      croppedCanvas.height
     );
 
     return croppedCanvas;
@@ -75,12 +72,7 @@ export class CanvasToolkitBase {
     });
 
     const ctx = borderlessCanvas.getContext("2d");
-    const colorData = ctx.getImageData(
-      0,
-      0,
-      borderlessCanvas.width,
-      borderlessCanvas.height,
-    ).data;
+    const colorData = ctx.getImageData(0, 0, borderlessCanvas.width, borderlessCanvas.height).data;
 
     for (let i = 0; i < colorData.length; i += 4) {
       const red = colorData[i] as number;
@@ -94,8 +86,7 @@ export class CanvasToolkitBase {
       }
     }
 
-    const majorColorRatio =
-      Math.max(whiteCount, blackCount) / (blackCount + whiteCount);
+    const majorColorRatio = Math.max(whiteCount, blackCount) / (blackCount + whiteCount);
 
     return majorColorRatio < majorColorThreshold;
   }

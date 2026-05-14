@@ -20,7 +20,7 @@ export interface Context2DLike {
     sx: number,
     sy: number,
     sw: number,
-    sh: number,
+    sh: number
   ): { data: Uint8ClampedArray; width: number; height: number };
   putImageData(imageData: any, dx: number, dy: number): void;
   createImageData(width: number, height: number): any;
@@ -60,7 +60,7 @@ export function getPlatform(): CanvasPlatform {
     throw new Error(
       "No canvas platform registered. " +
         'Import "ppu-ocv" (Node), "ppu-ocv/web" (browser), ' +
-        '"ppu-ocv/canvas" (Node canvas-only), or "ppu-ocv/canvas-web" (browser canvas-only) to auto-register.',
+        '"ppu-ocv/canvas" (Node canvas-only), or "ppu-ocv/canvas-web" (browser canvas-only) to auto-register.'
     );
   }
   return _platform;

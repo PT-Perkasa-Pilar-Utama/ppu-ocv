@@ -2,12 +2,6 @@ import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 
-declare module "../pipeline/types" {
-  interface RegisteredOperations {
-    blur: BlurOptions;
-  }
-}
-
 export interface BlurOptions extends PartialOptions {
   /** Size of the blur [x, y] */
   size: [number, number];
@@ -22,12 +16,7 @@ function defaultOptions(): BlurOptions {
 export function blur(img: cv.Mat, options: BlurOptions): OperationResult {
   const imgBlur = new cv.Mat();
 
-  cv.GaussianBlur(
-    img,
-    imgBlur,
-    new cv.Size(options.size[0], options.size[1]),
-    options.sigma,
-  );
+  cv.GaussianBlur(img, imgBlur, new cv.Size(options.size[0], options.size[1]), options.sigma);
   img.delete();
 
   return {

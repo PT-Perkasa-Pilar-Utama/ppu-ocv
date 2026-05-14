@@ -1,0 +1,42 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import", "promise"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "typescript/ban-ts-comment": [
+      "error",
+      {
+        "ts-expect-error": "allow-with-description",
+        "ts-ignore": true,
+        "ts-nocheck": true,
+        "ts-check": false
+      }
+    ],
+    "typescript/no-explicit-any": "error",
+    "typescript/explicit-module-boundary-types": "error",
+    "typescript/consistent-type-definitions": ["warn", "type"],
+    "typescript/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "type-imports",
+        "fixStyle": "separate-type-imports"
+      }
+    ],
+    "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
+    "typescript/no-unsafe-type-assertion": "error",
+    "typescript/no-non-null-assertion": "error",
+    "typescript/use-unknown-in-catch-callback-variable": "error",
+    "promise/prefer-await-to-then": "error",
+    "promise/no-nesting": "error",
+    "no-nested-ternary": "error",
+    "prefer-const": "error",
+    "object-shorthand": "error",
+    "prefer-template": "error"
+  },
+  "env": {
+    "builtin": true
+  },
+  "ignorePatterns": [".opencode", ".claude", ".agents", "sandbox", "lib", "out", "*.lock"]
+}

@@ -3,12 +3,6 @@ import type { BoundingBox, Points } from "../index.interface.js";
 import { registry } from "../pipeline/registry.js";
 import type { OperationResult, RequiredOptions } from "../pipeline/types.js";
 
-declare module "../pipeline/types" {
-  interface RegisteredOperations {
-    warp: WarpOptions;
-  }
-}
-
 export interface WarpOptions extends RequiredOptions {
   /** Four points of the source image containing x and y point in
    * topLeft, topRight, bottomLeft and BottomRight.
@@ -56,8 +50,8 @@ export function warp(img: cv.Mat, options: WarpOptions): OperationResult {
   const dest = cv.matFromArray(4, 1, cv.CV_32FC2, destArray);
   const src = cv.matFromArray(4, 1, cv.CV_32FC2, srcArray);
 
-  let M = cv.getPerspectiveTransform(src, dest);
-  let dsize = new cv.Size(targetWidth, targetHeight);
+  const M = cv.getPerspectiveTransform(src, dest);
+  const dsize = new cv.Size(targetWidth, targetHeight);
   cv.warpPerspective(img, imgWarp, M, dsize);
 
   M.delete();

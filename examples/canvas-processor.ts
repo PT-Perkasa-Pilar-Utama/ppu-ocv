@@ -26,7 +26,7 @@ function save(buffer: ArrayBuffer, filename: string) {
 
 console.log("\n1. Loading image with CanvasProcessor.prepareCanvas()");
 
-const imagePath = import.meta.dir + "/../assets/receipt.jpg";
+const imagePath = `${import.meta.dir}/../assets/receipt.jpg`;
 const fileBuffer = await Bun.file(imagePath).arrayBuffer();
 
 const canvas = await CanvasProcessor.prepareCanvas(fileBuffer);
@@ -44,9 +44,7 @@ save(exportedBuffer, "original.png");
 
 console.log("\n3. resize({ width: 360, height: 640 })");
 
-const resized = new CanvasProcessor(canvas)
-  .resize({ width: 360, height: 640 })
-  .toCanvas();
+const resized = new CanvasProcessor(canvas).resize({ width: 360, height: 640 }).toCanvas();
 
 console.log(`   result: ${resized.width}×${resized.height}`);
 save(await CanvasProcessor.prepareBuffer(resized), "resized.png");
@@ -62,9 +60,7 @@ save(await CanvasProcessor.prepareBuffer(grayscaled), "grayscale.png");
 
 console.log("\n5. convert({ alpha: 1.4, beta: 20 })  — increase brightness/contrast");
 
-const brightened = new CanvasProcessor(canvas)
-  .convert({ alpha: 1.4, beta: 20 })
-  .toCanvas();
+const brightened = new CanvasProcessor(canvas).convert({ alpha: 1.4, beta: 20 }).toCanvas();
 
 save(await CanvasProcessor.prepareBuffer(brightened), "brightened.png");
 
@@ -72,9 +68,7 @@ save(await CanvasProcessor.prepareBuffer(brightened), "brightened.png");
 
 console.log("\n6. convert({ alpha: 0.6, beta: -20 })  — reduce brightness/contrast");
 
-const darkened = new CanvasProcessor(canvas)
-  .convert({ alpha: 0.6, beta: -20 })
-  .toCanvas();
+const darkened = new CanvasProcessor(canvas).convert({ alpha: 0.6, beta: -20 }).toCanvas();
 
 save(await CanvasProcessor.prepareBuffer(darkened), "darkened.png");
 

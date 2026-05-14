@@ -104,14 +104,11 @@ export class ImageProcessor {
               resolve();
             };
           } else {
-            reject(
-              new Error("OpenCV.js loaded but cv not found on globalThis"),
-            );
+            reject(new Error("OpenCV.js loaded but cv not found on globalThis"));
           }
         };
 
-        script.onerror = () =>
-          reject(new Error("Failed to load @techstark/opencv-js from CDN"));
+        script.onerror = () => reject(new Error("Failed to load @techstark/opencv-js from CDN"));
 
         document.head.appendChild(script);
       });
@@ -119,7 +116,7 @@ export class ImageProcessor {
     }
 
     throw new Error(
-      "Cannot initialize OpenCV runtime. Install @techstark/opencv-js or run in a browser.",
+      "Cannot initialize OpenCV runtime. Install @techstark/opencv-js or run in a browser."
     );
   }
 
@@ -128,10 +125,7 @@ export class ImageProcessor {
    * @param operationName Name of the operation (e.g., "resize")
    * @param options Required options for the operation
    */
-  execute<N extends NameWithRequiredOptions>(
-    operationName: N,
-    options: OperationOptions<N>,
-  ): this;
+  execute<N extends NameWithRequiredOptions>(operationName: N, options: OperationOptions<N>): this;
 
   /**
    * Execute a registered pipeline operation that has default options.
@@ -140,7 +134,7 @@ export class ImageProcessor {
    */
   execute<N extends NameWithOptionalOptions>(
     operationName: N,
-    options?: Partial<OperationOptions<N>>,
+    options?: Partial<OperationOptions<N>>
   ): this;
 
   /**
@@ -148,10 +142,7 @@ export class ImageProcessor {
    * @param operationName Name of the operation (e.g., "blur", "grayscale")
    * @param options Options for the operation
    */
-  execute<N extends OperationName>(
-    operationName: N,
-    options?: Partial<OperationOptions<N>>,
-  ): this {
+  execute<N extends OperationName>(operationName: N, options?: Partial<OperationOptions<N>>): this {
     const result = executeOperation(operationName, this.img, options);
     this.img = result.img;
     this.width = result.width;
@@ -282,10 +273,7 @@ export class ImageProcessor {
    * @param options Morphological gradient configuration options
    */
   morphologicalGradient(options?: Partial<MorphologicalGradientOptions>): this {
-    return this.execute<"morphologicalGradient">(
-      "morphologicalGradient",
-      options,
-    );
+    return this.execute<"morphologicalGradient">("morphologicalGradient", options);
   }
 
   /**

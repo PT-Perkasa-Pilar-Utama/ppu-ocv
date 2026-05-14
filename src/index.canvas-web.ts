@@ -4,11 +4,7 @@ setPlatform(webPlatform);
 
 export type { BoundingBox, Coordinate, Points } from "./index.interface.js";
 export { getPlatform, setPlatform } from "./canvas-factory.js";
-export type {
-  CanvasLike,
-  CanvasPlatform,
-  Context2DLike,
-} from "./canvas-factory.js";
+export type { CanvasLike, CanvasPlatform, Context2DLike } from "./canvas-factory.js";
 export { webPlatform } from "./platform/web.js";
 export {
   CanvasToolkitBase as CanvasToolkit,

@@ -2,22 +2,13 @@ import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 
-declare module "../pipeline/types" {
-  interface RegisteredOperations {
-    grayscale: GrayscaleOptions;
-  }
-}
-
 export interface GrayscaleOptions extends PartialOptions {}
 
 function defaultOptions(): GrayscaleOptions {
   return {};
 }
 
-export function grayscale(
-  img: cv.Mat,
-  options: GrayscaleOptions,
-): OperationResult {
+export function grayscale(img: cv.Mat, options: GrayscaleOptions): OperationResult {
   const imgGrayscale = new cv.Mat();
 
   cv.cvtColor(img, imgGrayscale, cv.COLOR_RGBA2GRAY);

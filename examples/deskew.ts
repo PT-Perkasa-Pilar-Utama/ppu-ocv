@@ -18,7 +18,7 @@ const service = new DeskewService({
 });
 
 // Load a tilted image
-const imagePath = import.meta.dir + "/../assets/tilted.png";
+const imagePath = `${import.meta.dir}/../assets/tilted.png`;
 const imgFile = Bun.file(imagePath);
 const fileBuffer = await imgFile.arrayBuffer();
 const canvas = await CanvasProcessor.prepareCanvas(fileBuffer);

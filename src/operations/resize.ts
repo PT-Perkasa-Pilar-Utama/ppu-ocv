@@ -2,12 +2,6 @@ import type { OperationResult, RequiredOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 
-declare module "../pipeline/types" {
-  interface RegisteredOperations {
-    resize: ResizeOptions;
-  }
-}
-
 export interface ResizeOptions extends RequiredOptions {
   /** Width of the resized image */
   width: number;

@@ -1,7 +1,8 @@
 ## How to extend ppu-ocv operations
 
-Let say in this case, I want to add `sobel` operation for image edge-detection alternative.  
-There are two ways you can extend `ppu-ocv`.
+Let say in this case, I want to add `sobel` operation for image edge-detection alternative. There are two ways you can extend `ppu-ocv`.
+
+> **About the internal registry.** Built-in operations (`blur`, `threshold`, etc.) are listed in `src/pipeline/types.ts` as a concrete `RegisteredOperations` interface. The library no longer uses `declare module` augmentation internally because JSR rejects packages that modify global types. **Consumer-side augmentation still works** — that's exactly what Method 1 below relies on. If you want to add an operation to the library itself, open a PR that registers it in `src/operations/<name>.ts` AND adds the entry to `pipeline/types.ts`.
 
 #### Method 1: Augmentation + runtime prototype injection (more "magic")
 
@@ -9,7 +10,7 @@ There are two ways you can extend `ppu-ocv`.
 | ------------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | Allows calling `.sobel()` directly on the base `ImageProcessor` instances | Requires more boilerplate (type augmentation + prototype injection) |
 | Feels integrated into the existing API                                    | Path sensitivity in the `declare module` setup                      |
-|                                                                           | Feels a bit like “monkey patching”                                  |
+|                                                                           | Feels a bit like "monkey patching"                                  |
 
 ### 1. Create `sobel.ts`
 

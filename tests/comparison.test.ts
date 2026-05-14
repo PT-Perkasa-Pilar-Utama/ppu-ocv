@@ -59,7 +59,7 @@ function compareRGB(a: Uint8ClampedArray, b: Uint8ClampedArray): PixelStats {
   return {
     totalPixels,
     exactMatch,
-    exactMatchPct: ((exactMatch / totalPixels) * 100).toFixed(2) + "%",
+    exactMatchPct: `${((exactMatch / totalPixels) * 100).toFixed(2)}%`,
     maxDiff,
     meanDiff: (sumDiff / comparisons).toFixed(4),
   };
@@ -68,15 +68,11 @@ function compareRGB(a: Uint8ClampedArray, b: Uint8ClampedArray): PixelStats {
 function printStats(label: string, stats: PixelStats) {
   console.log(
     `  [${label}] exact: ${stats.exactMatchPct} of ${stats.totalPixels}px` +
-      `  maxDiff: ${stats.maxDiff}  meanDiff: ${stats.meanDiff}`,
+      `  maxDiff: ${stats.maxDiff}  meanDiff: ${stats.meanDiff}`
   );
 }
 
-async function getPixels(canvas: {
-  width: number;
-  height: number;
-  getContext: any;
-}) {
+async function getPixels(canvas: { width: number; height: number; getContext: any }) {
   return canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height)
     .data as Uint8ClampedArray;
 }
@@ -132,9 +128,7 @@ describe("grayscale: canvas-native vs OpenCV", () => {
 
     const srcCopy = createCanvas(1, 1);
     srcCopy.getContext("2d").drawImage(src, 0, 0);
-    const oc = await getPixels(
-      new ImageProcessor(srcCopy).grayscale().toCanvas(),
-    );
+    const oc = await getPixels(new ImageProcessor(srcCopy).grayscale().toCanvas());
 
     console.log(`\n  pure green (0,128,0):`);
     console.log(`    CanvasProcessor → R=${cp[0]}`);
@@ -153,10 +147,7 @@ describe("grayscale: canvas-native vs OpenCV", () => {
     const srcCopy = copyToCanvas(src);
     const ocvResult = new ImageProcessor(srcCopy).grayscale().toCanvas();
 
-    const stats = compareRGB(
-      await getPixels(cpResult),
-      await getPixels(ocvResult),
-    );
+    const stats = compareRGB(await getPixels(cpResult), await getPixels(ocvResult));
 
     console.log("\n  grayscale — real image:");
     printStats("canvas vs opencv", stats);
@@ -177,20 +168,13 @@ describe("resize: canvas-native vs OpenCV", () => {
     src.getContext("2d").fillStyle = "#4287f5";
     src.getContext("2d").fillRect(0, 0, 100, 100);
 
-    const cpResult = new CanvasProcessor(src)
-      .resize({ width: 50, height: 50 })
-      .toCanvas();
+    const cpResult = new CanvasProcessor(src).resize({ width: 50, height: 50 }).toCanvas();
 
     const srcCopy = createCanvas(100, 100);
     srcCopy.getContext("2d").drawImage(src, 0, 0);
-    const ocvResult = new ImageProcessor(srcCopy)
-      .resize({ width: 50, height: 50 })
-      .toCanvas();
+    const ocvResult = new ImageProcessor(srcCopy).resize({ width: 50, height: 50 }).toCanvas();
 
-    const stats = compareRGB(
-      await getPixels(cpResult),
-      await getPixels(ocvResult),
-    );
+    const stats = compareRGB(await getPixels(cpResult), await getPixels(ocvResult));
 
     console.log("\n  resize solid colour 100×100 → 50×50:");
     printStats("canvas vs opencv", stats);
@@ -215,10 +199,7 @@ describe("resize: canvas-native vs OpenCV", () => {
       .resize({ width: targetW, height: targetH })
       .toCanvas();
 
-    const stats = compareRGB(
-      await getPixels(cpResult),
-      await getPixels(ocvResult),
-    );
+    const stats = compareRGB(await getPixels(cpResult), await getPixels(ocvResult));
 
     console.log("\n  resize real image 2× downscale:");
     printStats("canvas vs opencv", stats);
@@ -231,26 +212,15 @@ describe("resize: canvas-native vs OpenCV", () => {
     // Use a small crop to keep runtime manageable
     const src = createCanvas(100, 100);
     const file = Bun.file("./assets/receipt.jpg");
-    const original = await CanvasProcessor.prepareCanvas(
-      await file.arrayBuffer(),
-    );
-    src
-      .getContext("2d")
-      .putImageData(original.getContext("2d").getImageData(0, 0, 100, 100), 0, 0);
+    const original = await CanvasProcessor.prepareCanvas(await file.arrayBuffer());
+    src.getContext("2d").putImageData(original.getContext("2d").getImageData(0, 0, 100, 100), 0, 0);
 
-    const cpResult = new CanvasProcessor(src)
-      .resize({ width: 200, height: 200 })
-      .toCanvas();
+    const cpResult = new CanvasProcessor(src).resize({ width: 200, height: 200 }).toCanvas();
 
     const srcCopy = copyToCanvas(src);
-    const ocvResult = new ImageProcessor(srcCopy)
-      .resize({ width: 200, height: 200 })
-      .toCanvas();
+    const ocvResult = new ImageProcessor(srcCopy).resize({ width: 200, height: 200 }).toCanvas();
 
-    const stats = compareRGB(
-      await getPixels(cpResult),
-      await getPixels(ocvResult),
-    );
+    const stats = compareRGB(await getPixels(cpResult), await getPixels(ocvResult));
 
     console.log("\n  resize real image 2× upscale:");
     printStats("canvas vs opencv", stats);
@@ -275,15 +245,9 @@ describe("invert: canvas-native vs OpenCV", () => {
 
     const srcCopy = copyToCanvas(src);
     // OpenCV single-channel mat → toCanvas sets alpha=255 after invert
-    const ocvResult = new ImageProcessor(srcCopy)
-      .grayscale()
-      .invert()
-      .toCanvas();
+    const ocvResult = new ImageProcessor(srcCopy).grayscale().invert().toCanvas();
 
-    const stats = compareRGB(
-      await getPixels(cpResult),
-      await getPixels(ocvResult),
-    );
+    const stats = compareRGB(await getPixels(cpResult), await getPixels(ocvResult));
 
     console.log("\n  invert (after grayscale) — real image:");
     printStats("canvas vs opencv", stats);
@@ -313,10 +277,7 @@ describe("threshold: canvas-native vs OpenCV", () => {
       .threshold({ lower: 127, upper: 255, type: 0 /* cv.THRESH_BINARY */ })
       .toCanvas();
 
-    const stats = compareRGB(
-      await getPixels(cpResult),
-      await getPixels(ocvResult),
-    );
+    const stats = compareRGB(await getPixels(cpResult), await getPixels(ocvResult));
 
     console.log("\n  threshold THRESH_BINARY=127 after grayscale:");
     printStats("canvas vs opencv", stats);
@@ -333,9 +294,7 @@ describe("border: canvas-native vs OpenCV", () => {
     const file = Bun.file("./assets/receipt.jpg");
     const src = await CanvasProcessor.prepareCanvas(await file.arrayBuffer());
 
-    const cpResult = new CanvasProcessor(src)
-      .border({ size: 10, color: "white" })
-      .toCanvas();
+    const cpResult = new CanvasProcessor(src).border({ size: 10, color: "white" }).toCanvas();
 
     const srcCopy = copyToCanvas(src);
     // OpenCV borderColor is [B, G, R, A] for BORDER_CONSTANT on a BGRA mat,
@@ -352,10 +311,7 @@ describe("border: canvas-native vs OpenCV", () => {
     expect(cpResult.width).toBe(ocvResult.width);
     expect(cpResult.height).toBe(ocvResult.height);
 
-    const stats = compareRGB(
-      await getPixels(cpResult),
-      await getPixels(ocvResult),
-    );
+    const stats = compareRGB(await getPixels(cpResult), await getPixels(ocvResult));
 
     console.log("\n  border size=10 white:");
     printStats("canvas vs opencv", stats);
@@ -375,14 +331,9 @@ describe("rotate: canvas-native vs OpenCV", () => {
     const cpResult = new CanvasProcessor(src).rotate({ angle: 0 }).toCanvas();
 
     const srcCopy = copyToCanvas(src);
-    const ocvResult = new ImageProcessor(srcCopy)
-      .rotate({ angle: 0 })
-      .toCanvas();
+    const ocvResult = new ImageProcessor(srcCopy).rotate({ angle: 0 }).toCanvas();
 
-    const stats = compareRGB(
-      await getPixels(cpResult),
-      await getPixels(ocvResult),
-    );
+    const stats = compareRGB(await getPixels(cpResult), await getPixels(ocvResult));
 
     console.log("\n  rotate 0°:");
     printStats("canvas vs opencv", stats);
@@ -395,21 +346,15 @@ describe("rotate: canvas-native vs OpenCV", () => {
     // uses plain bilinear without AA. This causes visible pixel differences
     // especially at high angles. 15° is a realistic deskew-like angle.
     const file = Bun.file("./assets/receipt.jpg");
-    const original = await CanvasProcessor.prepareCanvas(
-      await file.arrayBuffer(),
-    );
+    const original = await CanvasProcessor.prepareCanvas(await file.arrayBuffer());
     const src = createCanvas(200, 200);
-    src
-      .getContext("2d")
-      .putImageData(original.getContext("2d").getImageData(0, 0, 200, 200), 0, 0);
+    src.getContext("2d").putImageData(original.getContext("2d").getImageData(0, 0, 200, 200), 0, 0);
 
     const cpResult = new CanvasProcessor(src).rotate({ angle: 15 }).toCanvas();
 
     const srcCopy = createCanvas(200, 200);
     srcCopy.getContext("2d").drawImage(src, 0, 0);
-    const ocvResult = new ImageProcessor(srcCopy)
-      .rotate({ angle: 15 })
-      .toCanvas();
+    const ocvResult = new ImageProcessor(srcCopy).rotate({ angle: 15 }).toCanvas();
 
     // Compare only the inner 50% to avoid border fill differences
     const cx = 50,
@@ -451,10 +396,7 @@ describe("chain: resize → grayscale", () => {
       .grayscale()
       .toCanvas();
 
-    const stats = compareRGB(
-      await getPixels(cpResult),
-      await getPixels(ocvResult),
-    );
+    const stats = compareRGB(await getPixels(cpResult), await getPixels(ocvResult));
 
     console.log("\n  resize → grayscale chain:");
     printStats("canvas vs opencv", stats);
@@ -576,16 +518,11 @@ describe("findRegions: canvas-native vs OpenCV Contours", () => {
 
     const unmatchedCanvas = canvasRegions.length - matched.length;
     const unmatchedOcv = ocvRegions.length - matched.length;
-    const meanIou =
-      matched.reduce((s, m) => s + m.iou, 0) / (matched.length || 1);
+    const meanIou = matched.reduce((s, m) => s + m.iou, 0) / (matched.length || 1);
 
     console.log(`    matched pairs: ${matched.length}`);
-    console.log(
-      `    unmatched canvas: ${unmatchedCanvas}  unmatched ocv: ${unmatchedOcv}`,
-    );
-    console.log(
-      `    mean IoU of matched pairs: ${(meanIou * 100).toFixed(2)}%`,
-    );
+    console.log(`    unmatched canvas: ${unmatchedCanvas}  unmatched ocv: ${unmatchedOcv}`);
+    console.log(`    mean IoU of matched pairs: ${(meanIou * 100).toFixed(2)}%`);
 
     // Most regions should match — at most 3 unmatched from either side
     expect(unmatchedCanvas).toBeLessThanOrEqual(3);
@@ -623,9 +560,7 @@ describe("findRegions: canvas-native vs OpenCV Contours", () => {
     const SCALE = 1 / RESIZE_RATIO;
 
     const file = Bun.file("./assets/binary-text-detection.png");
-    const original = await CanvasProcessor.prepareCanvas(
-      await file.arrayBuffer(),
-    );
+    const original = await CanvasProcessor.prepareCanvas(await file.arrayBuffer());
 
     // Resize to simulate the processed canvas that gets passed to contour detection
     const processedW = Math.round(original.width * RESIZE_RATIO);
@@ -650,8 +585,8 @@ describe("findRegions: canvas-native vs OpenCV Contours", () => {
       // applyPaddingToRect
       const vPad = Math.round(rect.height * PADDING_V);
       const hPad = Math.round(rect.height * PADDING_H);
-      let px = Math.max(0, rect.x - hPad);
-      let py = Math.max(0, rect.y - vPad);
+      const px = Math.max(0, rect.x - hPad);
+      const py = Math.max(0, rect.y - vPad);
       const rightEdge = Math.min(processedW, rect.x + rect.width + hPad);
       const bottomEdge = Math.min(processedH, rect.y + rect.height + vPad);
       const pw = rightEdge - px;
@@ -692,7 +627,7 @@ describe("findRegions: canvas-native vs OpenCV Contours", () => {
     const sortedOcv = sortByPos(ocvBoxes);
 
     console.log(
-      `\n  full pipeline (resize=${RESIZE_RATIO}, padding v=${PADDING_V} h=${PADDING_H}):`,
+      `\n  full pipeline (resize=${RESIZE_RATIO}, padding v=${PADDING_V} h=${PADDING_H}):`
     );
     console.log(`    canvas boxes: ${canvasBoxes.length}`);
     console.log(`    OpenCV boxes: ${ocvBoxes.length}`);
@@ -732,7 +667,7 @@ describe("findRegions: canvas-native vs OpenCV Contours", () => {
     const meanIou = matched > 0 ? totalIou / matched : 0;
 
     console.log(
-      `    matched: ${matched}  unmatched canvas: ${canvasBoxes.length - matched}  unmatched ocv: ${ocvBoxes.length - matched}`,
+      `    matched: ${matched}  unmatched canvas: ${canvasBoxes.length - matched}  unmatched ocv: ${ocvBoxes.length - matched}`
     );
     console.log(`    mean IoU: ${(meanIou * 100).toFixed(2)}%`);
 

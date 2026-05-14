@@ -45,21 +45,28 @@
   },
   "scripts": {
     "task": "bun scripts/task.ts",
+    "build": "bun task build",
     "build:test": "bun task build && bun test",
     "build:publish": "bun task build && bun task report-size && bun task publish",
-    "lint": "prettier --check ./src",
-    "lint:fix": "prettier --write ./src",
-    "demo": "bunx -y serve -l 4567 ."
+    "type-check": "bunx tsgo --noEmit",
+    "test": "bun test",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt --check",
+    "fmt:fix": "oxfmt .",
+    "demo": "bunx -y serve -l 4567 .",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "@stylistic/eslint-plugin": "latest",
     "@types/bun": "latest",
     "@types/uglify-js": "latest",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.0.0",
     "mitata": "latest",
-    "prettier": "^3.8.1",
+    "oxfmt": "^0.48.0",
+    "oxlint": "^1.63.0",
     "tsx": "latest",
     "typescript": "latest",
-    "typescript-eslint": "latest",
     "uglify-js": ">=2.4.24"
   },
   "repository": {

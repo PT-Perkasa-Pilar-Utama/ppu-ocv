@@ -99,11 +99,7 @@ export class Contours {
    * @returns void
    */
   iterate(callback: (contour: cv.Mat) => any): Contours {
-    for (
-      let i = 0, len = this.contours.size() as unknown as number;
-      i < len;
-      i++
-    ) {
+    for (let i = 0, len = this.contours.size() as unknown as number; i < len; i++) {
       const contour = this.contours.get(i);
       callback(contour);
     }
@@ -164,9 +160,9 @@ export class Contours {
     }
 
     const rect = cv.minAreaRect(contour);
-    const vertices = (
-      cv.RotatedRect as unknown as { points: (r: unknown) => Coordinate[] }
-    ).points(rect);
+    const vertices = (cv.RotatedRect as unknown as { points: (r: unknown) => Coordinate[] }).points(
+      rect
+    );
 
     const points = {
       topLeft: { x: 0, y: 0 },
@@ -262,8 +258,7 @@ export class Contours {
     threshold?: number;
     contour?: cv.Mat;
   }): cv.Mat | undefined {
-    const { threshold = 0.02, contour = this.getLargestContourArea() } =
-      options ?? {};
+    const { threshold = 0.02, contour = this.getLargestContourArea() } = options ?? {};
 
     if (!contour) return undefined;
 

@@ -119,8 +119,7 @@ export class DeskewService {
     }
 
     const averageHeight =
-      textRegions.reduce((sum, region) => sum + region.rect.height, 0) /
-      textRegions.length;
+      textRegions.reduce((sum, region) => sum + region.rect.height, 0) / textRegions.length;
 
     const filteredRegions = textRegions.filter((region) => {
       return region.rect.height <= averageHeight * 1.5;
@@ -128,10 +127,7 @@ export class DeskewService {
 
     this.log(`Found ${filteredRegions.length} text regions for skew analysis.`);
 
-    const minRectAngles = this.calculateMinRectAngles(
-      filteredRegions,
-      contours,
-    );
+    const minRectAngles = this.calculateMinRectAngles(filteredRegions, contours);
 
     const baselineAngles = this.calculateBaselineAngles(filteredRegions);
 
@@ -139,37 +135,30 @@ export class DeskewService {
 
     contours.destroy();
 
-    const allAngles: Array<{ angle: number; weight: number; method: string }> =
-      [
-        ...minRectAngles.map((a: { angle: number; weight: number }) => ({
-          ...a,
-          method: "minRect",
-        })),
-        ...baselineAngles.map((a: { angle: number; weight: number }) => ({
-          ...a,
-          method: "baseline",
-        })),
-        ...houghAngles.map((a: { angle: number; weight: number }) => ({
-          ...a,
-          method: "hough",
-        })),
-      ];
+    const allAngles: Array<{ angle: number; weight: number; method: string }> = [
+      ...minRectAngles.map((a: { angle: number; weight: number }) => ({
+        ...a,
+        method: "minRect",
+      })),
+      ...baselineAngles.map((a: { angle: number; weight: number }) => ({
+        ...a,
+        method: "baseline",
+      })),
+      ...houghAngles.map((a: { angle: number; weight: number }) => ({
+        ...a,
+        method: "hough",
+      })),
+    ];
 
     if (allAngles.length === 0) {
       this.log("No angles detected from any method.");
       return 0;
     }
 
-    const consensusAngle = this.calculateConsensusAngle(
-      allAngles,
-      minAngle,
-      maxAngle,
-    );
+    const consensusAngle = this.calculateConsensusAngle(allAngles, minAngle, maxAngle);
 
     this.log(
-      `Calculated skew angle: ${consensusAngle.toFixed(3)}° (from ${
-        allAngles.length
-      } measurements)`,
+      `Calculated skew angle: ${consensusAngle.toFixed(3)}° (from ${allAngles.length} measurements)`
     );
 
     return consensusAngle;
@@ -190,7 +179,7 @@ export class DeskewService {
     const angle = await this.calculateSkewAngle(canvas);
 
     this.log(
-      `Detected skew angle: ${angle.toFixed(2)}°. Rotating image by ${-angle.toFixed(2)}°...`,
+      `Detected skew angle: ${angle.toFixed(2)}°. Rotating image by ${-angle.toFixed(2)}°...`
     );
 
     const processor = new ImageProcessor(canvas);
@@ -204,7 +193,7 @@ export class DeskewService {
 
   private calculateMinRectAngles(
     textRegions: Array<{ contour: cv.Mat; area: number; aspectRatio: number }>,
-    contours: Contours,
+    contours: Contours
   ): Array<{ angle: number; weight: number }> {
     const angles: Array<{ angle: number; weight: number }> = [];
 
@@ -222,8 +211,7 @@ export class DeskewService {
         }
 
         const areaWeight = Math.log(region.area + 1);
-        const aspectWeight =
-          Math.min(region.aspectRatio, 1 / region.aspectRatio) * 2;
+        const aspectWeight = Math.min(region.aspectRatio, 1 / region.aspectRatio) * 2;
         const weight = areaWeight * aspectWeight;
 
         angles.push({ angle, weight });
@@ -236,7 +224,7 @@ export class DeskewService {
   }
 
   private calculateBaselineAngles(
-    textRegions: Array<{ contour: cv.Mat; area: number; aspectRatio: number }>,
+    textRegions: Array<{ contour: cv.Mat; area: number; aspectRatio: number }>
   ): Array<{ angle: number; weight: number }> {
     const angles: Array<{ angle: number; weight: number }> = [];
 
@@ -264,24 +252,18 @@ export class DeskewService {
 
         for (let seg = 0; seg < segments; seg++) {
           const start = seg * segmentSize;
-          const end =
-            seg === segments - 1
-              ? bottomPoints.length
-              : (seg + 1) * segmentSize;
+          const end = seg === segments - 1 ? bottomPoints.length : (seg + 1) * segmentSize;
           const segmentPoints = bottomPoints.slice(start, end);
 
           if (segmentPoints.length > 0) {
-            const maxYPoint = segmentPoints.reduce((max, point) =>
-              point.y > max.y ? point : max,
-            );
+            const maxYPoint = segmentPoints.reduce((max, point) => (point.y > max.y ? point : max));
             baselinePoints.push(maxYPoint);
           }
         }
 
         if (baselinePoints.length >= 2) {
           const angle = this.calculateLineAngle(baselinePoints);
-          const weight =
-            region.area * Math.min(region.aspectRatio, 1 / region.aspectRatio);
+          const weight = region.area * Math.min(region.aspectRatio, 1 / region.aspectRatio);
 
           angles.push({ angle, weight });
         }
@@ -296,7 +278,7 @@ export class DeskewService {
   private calculateHoughAngles(
     mat: cv.Mat,
     minAngle: number,
-    maxAngle: number,
+    maxAngle: number
   ): Array<{ angle: number; weight: number }> {
     const angles: Array<{ angle: number; weight: number }> = [];
 
@@ -312,12 +294,7 @@ export class DeskewService {
         const line = lines.data32S.subarray(i * 4, (i + 1) * 4);
         const [x1, y1, x2, y2] = line;
 
-        if (
-          x1 !== undefined &&
-          y1 !== undefined &&
-          x2 !== undefined &&
-          y2 !== undefined
-        ) {
+        if (x1 !== undefined && y1 !== undefined && x2 !== undefined && y2 !== undefined) {
           const dx = x2 - x1;
           const dy = y2 - y1;
 
@@ -370,7 +347,7 @@ export class DeskewService {
   private calculateConsensusAngle(
     angles: Array<{ angle: number; weight: number; method: string }>,
     minAngle: number,
-    maxAngle: number,
+    maxAngle: number
   ): number {
     if (angles.length === 0) return 0;
 
@@ -387,16 +364,11 @@ export class DeskewService {
 
     const filteredAngles = angles.filter(
       (a) =>
-        a.angle >= lowerBound &&
-        a.angle <= upperBound &&
-        a.angle >= minAngle &&
-        a.angle <= maxAngle,
+        a.angle >= lowerBound && a.angle <= upperBound && a.angle >= minAngle && a.angle <= maxAngle
     );
 
     if (filteredAngles.length === 0) {
-      this.log(
-        "All angles filtered out as outliers, using median of original set.",
-      );
+      this.log("All angles filtered out as outliers, using median of original set.");
       const medianIndex = Math.floor(sortedAngles.length / 2);
       return sortedAngles[medianIndex]?.angle || 0;
     }
@@ -404,16 +376,11 @@ export class DeskewService {
     const totalWeight = filteredAngles.reduce((sum, a) => sum + a.weight, 0);
 
     if (totalWeight === 0) {
-      const average =
-        filteredAngles.reduce((sum, a) => sum + a.angle, 0) /
-        filteredAngles.length;
+      const average = filteredAngles.reduce((sum, a) => sum + a.angle, 0) / filteredAngles.length;
       return average;
     }
 
-    const weightedSum = filteredAngles.reduce(
-      (sum, a) => sum + a.angle * a.weight,
-      0,
-    );
+    const weightedSum = filteredAngles.reduce((sum, a) => sum + a.angle * a.weight, 0);
     const weightedAverage = weightedSum / totalWeight;
 
     const methodCounts = filteredAngles.reduce(
@@ -421,13 +388,13 @@ export class DeskewService {
         counts[a.method] = (counts[a.method] || 0) + 1;
         return counts;
       },
-      {} as Record<string, number>,
+      {} as Record<string, number>
     );
 
     this.log(
       `Angle methods used: ${Object.entries(methodCounts)
         .map(([method, count]) => `${method}:${count}`)
-        .join(", ")}`,
+        .join(", ")}`
     );
 
     return Math.max(minAngle, Math.min(maxAngle, weightedAverage));

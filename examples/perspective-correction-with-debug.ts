@@ -1,11 +1,5 @@
 // import { CanvasProcessor, CanvasToolkit, Contours, ImageProcessor, cv  } from "ppu-ocv"
-import {
-  CanvasProcessor,
-  CanvasToolkit,
-  Contours,
-  ImageProcessor,
-  cv,
-} from "../src/index";
+import { CanvasProcessor, CanvasToolkit, Contours, ImageProcessor, cv } from "../src/index";
 
 const file = Bun.file("./assets/receipt.jpg");
 const image = await file.arrayBuffer();
@@ -67,7 +61,7 @@ if (largestContour) {
   canvasToolkit.drawContour({ ctx, contour: largestContour });
 
   await canvasToolkit.saveImage({
-    canvas: canvas,
+    canvas,
     filename: "largest-contour",
     path: DEBUG_FOLDER,
   });
@@ -83,7 +77,7 @@ if (largestContour) {
       lineWidth: 4,
     });
     await canvasToolkit.saveImage({
-      canvas: canvas,
+      canvas,
       filename: "rectangle-approximation",
       path: DEBUG_FOLDER,
     });

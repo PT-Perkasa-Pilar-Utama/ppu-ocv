@@ -2,12 +2,6 @@ import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 
-declare module "../pipeline/types" {
-  interface RegisteredOperations {
-    morphologicalGradient: MorphologicalGradientOptions;
-  }
-}
-
 export interface MorphologicalGradientOptions extends PartialOptions {
   /** Kernel size for the morphological gradient operation [x, y] */
   size: [number, number];
@@ -21,12 +15,12 @@ function defaultOptions(): MorphologicalGradientOptions {
 
 export function morphologicalGradient(
   img: cv.Mat,
-  options: MorphologicalGradientOptions,
+  options: MorphologicalGradientOptions
 ): OperationResult {
   const imgMorphologicalGradient = new cv.Mat();
   const kernel = cv.getStructuringElement(
     cv.MORPH_RECT,
-    new cv.Size(options.size[0], options.size[1]),
+    new cv.Size(options.size[0], options.size[1])
   );
 
   cv.morphologyEx(img, imgMorphologicalGradient, cv.MORPH_GRADIENT, kernel);
@@ -39,8 +33,4 @@ export function morphologicalGradient(
   };
 }
 
-registry.register(
-  "morphologicalGradient",
-  morphologicalGradient,
-  defaultOptions,
-);
+registry.register("morphologicalGradient", morphologicalGradient, defaultOptions);

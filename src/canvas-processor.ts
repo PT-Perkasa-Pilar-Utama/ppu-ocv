@@ -82,15 +82,11 @@ export class CanvasProcessor {
    */
   grayscale(): this {
     const { width, height } = this._canvas;
-    const imageData = this._canvas
-      .getContext("2d")
-      .getImageData(0, 0, width, height);
+    const imageData = this._canvas.getContext("2d").getImageData(0, 0, width, height);
     const d = imageData.data;
 
     for (let i = 0; i < d.length; i += 4) {
-      const luma = Math.round(
-        0.299 * d[i]! + 0.587 * d[i + 1]! + 0.114 * d[i + 2]!,
-      );
+      const luma = Math.round(0.299 * d[i]! + 0.587 * d[i + 1]! + 0.114 * d[i + 2]!);
       d[i] = luma;
       d[i + 1] = luma;
       d[i + 2] = luma;
@@ -121,9 +117,7 @@ export class CanvasProcessor {
     if (alpha === 1 && beta === 0) return this;
 
     const { width, height } = this._canvas;
-    const imageData = this._canvas
-      .getContext("2d")
-      .getImageData(0, 0, width, height);
+    const imageData = this._canvas.getContext("2d").getImageData(0, 0, width, height);
     const d = imageData.data;
 
     for (let i = 0; i < d.length; i += 4) {
@@ -147,9 +141,7 @@ export class CanvasProcessor {
    */
   invert(): this {
     const { width, height } = this._canvas;
-    const imageData = this._canvas
-      .getContext("2d")
-      .getImageData(0, 0, width, height);
+    const imageData = this._canvas.getContext("2d").getImageData(0, 0, width, height);
     const d = imageData.data;
 
     for (let i = 0; i < d.length; i += 4) {
@@ -179,9 +171,7 @@ export class CanvasProcessor {
   threshold(options: { thresh?: number; maxValue?: number } = {}): this {
     const { thresh = 127, maxValue = 255 } = options;
     const { width, height } = this._canvas;
-    const imageData = this._canvas
-      .getContext("2d")
-      .getImageData(0, 0, width, height);
+    const imageData = this._canvas.getContext("2d").getImageData(0, 0, width, height);
     const d = imageData.data;
 
     for (let i = 0; i < d.length; i += 4) {
@@ -237,11 +227,7 @@ export class CanvasProcessor {
    * @param options.cy    Pivot Y (default: canvas centre)
    */
   rotate(options: { angle: number; cx?: number; cy?: number }): this {
-    const {
-      angle,
-      cx = this._canvas.width / 2,
-      cy = this._canvas.height / 2,
-    } = options;
+    const { angle, cx = this._canvas.width / 2, cy = this._canvas.height / 2 } = options;
     if (angle === 0) return this;
 
     const { width, height } = this._canvas;
@@ -310,7 +296,7 @@ export class CanvasProcessor {
       maxArea?: number;
       padding?: { vertical?: number; horizontal?: number };
       scale?: number;
-    } = {},
+    } = {}
   ): DetectedRegion[] {
     const {
       foreground = "light",
@@ -322,9 +308,7 @@ export class CanvasProcessor {
     } = options;
 
     const { width, height } = this._canvas;
-    const data = this._canvas
-      .getContext("2d")
-      .getImageData(0, 0, width, height).data;
+    const data = this._canvas.getContext("2d").getImageData(0, 0, width, height).data;
 
     // visited[y * width + x] = 1 once a pixel has been assigned to a region
     const visited = new Uint8Array(width * height);
@@ -470,14 +454,10 @@ export class CanvasProcessor {
 
     const ctx = canvas.getContext("2d");
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    let canvasBuffer = new ArrayBuffer(imageData.data.byteLength);
+    const canvasBuffer = new ArrayBuffer(imageData.data.byteLength);
 
     new Uint8Array(canvasBuffer).set(
-      new Uint8Array(
-        imageData.data.buffer,
-        imageData.data.byteOffset,
-        imageData.data.byteLength,
-      ),
+      new Uint8Array(imageData.data.buffer, imageData.data.byteOffset, imageData.data.byteLength)
     );
 
     return canvasBuffer;

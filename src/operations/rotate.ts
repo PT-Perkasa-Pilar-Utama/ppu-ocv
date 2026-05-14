@@ -2,12 +2,6 @@ import type { OperationResult, RequiredOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 
-declare module "../pipeline/types" {
-  interface RegisteredOperations {
-    rotate: RotateOptions;
-  }
-}
-
 export interface RotateOptions extends RequiredOptions {
   /** Angle of rotation in degrees (positive for counter-clockwise) */
   angle: number;
@@ -21,15 +15,7 @@ export function rotate(img: cv.Mat, options: RotateOptions): OperationResult {
   const dsize = new cv.Size(img.cols, img.rows);
   const rotatedImg = new cv.Mat();
 
-  cv.warpAffine(
-    img,
-    rotatedImg,
-    M,
-    dsize,
-    cv.INTER_LINEAR,
-    cv.BORDER_CONSTANT,
-    new cv.Scalar(),
-  );
+  cv.warpAffine(img, rotatedImg, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
 
   img.delete();
   M.delete();
