@@ -76,7 +76,7 @@
     "url": "https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv.git"
   },
   "dependencies": {
-    "@napi-rs/canvas": "^0.1.69",
+    "@napi-rs/canvas": "^1.0.0",
     "@techstark/opencv-js": "^4.10.0-release.1"
   }
 }
