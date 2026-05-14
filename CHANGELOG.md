@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.1.2] — 2026-05-14
+
+### Infrastructure
+
+- **JSR publish is unblocked.** The operations pipeline switched from `declare module` augmentation to a concrete `RegisteredOperations` interface in `pipeline/types.ts`. JSR rejected the augmentation pattern as "modifying global types"; the new layout publishes cleanly. Consumer-side `declare module "ppu-ocv"` augmentation for custom operations continues to work unchanged.
+- **Tooling parity with ppu-paddle-ocr.** Replaces prettier with oxlint + oxfmt. Adds husky pre-commit and commit-msg hooks (Conventional Commits, 80-char subject cap) and lint-staged. New scripts: `type-check`, `test`, `lint`, `lint:fix`, `fmt`, `fmt:fix`.
+- **CI workflow.** `.github/workflows/ci.yml` runs fmt, lint, type-check, tests, and build on push and PR.
+- **Release-triggered publish.** `.github/workflows/publish.yml` now fires on `release: published` and ships to both jsr and npm.
+- **Community docs.** Adds `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `SECURITY.md`, three issue templates, and a PR template.
+- **`jsr.json` exports** gain the `./canvas` and `./canvas-web` entries that were already in `package.json`, so the JSR publish matches what npm ships.
+- **README + index.html** refreshed with the current version and the new doc structure.
+
+No public API changes. v3.1.1's `findRegions` `thresh` option (added 2026-04-06) ships in this version as part of the first jsr/npm publish since the registry rewrite.
+
 ## [3.1.1] — 2026-04-06
 
 ### Improvements
