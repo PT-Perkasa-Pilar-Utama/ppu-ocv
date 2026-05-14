@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.1.4] — 2026-05-14
+
+### Documentation
+
+- **JSR symbol-doc coverage** raised from 38% to a much higher score by
+  documenting every previously bare interface member. Newly documented:
+  all fields of `CanvasLike`, `Context2DLike`, and `CanvasPlatform` in
+  `canvas-factory.ts`; `ContourLike.data32S`; every key of
+  `RegisteredOperations` in `pipeline/types.ts`; the public `img` /
+  `width` / `height` fields on `ImageProcessor`; the `getInstance`
+  override on `CanvasToolkit`; the `DeskewService` constructor; and the
+  `cv` namespace itself in `cv-provider.ts`.
+
+No public API changes. Drop-in upgrade from 3.1.3.
+
 ## [3.1.3] — 2026-05-14
 
 ### Documentation

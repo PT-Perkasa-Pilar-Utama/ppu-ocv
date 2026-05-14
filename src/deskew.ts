@@ -45,6 +45,10 @@ export class DeskewService {
   private readonly verbose: boolean;
   private readonly minimumAreaThreshold: number;
 
+  /**
+   * Create a DeskewService.
+   * @param options - Configuration. See {@link DeskewOptions}.
+   */
   constructor(options: DeskewOptions = {}) {
     this.verbose = options.verbose ?? false;
     this.minimumAreaThreshold = options.minimumAreaThreshold ?? 20;

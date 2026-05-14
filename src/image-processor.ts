@@ -49,8 +49,11 @@ type NameWithOptionalOptions = Exclude<OperationName, NameWithRequiredOptions>;
  * ```
  */
 export class ImageProcessor {
+  /** Underlying OpenCV Mat. Each operation deletes the previous Mat and replaces this reference. */
   img: cv.Mat;
+  /** Current image width in pixels, kept in sync with `img.cols`. */
   width: number;
+  /** Current image height in pixels, kept in sync with `img.rows`. */
   height: number;
 
   /**

@@ -15,6 +15,7 @@ export class CanvasToolkit extends CanvasToolkitBase {
     super();
   }
 
+  /** Return the singleton instance of {@link CanvasToolkit}. */
   public static override getInstance(): CanvasToolkit {
     if (!CanvasToolkit._nodeInstance) {
       CanvasToolkit._nodeInstance = new CanvasToolkit();

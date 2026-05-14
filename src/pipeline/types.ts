@@ -59,19 +59,33 @@ export type OperationFunction<T> = (img: cv.Mat, options: T) => OperationResult;
  */
 // oxlint-disable-next-line typescript/consistent-type-definitions -- consumers augment this via declare module
 export interface RegisteredOperations {
+  /** Adaptive (windowed) thresholding. See {@link AdaptiveThresholdOptions}. */
   adaptiveThreshold: AdaptiveThresholdOptions;
+  /** Gaussian blur. See {@link BlurOptions}. */
   blur: BlurOptions;
+  /** Constant-color border around the image. See {@link BorderOptions}. */
   border: BorderOptions;
+  /** Canny edge detection. See {@link CannyOptions}. */
   canny: CannyOptions;
+  /** Convert Mat depth/channel type. See {@link ConvertOptions}. */
   convert: ConvertOptions;
+  /** Morphological dilation. See {@link DilateOptions}. */
   dilate: DilateOptions;
+  /** Morphological erosion. See {@link ErodeOptions}. */
   erode: ErodeOptions;
+  /** Convert to grayscale via `COLOR_RGBA2GRAY`. See {@link GrayscaleOptions}. */
   grayscale: GrayscaleOptions;
+  /** Bitwise-NOT color inversion. See {@link InvertOptions}. */
   invert: InvertOptions;
+  /** Morphological gradient (dilation minus erosion). See {@link MorphologicalGradientOptions}. */
   morphologicalGradient: MorphologicalGradientOptions;
+  /** Resize to absolute pixel dimensions. See {@link ResizeOptions}. */
   resize: ResizeOptions;
+  /** Affine rotation around a pivot point. See {@link RotateOptions}. */
   rotate: RotateOptions;
+  /** Global threshold (including Otsu). See {@link ThresholdOptions}. */
   threshold: ThresholdOptions;
+  /** Four-point perspective warp. See {@link WarpOptions}. */
   warp: WarpOptions;
 }
 
