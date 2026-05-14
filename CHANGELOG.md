@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.1.3] — 2026-05-14
+
+### Documentation
+
+- **JSR documentation coverage** raised from 70% to over 80%. Module-level docs added to all four entrypoints (`ppu-ocv`, `ppu-ocv/web`, `ppu-ocv/canvas`, `ppu-ocv/canvas-web`) and JSDoc added to every exported symbol across the public surface: `index.interface.ts` types, `cv-provider.ts` namespace and proxy, `pipeline/registry.ts` class and helpers, `pipeline/types.ts` types, `Contours`, `ImageProcessor`, and every operation file's options interface and function.
+
+### Internal
+
+- `ImageProcessor.initRuntime` reverted to its original simple form (resolves on `cv.Mat` truthiness or `onRuntimeInitialized`), removing the dynamic-import + race-detection scaffolding that was added in 3.1.2's bundled commit and produced inconsistent behaviour under Bun's worker model.
+- Test script switched to `bun test --parallel=N` (N = number of test files). Each test file runs in its own worker process so Emscripten/embind state from `@techstark/opencv-js` is not shared across files — that was the source of `BindingError: Cannot register public name ... twice` when the suite ran sequentially in a single process.
+- CI test step now runs in roughly 1 second (was hanging past 20 minutes before this change).
+
+No public API changes. Drop-in upgrade from 3.1.2.
+
 ## [3.1.2] — 2026-05-14
 
 ### Infrastructure
