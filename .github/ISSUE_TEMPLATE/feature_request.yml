@@ -1,0 +1,51 @@
+name: 💡 Feature request
+description: Propose a new operation, API surface, or platform entry.
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea for a new operation, a new platform entry (e.g. React Native via Skia), or
+        a public-API improvement? Describe the use case first — features are easier to design
+        once we understand the problem they solve.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: |
+        Describe the user-facing need. What can't be done today, or what is awkward?
+        Real example beats hypothetical.
+      placeholder: |
+        I want to run ppu-ocv inside a Deno Edge Function. The default Node entry imports
+        @napi-rs/canvas which is not available in that runtime.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed API or behaviour
+      description: |
+        Sketch the API or behaviour. Code samples are very helpful even if rough.
+      render: ts
+      placeholder: |
+        import { CanvasProcessor } from "ppu-ocv/canvas-deno";
+        // ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Did you try a workaround? What didn't work and why?
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope notes
+      description: |
+        Optional: which entries (`ppu-ocv`, `/web`, `/canvas`, `/canvas-web`) should this affect?
+        Are there compatibility concerns (peer dep changes, breaking signatures)?

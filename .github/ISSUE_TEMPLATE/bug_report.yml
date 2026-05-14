@@ -1,0 +1,95 @@
+name: 🐛 Bug report
+description: Something is broken — wrong output, crash, or runtime error.
+title: "bug: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug report. Please search existing issues first to avoid duplicates.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: A clear, one-paragraph description of the problem.
+      placeholder: |
+        `CanvasProcessor.findRegions` returns an empty array when the input
+        canvas has an alpha channel below 128 on all pixels.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: |
+        Minimal code that reproduces the bug. If it depends on a specific image, link it or attach it.
+        A short `.ts` or `.js` snippet plus the image is usually enough.
+      render: ts
+      placeholder: |
+        import { CanvasProcessor } from "ppu-ocv/canvas";
+
+        const proc = await CanvasProcessor.prepareCanvas(input);
+        const regions = proc.findRegions({ foreground: "light" });
+        // ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      placeholder: "findRegions should return the bounding boxes of the connected components."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: Error message + stack trace, or the incorrect output. Paste logs verbatim.
+      render: text
+    validations:
+      required: true
+
+  - type: dropdown
+    id: entry
+    attributes:
+      label: Entry point
+      description: Which ppu-ocv subpath did you import from?
+      options:
+        - "ppu-ocv (Node, OpenCV + napi-rs canvas)"
+        - "ppu-ocv/web (Browser, OpenCV + DOM canvas)"
+        - "ppu-ocv/canvas (Node, canvas-only, no OpenCV)"
+        - "ppu-ocv/canvas-web (Browser, canvas-only, no OpenCV)"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: ppu-ocv version
+      placeholder: "3.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: runtime
+    attributes:
+      label: Runtime + version
+      placeholder: e.g. Node 20.11.0, Bun 1.3.13, Chrome 124
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system & architecture
+      placeholder: e.g. macOS 14.4 (arm64), Ubuntu 22.04 (x86_64)
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Bundler config, custom platform registration, anything else relevant.

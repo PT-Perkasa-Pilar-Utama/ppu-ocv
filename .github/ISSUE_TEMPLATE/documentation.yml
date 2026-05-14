@@ -1,0 +1,29 @@
+name: 📖 Documentation
+description: Something in the README, examples, or operation docs is wrong, unclear, or missing.
+title: "docs: "
+labels: ["documentation"]
+body:
+  - type: textarea
+    id: location
+    attributes:
+      label: Where is the issue?
+      description: README section, example file, JSDoc on a specific export, etc. Link if possible.
+      placeholder: README — Getting Started — install snippet
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong or missing?
+      placeholder: |
+        The install snippet shows `bun install ppu-ocv` but doesn't mention that
+        the browser entry needs `@techstark/opencv-js` as a peer.
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested
+    attributes:
+      label: Suggested fix
+      description: A concrete proposal, even a one-liner. Optional but helpful.

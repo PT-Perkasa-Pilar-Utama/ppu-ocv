@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📦 Used by ppu-paddle-ocr
+    url: https://github.com/PT-Perkasa-Pilar-Utama/ppu-paddle-ocr
+    about: ppu-ocv powers the canvas + OpenCV layer for ppu-paddle-ocr. Report OCR-specific issues there.
+  - name: 📖 README — operations and pipelines
+    url: https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv#readme
+    about: Check the README for the operation registry, CanvasProcessor surface, and pipeline patterns before filing.
