@@ -1,10 +1,10 @@
 # ppu-ocv
 
-A type-safe, modular, chainable image processing library built on top of OpenCV.js with a fluent API leveraging pipeline processing.
+[![NPM](https://img.shields.io/npm/dw/ppu-ocv)](https://www.npmjs.com/package/ppu-ocv) [![JSR](https://jsr.io/badges/@snowfluke/ppu-ocv)](https://jsr.io/@snowfluke/ppu-ocv)
+
+A type-safe, modular, chainable image processing library built on top of OpenCV.js with a fluent API leveraging pipeline processing. Decoupled canvas utilities run anywhere — Node, Bun, browsers, browser extensions, and service workers — with or without OpenCV.
 
 ![ppu-ocv pipeline demo](https://raw.githubusercontent.com/PT-Perkasa-Pilar-Utama/ppu-ocv/refs/heads/main/assets/ppu-ocv-demo.jpg)
-
-Image manipulation as easy as:
 
 ```ts
 const processor = new ImageProcessor(canvas);
@@ -17,23 +17,33 @@ const result = processor
   .dilate({ size: [20, 20], iter: 5 })
   .toCanvas();
 
-// Memory cleanup
 processor.destroy();
 ```
 
-This work is based on https://github.com/TechStark/opencv-js.
+Based on [TechStark/opencv-js](https://github.com/TechStark/opencv-js).
 
-## Why use this library?
+## Table of Contents
 
-OpenCV is powerful but can be cumbersome to use directly. This library provides:
+- [Why ppu-ocv?](#why-ppu-ocv)
+- [Installation](#installation)
+- [Usage (Node.js / Bun)](#usage-nodejs--bun)
+- [Canvas-only Usage (no OpenCV)](#canvas-only-usage-no-opencv)
+- [Web / Browser Support](#web--browser-support)
+- [Built-in Pipeline Operations](#built-in-pipeline-operations)
+- [Extending Operations](#extending-operations)
+- [Class Documentation](#class-documentation)
+- [Migrating from v2](#migrating-from-v2)
+- [Contributing](#contributing)
+- [License](#license)
 
-1. **Simplified API**: Transform complex OpenCV calls into simple chainable methods
-2. **Reduced Boilerplate**: No need to manage memory, conversions, or dimensions manually
-3. **Development Speed**: Add image processing to your app in minutes, not hours
-4. **Extensibility**: Custom operations for your specific needs without library modifications
-5. **TypeScript Integration**: Full IntelliSense support with parameter validation
-6. **Web Support**: Supports running directly in the browser
-7. **Loosely Coupled**: Canvas utilities are fully decoupled from OpenCV. Usable in Browser Extensions, Service Workers, and other constrained environments where OpenCV cannot be initialised
+## Why ppu-ocv?
+
+- **Simplified API** — chainable methods that hide OpenCV's verbose Mat allocation
+- **No memory management** — automatic Mat lifecycle within the pipeline
+- **Type-safe** — full TypeScript inference for operations and options
+- **Extensible** — register custom operations with `registry.register(...)` without forking
+- **Cross-platform** — same API in Node, Bun, browsers, and constrained runtimes
+- **Loosely coupled** — canvas utilities work standalone; OpenCV is only loaded when actually needed
 
 ## Installation
 
@@ -125,9 +135,7 @@ const buffer = await CanvasProcessor.prepareBuffer(cropped);
 import { CanvasProcessor, CanvasToolkit } from "ppu-ocv/canvas-web";
 
 const response = await fetch("/image.jpg");
-const canvas = await CanvasProcessor.prepareCanvas(
-  await response.arrayBuffer(),
-);
+const canvas = await CanvasProcessor.prepareCanvas(await response.arrayBuffer());
 ```
 
 ## Web / Browser Support
@@ -171,9 +179,7 @@ processor.destroy();
   await ImageProcessor.initRuntime();
 
   const response = await fetch("/my-image.jpg");
-  const canvas = await CanvasProcessor.prepareCanvas(
-    await response.arrayBuffer(),
-  );
+  const canvas = await CanvasProcessor.prepareCanvas(await response.arrayBuffer());
 
   const processor = new ImageProcessor(canvas);
   processor
@@ -296,8 +302,8 @@ regions.sort((a, b) => b.area - a.area); // largest first
 
 **Region detection** (returns data, does not mutate)
 
-| Method        | Options                                          | Description                                                  |
-| ------------- | ------------------------------------------------ | ------------------------------------------------------------ |
+| Method        | Options                                                                                  | Description                                                    |
+| ------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
 | `findRegions` | `foreground?` (`"light"`), `thresh?` (127), `minArea?`, `maxArea?`, `padding?`, `scale?` | 8-connected flood-fill on a binary canvas → `DetectedRegion[]` |
 
 `DetectedRegion` shape: `{ bbox: BoundingBox, area: number }` where `bbox` is `{ x0, y0, x1, y1 }` (x1/y1 exclusive). Equivalent to OpenCV's `findContours(RETR_EXTERNAL) + boundingRect` — all matched bboxes agree within ±1 px on solid binary images. ³
@@ -368,36 +374,23 @@ A collection of utility functions for analyzing image properties (requires OpenC
 
 ## Contributing
 
-Contributions are welcome! If you would like to contribute, please follow these steps:
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full guide — setup, commit conventions, quality checks, and PR flow. Also:
 
-1. **Fork the Repository:** Create your own fork of the project.
-2. **Create a Feature Branch:** Use a descriptive branch name for your changes.
-3. **Implement Changes:** Make your modifications, add tests, and ensure everything passes.
-4. **Submit a Pull Request:** Open a pull request to discuss your changes and get feedback.
+- [Code of Conduct](./CODE_OF_CONDUCT.md) — community standards.
+- [Security policy](./SECURITY.md) — how to report vulnerabilities privately.
+- [Issue tracker](https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv/issues) — bug reports, feature requests, and docs gaps each have a template.
 
-### Running Tests
-
-This project uses Bun for testing. To run the tests locally, execute:
+Quick local commands:
 
 ```bash
-bun test
+bun install
+bun test           # run unit tests
+bun run fmt        # check formatting
+bun run lint       # check lint
+bun run type-check # tsgo --noEmit
+bun task build     # emit ./lib
+bun task bench     # micro-bench the operations registry
 ```
-
-Ensure that all tests pass before submitting your pull request.
-
-## Scripts
-
-Recommended development environment is in a Linux-based environment.
-
-Library template: https://github.com/aquapi/lib-template
-
-### [Build](./scripts/build.ts)
-
-Emit `.js` and `.d.ts` files to [`lib`](./lib).
-
-### [Publish](./scripts/publish.ts)
-
-Move [`package.json`](./package.json), [`README.md`](./README.md) to [`lib`](./lib) and publish the package.
 
 ## Migrating from v2
 
