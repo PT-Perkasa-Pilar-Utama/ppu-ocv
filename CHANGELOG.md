@@ -14,6 +14,14 @@
 - **`SECURITY.md`** documents the Socket "obfuscated code" alerts on
   `@techstark/opencv-js` / `@napi-rs/canvas` as false positives on minified and
   prebuilt-native upstream artifacts.
+- **LICENSE now ships in the npm tarball** (previously only the SPDX field
+  traveled).
+- **OpenSSF Security Baseline.** Added CodeQL on every push/PR, an osv-scanner
+  SCA gate (CI and pre-release), a CycloneDX SBOM attached to each release, and
+  the supporting docs: `GOVERNANCE.md`, `docs/DESIGN.md`,
+  `docs/THREAT_MODEL.md`, a release-verification / dependency / remediation /
+  VEX policy in `SECURITY.md`, and a DCO sign-off requirement in
+  `CONTRIBUTING.md`.
 
 ## [3.1.5] — 2026-05-14
 
