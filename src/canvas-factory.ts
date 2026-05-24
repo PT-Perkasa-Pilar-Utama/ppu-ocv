@@ -102,3 +102,23 @@ export function getPlatform(): CanvasPlatform {
   }
   return _platform;
 }
+
+/**
+ * Structural ("duck-typed") canvas check, independent of the registered
+ * platform. A value is canvas-like if it exposes `width`/`height` numbers and a
+ * `getContext` function — true for both `@napi-rs/canvas` (Node) and browser
+ * `HTMLCanvasElement`/`OffscreenCanvas`.
+ *
+ * Unlike {@link CanvasPlatform.isCanvas}, this does not depend on which platform
+ * is globally registered, so it stays correct when the Node and web entry
+ * points are loaded in the same process (e.g. a dual-target test suite).
+ */
+export function isCanvasLike(value: unknown): value is CanvasLike {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as CanvasLike).getContext === "function" &&
+    typeof (value as CanvasLike).width === "number" &&
+    typeof (value as CanvasLike).height === "number"
+  );
+}

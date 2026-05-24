@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- **Node and web entry points can now be used in the same process.** Canvas
+  detection (`ImageProcessor` constructor, `CanvasProcessor.prepareCanvas`) used
+  the globally-registered platform's `isCanvas`, so once `ppu-ocv/web` was
+  loaded a Node-created canvas was rejected with "Invalid source type. Must be
+  either Canvas or cv.Mat." Detection is now structural (a new exported
+  `isCanvasLike`) and platform-independent, unblocking dual-target consumers and
+  test suites. ([#16](https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv/issues/16))
+
 ## [3.1.6] — 2026-05-24
 
 ### Security
