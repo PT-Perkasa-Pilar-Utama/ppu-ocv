@@ -7,12 +7,18 @@ contributor earns more access.
 
 ppu-ocv is maintained by [PT Perkasa Pilar Utama](https://github.com/PT-Perkasa-Pilar-Utama).
 
-| Role            | GitHub                                     | Responsibilities                                                       |
-| :-------------- | :----------------------------------------- | :--------------------------------------------------------------------- |
-| Lead maintainer | [@snowfluke](https://github.com/snowfluke) | Releases, security response, final review, repository and org settings |
+| Role            | GitHub                                     | Affiliation            | Responsibilities                                                       |
+| :-------------- | :----------------------------------------- | :--------------------- | :--------------------------------------------------------------------- |
+| Lead maintainer | [@snowfluke](https://github.com/snowfluke) | PT Perkasa Pilar Utama | Releases, security response, final review, repository and org settings |
+| Maintainer      | [@amaruki](https://github.com/amaruki)     | PT Perkasa Pilar Utama | Review and merge pull requests, cut releases                           |
+| Maintainer      | [@saikanov](https://github.com/saikanov)   | PT Perkasa Pilar Utama | Review and merge pull requests, cut releases                           |
+| Maintainer      | [@xirf](https://github.com/xirf)           | Independent            | Review and merge pull requests, cut releases                           |
 
-The lead maintainer holds admin on the repository. No one else has write access
-to `main`; outside contributions arrive through pull requests from forks.
+The lead maintainer holds admin on the repository. Maintainers have write
+access: they review and merge pull requests and can cut releases, but cannot
+change repository settings, secrets, or branch protection. Changes to `main`
+go through pull requests reviewed by a maintainer other than the author;
+branch protection enforces this for everyone, including admins.
 
 ## Roles and permissions
 
