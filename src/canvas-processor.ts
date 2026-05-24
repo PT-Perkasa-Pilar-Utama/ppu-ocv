@@ -3,7 +3,7 @@
 
 import type { BoundingBox } from "./index.interface.js";
 import type { CanvasLike } from "./canvas-factory.js";
-import { getPlatform } from "./canvas-factory.js";
+import { getPlatform, isCanvasLike } from "./canvas-factory.js";
 
 /**
  * A detected region returned by {@link CanvasProcessor.findRegions}.
@@ -428,7 +428,7 @@ export class CanvasProcessor {
    * If the value is already a CanvasLike it is returned as-is.
    */
   static async prepareCanvas(file: ArrayBuffer): Promise<CanvasLike> {
-    if (getPlatform().isCanvas(file)) return file as unknown as CanvasLike;
+    if (isCanvasLike(file)) return file as unknown as CanvasLike;
 
     return getPlatform().loadImage(file);
   }

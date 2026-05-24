@@ -2,7 +2,7 @@
 // Copyright (c) 2026 PT Perkasa Pilar Utama
 
 import type { CanvasLike } from "./canvas-factory.js";
-import { getPlatform } from "./canvas-factory.js";
+import { getPlatform, isCanvasLike } from "./canvas-factory.js";
 import { cv } from "./cv-provider.js";
 
 import type {
@@ -64,7 +64,7 @@ export class ImageProcessor {
    * @param source Source image as CanvasLike or cv.Mat
    */
   constructor(source: CanvasLike | cv.Mat) {
-    if (getPlatform().isCanvas(source)) {
+    if (isCanvasLike(source)) {
       const ctx = source.getContext("2d");
       const imageData = ctx.getImageData(0, 0, source.width, source.height);
       this.img = cv.matFromImageData(imageData);
