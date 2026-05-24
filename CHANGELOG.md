@@ -1,5 +1,20 @@
 # Changelog
 
+## [Unreleased]
+
+### Security
+
+- **Supply-chain hardening.** All GitHub Actions are now pinned to commit SHAs
+  (Dependabot keeps them current), `npm publish` passes `--provenance` so each
+  release carries a signed SLSA attestation, and a new OpenSSF Scorecard
+  workflow publishes a supply-chain health score.
+- **Published package runs no install scripts.** The publish manifest is now
+  sanitized — `scripts` (including `prepare`) and `devDependencies` are stripped
+  before publishing, so an installed copy can execute no lifecycle code.
+- **`SECURITY.md`** documents the Socket "obfuscated code" alerts on
+  `@techstark/opencv-js` / `@napi-rs/canvas` as false positives on minified and
+  prebuilt-native upstream artifacts.
+
 ## [3.1.5] — 2026-05-14
 
 ### Dependencies

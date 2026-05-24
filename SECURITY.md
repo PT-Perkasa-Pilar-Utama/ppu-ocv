@@ -36,6 +36,25 @@ Out-of-scope reports:
 - Issues that require an attacker to already have write access to the host filesystem
 - General questions or feature requests
 
+## Dependency scanner notes
+
+Static scanners (e.g. Socket) may flag an **"obfuscated code"** alert on this
+package's dependencies. These are false positives on minified or
+machine-generated artifacts, not malicious code:
+
+- `@techstark/opencv-js` — ships the OpenCV WASM/asm.js build, a large
+  **minified, machine-emitted** bundle that trips dense-code heuristics.
+- `@napi-rs/canvas` — ships prebuilt **native binaries** per platform; these
+  are compiled artifacts, not readable source.
+
+These originate from the upstream packages, not from this SDK, and their deeper
+analysis rates them low-risk with no evidence of exfiltration or tampering. No
+action is required.
+
+This package itself ships with **npm provenance** (a signed SLSA attestation
+linking each release to the exact source commit and CI run) and runs **no
+install scripts**.
+
 ## Disclosure Policy
 
 We follow responsible disclosure. Once a fix is released we will publish a GitHub Security Advisory describing the issue, affected versions, and the fix.

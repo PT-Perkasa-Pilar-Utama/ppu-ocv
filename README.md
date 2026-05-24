@@ -1,6 +1,6 @@
 # ppu-ocv
 
-[![NPM](https://img.shields.io/npm/dw/ppu-ocv)](https://www.npmjs.com/package/ppu-ocv) [![JSR](https://jsr.io/badges/@snowfluke/ppu-ocv)](https://jsr.io/@snowfluke/ppu-ocv)
+[![NPM](https://img.shields.io/npm/dw/ppu-ocv)](https://www.npmjs.com/package/ppu-ocv) [![JSR](https://jsr.io/badges/@snowfluke/ppu-ocv)](https://jsr.io/@snowfluke/ppu-ocv) [![npm version](https://img.shields.io/npm/v/ppu-ocv)](https://www.npmjs.com/package/ppu-ocv) [![Provenance](https://img.shields.io/badge/npm-signed%20provenance-blue?logo=npm)](https://www.npmjs.com/package/ppu-ocv#provenance) [![License: MIT](https://img.shields.io/npm/l/ppu-ocv)](./LICENSE) [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/PT-Perkasa-Pilar-Utama/ppu-ocv/badge)](https://scorecard.dev/viewer/?uri=github.com/PT-Perkasa-Pilar-Utama/ppu-ocv) [![Socket Badge](https://socket.dev/api/badge/npm/package/ppu-ocv)](https://socket.dev/npm/package/ppu-ocv)
 
 A type-safe, modular, chainable image processing library built on top of OpenCV.js with a fluent API leveraging pipeline processing. Decoupled canvas utilities run anywhere — Node, Bun, browsers, browser extensions, and service workers — with or without OpenCV.
 
