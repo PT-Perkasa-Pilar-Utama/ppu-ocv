@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Reproducible-build verification.** CI now builds twice and fails if the
+  output is not byte-identical; `docs/REPRODUCIBLE_BUILD.md` documents the
+  deterministic build and how to verify it (OpenSSF Best Practices Gold).
+
 ### Fixed
 
 - **Node and web entry points can now be used in the same process.** Canvas
