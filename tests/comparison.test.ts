@@ -26,13 +26,13 @@ import { nodePlatform } from "../src/platform/node.js";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
-interface PixelStats {
+type PixelStats = {
   totalPixels: number;
   exactMatch: number;
   exactMatchPct: string;
   maxDiff: number;
   meanDiff: string;
-}
+};
 
 function compareRGB(a: Uint8ClampedArray, b: Uint8ClampedArray): PixelStats {
   let totalPixels = 0;
