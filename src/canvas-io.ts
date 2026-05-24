@@ -34,6 +34,26 @@ export async function canvasToBuffer(canvas: CanvasLike): Promise<ArrayBuffer> {
     return arrayBuffer;
   }
 
+  // Browser HTMLCanvasElement: native async PNG encode, no base64 detour.
+  const toBlob = canvas.toBlob;
+  if (typeof toBlob === "function") {
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      toBlob.call(
+        canvas,
+        (b: Blob | null) => (b ? resolve(b) : reject(new Error("toBlob returned null"))),
+        "image/png"
+      );
+    });
+    return blob.arrayBuffer();
+  }
+
+  // OffscreenCanvas (workers, browser extensions): no toDataURL; use convertToBlob.
+  if (typeof canvas.convertToBlob === "function") {
+    const blob = await canvas.convertToBlob({ type: "image/png" });
+    return blob.arrayBuffer();
+  }
+
+  // Legacy fallback for canvases exposing only toDataURL.
   if (typeof canvas.toDataURL === "function") {
     const dataURL = canvas.toDataURL("image/png");
     const base64Data = dataURL.replace(/^data:image\/png;base64,/, "");

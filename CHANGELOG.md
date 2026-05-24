@@ -37,6 +37,12 @@
 - **Vanilla-HTML demo loads OpenCV correctly.** `index.html` and the README's
   vanilla example now load `opencv.js` via a script tag before calling
   `ImageProcessor.initRuntime()`, fixing the "OpenCV is not loaded" error.
+- **`canvasToBuffer` serialization across runtimes.** The browser path now uses
+  the native async `canvas.toBlob()` (`HTMLCanvasElement`) and
+  `convertToBlob()` (`OffscreenCanvas`, used in workers and browser extensions)
+  instead of the synchronous `toDataURL` → `atob` → byte-copy loop. This removes
+  the base64 CPU/memory spike on large images and fixes `OffscreenCanvas`, which
+  has no `toDataURL` and previously fell through to a raw-RGBA buffer.
 
 ## [3.2.0] — 2026-05-24
 
