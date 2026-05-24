@@ -9,7 +9,7 @@ import { ImageProcessor } from "./image-processor.js";
 /**
  * Options for configuring the deskew service
  */
-export interface DeskewOptions {
+export type DeskewOptions = {
   /**
    * Enable detailed logging of each processing step.
    * @default false
@@ -22,7 +22,7 @@ export interface DeskewOptions {
    * @default 20
    */
   minimumAreaThreshold?: number;
-}
+};
 
 /**
  * Service for calculating the skew angle of an image containing text.

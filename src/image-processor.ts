@@ -12,6 +12,7 @@ import type {
   CannyOptions,
   ConvertOptions,
   DilateOptions,
+  EqualizeOptions,
   ErodeOptions,
   GrayscaleOptions,
   InvertOptions,
@@ -168,6 +169,15 @@ export class ImageProcessor {
    */
   invert(options?: Partial<InvertOptions>): this {
     return this.execute<"invert">("invert", options);
+  }
+
+  /**
+   * Equalise image contrast using histogram equalization
+   * @description Usage order: (after) grayscale — input must be single-channel
+   * @param options Equalization configuration options
+   */
+  equalize(options?: Partial<EqualizeOptions>): this {
+    return this.execute<"equalize">("equalize", options);
   }
 
   /**

@@ -60,6 +60,7 @@ export type {
   BorderOptions,
   CannyOptions,
   DilateOptions,
+  EqualizeOptions,
   ErodeOptions,
   GrayscaleOptions,
   InvertOptions,

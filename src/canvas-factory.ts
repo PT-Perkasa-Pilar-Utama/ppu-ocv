@@ -7,7 +7,7 @@
  */
 
 /** Structural type satisfied by both @napi-rs/canvas Canvas and HTMLCanvasElement/OffscreenCanvas. */
-export interface CanvasLike {
+export type CanvasLike = {
   /** Canvas width in pixels. */
   width: number;
   /** Canvas height in pixels. */
@@ -21,10 +21,10 @@ export interface CanvasLike {
   /** Serialize the canvas to a data-URL string (browser canvases). Absent on Node-side `@napi-rs/canvas`. */
   // oxlint-disable-next-line typescript/no-explicit-any -- platform bridging type
   toDataURL?: (...args: any[]) => string;
-}
+};
 
 /** Structural type for 2D rendering context, matching the cross-runtime subset used by ppu-ocv. */
-export interface Context2DLike {
+export type Context2DLike = {
   /** The canvas this context is bound to. */
   // oxlint-disable-next-line typescript/no-explicit-any -- platform bridging type
   canvas: any;
@@ -72,17 +72,17 @@ export interface Context2DLike {
   translate(x: number, y: number): void;
   /** Rotate the coordinate system clockwise by `angle` radians. */
   rotate(angle: number): void;
-}
+};
 
 /** Platform-specific canvas operations. Each runtime entry point registers an implementation via {@link setPlatform}. */
-export interface CanvasPlatform {
+export type CanvasPlatform = {
   /** Create a blank canvas of the given width and height. */
   createCanvas(width: number, height: number): CanvasLike;
   /** Decode an image from a buffer or URL and draw it onto a fresh canvas. */
   loadImage(source: ArrayBuffer | string): Promise<CanvasLike>;
   /** Type guard for "is this value a canvas of this platform?". */
   isCanvas(value: unknown): value is CanvasLike;
-}
+};
 
 let _platform: CanvasPlatform | null = null;
 

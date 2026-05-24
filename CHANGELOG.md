@@ -22,6 +22,38 @@
   `isCanvasLike`) and platform-independent, unblocking dual-target consumers and
   test suites. ([#16](https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv/issues/16))
 
+### New Features
+
+#### `equalize` — histogram contrast-equalisation operation
+
+A new chainable `equalize` operation normalises pixel intensity on a
+single-channel (grayscale) `cv.Mat` using one of two algorithms:
+
+- **`"clahe"`** (default) — Contrast Limited Adaptive Histogram Equalization.
+  Spreads intensity locally without over-amplifying bright regions; the
+  standard pre-processing step for document OCR pipelines.
+- **`"global"`** — Whole-image histogram spreading (`cv.equalizeHist`); faster
+  but may blow out highlights on high-contrast images.
+
+Run `.grayscale()` before `.equalize()` — input must be single-channel.
+
+```ts
+new ImageProcessor(canvas)
+  .grayscale()
+  .equalize() // CLAHE defaults: clipLimit=2.0, tileGridSize=8
+  .threshold()
+  .toCanvas();
+
+// Or with explicit options:
+new ImageProcessor(canvas)
+  .grayscale()
+  .equalize({ method: "clahe", clipLimit: 4.0, tileGridSize: 16 })
+  .threshold()
+  .toCanvas();
+```
+
+Closes [#13](https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv/issues/13).
+
 ## [3.1.6] — 2026-05-24
 
 ### Security
