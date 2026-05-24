@@ -41,6 +41,10 @@
     "./canvas-web": {
       "types": "./index.canvas-web.d.ts",
       "default": "./index.canvas-web.js"
+    },
+    "./canvas-mobile": {
+      "types": "./index.canvas-mobile.d.ts",
+      "default": "./index.canvas-mobile.js"
     }
   },
   "scripts": {
@@ -58,6 +62,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@shopify/react-native-skia": "^2.6.3",
     "@types/bun": "latest",
     "@types/uglify-js": "latest",
     "@typescript/native-preview": "^7.0.0-dev.20260513.1",
@@ -79,5 +84,8 @@
   "dependencies": {
     "@napi-rs/canvas": "^1.0.0",
     "@techstark/opencv-js": "^4.10.0-release.1"
-  }
+  },
+  "trustedDependencies": [
+    "@shopify/react-native-skia"
+  ]
 }

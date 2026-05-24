@@ -97,7 +97,8 @@ export function getPlatform(): CanvasPlatform {
     throw new Error(
       "No canvas platform registered. " +
         'Import "ppu-ocv" (Node), "ppu-ocv/web" (browser), ' +
-        '"ppu-ocv/canvas" (Node canvas-only), or "ppu-ocv/canvas-web" (browser canvas-only) to auto-register.'
+        '"ppu-ocv/canvas" (Node canvas-only), "ppu-ocv/canvas-web" (browser canvas-only), ' +
+        'or "ppu-ocv/canvas-mobile" (React Native / Skia) to auto-register.'
     );
   }
   return _platform;
