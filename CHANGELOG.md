@@ -7,6 +7,10 @@
 - **Reproducible-build verification.** CI now builds twice and fails if the
   output is not byte-identical; `docs/REPRODUCIBLE_BUILD.md` documents the
   deterministic build and how to verify it (OpenSSF Best Practices Gold).
+- **Fuzz testing (dynamic analysis).** `tests/fuzz.test.ts` uses `fast-check` to
+  feed many random inputs to the image decoder on every CI run, asserting it
+  never crashes on malformed input — exercising the untrusted-input boundary
+  from the threat model (OpenSSF Best Practices Gold dynamic_analysis).
 
 ### Fixed
 
