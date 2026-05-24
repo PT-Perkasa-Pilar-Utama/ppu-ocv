@@ -1157,7 +1157,23 @@
       let currentMode = "pipeline"; // 'pipeline' | 'deskew'
 
       // -- Init OpenCV --
+      // The ppu-ocv/web build does not bundle OpenCV (it is loaded at runtime so
+      // bundler-less and CSP-restricted consumers can opt out). Load opencv.js
+      // into globalThis.cv, then initRuntime() confirms the WASM is ready.
       try {
+        setStatus("loading", "Loading OpenCV…");
+        await new Promise((resolve, reject) => {
+          if (globalThis.cv?.Mat) {
+            resolve(); // already loaded (e.g. hot-reload)
+            return;
+          }
+          const s = document.createElement("script");
+          s.async = true;
+          s.src = "https://docs.opencv.org/4.10.0/opencv.js";
+          s.onload = resolve;
+          s.onerror = () => reject(new Error("Failed to load opencv.js from CDN"));
+          document.head.appendChild(s);
+        });
         await ImageProcessor.initRuntime();
         setStatus("ready", "Ready");
       } catch (err) {
