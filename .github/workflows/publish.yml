@@ -35,7 +35,7 @@ jobs:
       # Block the release on any High/Critical advisory in a dependency
       # (VM-05.02). Mirrors the SCA gate that runs on every PR in ci.yml.
       - name: SCA scan (block on vulnerable dependencies)
-        uses: google/osv-scanner-action@9a498708959aeaef5ef730655706c5a1df1edbc2 # v2.3.8
+        uses: google/osv-scanner-action/osv-scanner-action@9a498708959aeaef5ef730655706c5a1df1edbc2 # v2.3.8
         with:
           scan-args: |-
             --lockfile=./bun.lock
