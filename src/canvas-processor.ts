@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 import type { BoundingBox } from "./index.interface.js";
 import type { CanvasLike } from "./canvas-factory.js";
 import { getPlatform } from "./canvas-factory.js";

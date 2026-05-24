@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 import type { CanvasLike, CanvasPlatform } from "../canvas-factory.js";
 
 /** Browser canvas platform using native DOM / OffscreenCanvas APIs */

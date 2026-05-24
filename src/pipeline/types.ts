@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 import type { cv } from "../cv-provider.js";
 import type { AdaptiveThresholdOptions } from "../operations/adaptive-threshold.js";
 import type { BlurOptions } from "../operations/blur.js";

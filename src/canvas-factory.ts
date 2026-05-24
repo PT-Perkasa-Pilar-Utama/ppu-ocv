@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 /**
  * Platform abstraction layer for canvas operations.
  * Allows ppu-ocv to work with both @napi-rs/canvas (Node) and browser canvas APIs.

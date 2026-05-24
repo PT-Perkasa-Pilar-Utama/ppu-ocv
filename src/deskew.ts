@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 import type { CanvasLike } from "./canvas-factory.js";
 import { Contours } from "./contours.js";
 import { cv } from "./cv-provider.js";

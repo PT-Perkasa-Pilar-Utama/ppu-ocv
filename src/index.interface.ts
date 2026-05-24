@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 /** A 2D point in canvas pixel coordinates. */
 export interface Coordinate {
   /** X coordinate in pixels, measured from the left edge. */

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 import type { OperationResult, PartialOptions } from "../pipeline/types.js";
