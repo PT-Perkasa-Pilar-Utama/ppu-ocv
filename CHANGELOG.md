@@ -11,6 +11,17 @@
   feed many random inputs to the image decoder on every CI run, asserting it
   never crashes on malformed input — exercising the untrusted-input boundary
   from the threat model (OpenSSF Best Practices Gold dynamic_analysis).
+- **`equalize` test suite modularized into `tests/equalize/`.** The 558-line
+  `tests/equalize.test.ts` has been split into focused files under a dedicated
+  subfolder, each within the 300-line limit:
+  - `tests/equalize/helpers.ts` — shared `makeMono`, `pixels`, `loadDibco`, and
+    `initRuntime` utilities (no test code).
+  - `tests/equalize/unit.test.ts` — operation registration, global mode, CLAHE
+    mode, options defaults, and `ImageProcessor` integration (sections 1–5).
+  - `tests/equalize/realimage.test.ts` — real-image integration against
+    `dibco_cropped.png` and Wasm memory-management assertions (sections 6–7).
+  - `package.json` test script updated to use `find tests -name '*.test.ts'`
+    so `--parallel` stays accurate as more subfolders are added.
 
 ### Fixed
 
