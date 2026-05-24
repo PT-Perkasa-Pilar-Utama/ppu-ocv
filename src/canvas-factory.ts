@@ -21,6 +21,10 @@ export type CanvasLike = {
   /** Serialize the canvas to a data-URL string (browser canvases). Absent on Node-side `@napi-rs/canvas`. */
   // oxlint-disable-next-line typescript/no-explicit-any -- platform bridging type
   toDataURL?: (...args: any[]) => string;
+  /** Asynchronously serialize to a `Blob` via callback (browser `HTMLCanvasElement`). */
+  toBlob?: (callback: (blob: Blob | null) => void, type?: string, quality?: number) => void;
+  /** Asynchronously serialize to a `Blob` (`OffscreenCanvas`, used in workers and extensions). */
+  convertToBlob?: (options?: { type?: string; quality?: number }) => Promise<Blob>;
 };
 
 /** Structural type for 2D rendering context, matching the cross-runtime subset used by ppu-ocv. */
