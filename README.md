@@ -168,14 +168,24 @@ processor.destroy();
 
 ### Vanilla HTML (no bundler)
 
-`initRuntime()` automatically loads `@techstark/opencv-js` from the npm CDN if it's not already available. No extra script tags or import maps needed:
+The web build does not bundle OpenCV — load `opencv.js` yourself so it is on
+`globalThis.cv`, then `initRuntime()` waits for the WASM to finish initializing:
 
 ```html
+<!-- Load OpenCV; sets globalThis.cv (WASM initializes asynchronously). -->
+<script async src="https://docs.opencv.org/4.10.0/opencv.js"></script>
 <script type="module">
   import {
     CanvasProcessor,
     ImageProcessor,
   } from "https://cdn.jsdelivr.net/npm/ppu-ocv@3/index.web.js";
+
+  // Wait until the opencv.js script tag is present, then for the runtime.
+  await new Promise((resolve) => {
+    const ready = () => globalThis.cv && globalThis.cv.Mat;
+    const tick = () => (ready() ? resolve() : setTimeout(tick, 30));
+    tick();
+  });
   await ImageProcessor.initRuntime();
 
   const response = await fetch("/my-image.jpg");
@@ -191,6 +201,9 @@ processor.destroy();
   processor.destroy();
 </script>
 ```
+
+> With a bundler, importing `@techstark/opencv-js` once (it self-registers on
+> `globalThis.cv`) is enough — no script tag needed.
 
 > **Note:** ES modules require HTTP/HTTPS — use a local server (`npx serve .`) for dev, or deploy to GitHub Pages.
 
