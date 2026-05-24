@@ -16,7 +16,7 @@
     ],
     "typescript/no-explicit-any": "error",
     "typescript/explicit-module-boundary-types": "error",
-    "typescript/consistent-type-definitions": ["warn", "type"],
+    "typescript/consistent-type-definitions": ["error", "type"],
     "typescript/consistent-type-imports": [
       "error",
       {
@@ -33,7 +33,15 @@
     "no-nested-ternary": "error",
     "prefer-const": "error",
     "object-shorthand": "error",
-    "prefer-template": "error"
+    "prefer-template": "error",
+    "max-lines": [
+      "error",
+      {
+        "max": 300,
+        "skipBlankLines": true,
+        "skipComments": true
+      }
+    ]
   },
   "env": {
     "builtin": true
