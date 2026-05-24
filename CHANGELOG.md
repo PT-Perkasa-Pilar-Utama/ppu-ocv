@@ -2,6 +2,42 @@
 
 ## [Unreleased]
 
+## [3.2.1] — 2026-05-24
+
+### Added
+
+- **300-line-of-code cap, enforced.** The `max-lines` oxlint rule now fails the
+  build on any source or test file over 300 lines of code (blank lines and
+  comments excluded). `CONTRIBUTING.md` documents the cap and the splitting
+  conventions under "Code Quality → File size".
+
+### Changed
+
+- **`consistent-type-definitions` set to `type`.** `type` aliases are now
+  required over `interface` across the codebase; existing `interface`
+  declarations were converted.
+- **`deskew.ts` split.** The skew-angle estimators (`minAreaRect`, baseline,
+  Hough, and the consensus reducer) moved into `src/deskew-angles.ts` as pure
+  functions, bringing `deskew.ts` under the line cap.
+- **`canvas-processor.ts` split.** The flood-fill region detector moved to
+  `src/canvas-regions.ts` (`detectRegions`) and the canvas/buffer conversions to
+  `src/canvas-io.ts`; `CanvasProcessor` is now a thin wrapper over both.
+- **Comparison and canvas-processor test suites modularized.**
+  `tests/comparison.test.ts` split into `tests/comparison/` (`helpers.ts` plus
+  `pixel`, `geometry`, and `regions` test files) and
+  `tests/canvas-processor.test.ts` into `tests/canvas-processor/` (`ops` and
+  `shapes`), each within the 300-line limit.
+
+### Fixed
+
+- **Pre-commit no longer reformats the whole repository.** The hook ran
+  `oxfmt .` and `git add -u`, sweeping every modified file into a commit that
+  staged only a few. Formatting now runs through lint-staged, scoped to the
+  staged files only.
+- **Vanilla-HTML demo loads OpenCV correctly.** `index.html` and the README's
+  vanilla example now load `opencv.js` via a script tag before calling
+  `ImageProcessor.initRuntime()`, fixing the "OpenCV is not loaded" error.
+
 ## [3.2.0] — 2026-05-24
 
 ### Added
