@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [3.2.0] — 2026-05-24
+
 ### Added
 
 - **Reproducible-build verification.** CI now builds twice and fails if the
@@ -64,8 +66,6 @@ new ImageProcessor(canvas)
 ```
 
 Closes [#13](https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv/issues/13).
-
-## [3.1.6] — 2026-05-24
 
 ### Security
 
