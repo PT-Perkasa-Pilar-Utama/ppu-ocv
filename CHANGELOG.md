@@ -22,6 +22,8 @@
   `docs/THREAT_MODEL.md`, a release-verification / dependency / remediation /
   VEX policy in `SECURITY.md`, and a DCO sign-off requirement in
   `CONTRIBUTING.md`.
+- **`ROADMAP.md`** added, and CI now enforces a 90% line/function coverage
+  floor (`bunfig.toml`).
 
 ## [3.1.5] — 2026-05-14
 
