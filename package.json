@@ -62,6 +62,7 @@
     "@types/uglify-js": "latest",
     "@typescript/native-preview": "^7.0.0-dev.20260513.1",
     "canvas": "^3.2.3",
+    "fast-check": "^4.8.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.4",
     "mitata": "latest",
