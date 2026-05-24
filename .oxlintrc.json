@@ -33,7 +33,15 @@
     "no-nested-ternary": "error",
     "prefer-const": "error",
     "object-shorthand": "error",
-    "prefer-template": "error"
+    "prefer-template": "error",
+    "max-lines": [
+      "error",
+      {
+        "max": 300,
+        "skipBlankLines": true,
+        "skipComments": true
+      }
+    ]
   },
   "env": {
     "builtin": true

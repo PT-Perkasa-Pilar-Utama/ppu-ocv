@@ -109,6 +109,16 @@ All of the following must pass before a PR can be merged. CI enforces them autom
 | Auto-fix format | `bun run fmt:fix`    |
 | Type check      | `bun run type-check` |
 
+### File size
+
+No source or test file may exceed **300 lines of code** (blank lines and
+comments excluded). The `max-lines` oxlint rule enforces this as an error, so
+`bun run lint` fails on any file that crosses the cap. When a file grows past
+it, split the logic into focused modules: extract pure helpers into a sibling
+file (e.g. `deskew.ts` → `deskew-angles.ts`), or move a test file into a
+subfolder of topic files plus a shared `helpers.ts` (e.g. `comparison.test.ts`
+→ `tests/comparison/`). Smaller files keep review and reasoning tractable.
+
 If your change touches OpenCV operations, the canvas processor, or pipeline registry, run the benchmark and include before/after numbers in your PR:
 
 ```bash

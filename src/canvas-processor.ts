@@ -1,19 +1,13 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 PT Perkasa Pilar Utama
 
-import type { BoundingBox } from "./index.interface.js";
 import type { CanvasLike } from "./canvas-factory.js";
-import { getPlatform, isCanvasLike } from "./canvas-factory.js";
+import { getPlatform } from "./canvas-factory.js";
+import { bufferToCanvas, canvasToBuffer } from "./canvas-io.js";
+import type { DetectedRegion, FindRegionsOptions } from "./canvas-regions.js";
+import { detectRegions } from "./canvas-regions.js";
 
-/**
- * A detected region returned by {@link CanvasProcessor.findRegions}.
- */
-export type DetectedRegion = {
-  /** Axis-aligned bounding box of the region (x1/y1 are exclusive). */
-  bbox: BoundingBox;
-  /** Number of foreground pixels in the region. */
-  area: number;
-};
+export type { DetectedRegion } from "./canvas-regions.js";
 
 /**
  * Canvas-native image processing with no OpenCV dependency.
@@ -296,120 +290,10 @@ export class CanvasProcessor {
    * });
    * ```
    */
-  findRegions(
-    options: {
-      foreground?: "light" | "dark";
-      thresh?: number;
-      minArea?: number;
-      maxArea?: number;
-      padding?: { vertical?: number; horizontal?: number };
-      scale?: number;
-    } = {}
-  ): DetectedRegion[] {
-    const {
-      foreground = "light",
-      thresh = 127,
-      minArea = 1,
-      maxArea = Infinity,
-      padding,
-      scale = 1,
-    } = options;
-
+  findRegions(options: FindRegionsOptions = {}): DetectedRegion[] {
     const { width, height } = this._canvas;
     const data = this._canvas.getContext("2d").getImageData(0, 0, width, height).data;
-
-    // visited[y * width + x] = 1 once a pixel has been assigned to a region
-    const visited = new Uint8Array(width * height);
-    const regions: DetectedRegion[] = [];
-
-    // 8-connected neighbour offsets: [dx, dy]
-    const neighbours = [
-      [-1, -1],
-      [0, -1],
-      [1, -1],
-      [-1, 0],
-      [1, 0],
-      [-1, 1],
-      [0, 1],
-      [1, 1],
-    ] as const;
-
-    const isForeground = (pixelIdx: number): boolean => {
-      const r = data[pixelIdx] ?? 0;
-      return foreground === "light" ? r > thresh : r <= thresh;
-    };
-
-    for (let startY = 0; startY < height; startY++) {
-      for (let startX = 0; startX < width; startX++) {
-        const startFlat = startY * width + startX;
-        if (visited[startFlat]) continue;
-        visited[startFlat] = 1;
-
-        if (!isForeground(startFlat * 4)) continue;
-
-        // DFS stack — stores flat index
-        const stack: number[] = [startFlat];
-        let minX = startX,
-          maxX = startX;
-        let minY = startY,
-          maxY = startY;
-        let area = 0;
-
-        while (stack.length > 0) {
-          const flat = stack.pop();
-          if (flat === undefined) break;
-          area++;
-
-          const x = flat % width;
-          const y = (flat - x) / width;
-
-          if (x < minX) minX = x;
-          else if (x > maxX) maxX = x;
-          if (y < minY) minY = y;
-          else if (y > maxY) maxY = y;
-
-          for (const [dx, dy] of neighbours) {
-            const nx = x + dx;
-            const ny = y + dy;
-            if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue;
-            const nFlat = ny * width + nx;
-            if (visited[nFlat]) continue;
-            visited[nFlat] = 1;
-            if (isForeground(nFlat * 4)) stack.push(nFlat);
-          }
-        }
-
-        if (area >= minArea && area <= maxArea) {
-          let x0 = minX;
-          let y0 = minY;
-          let x1 = maxX + 1;
-          let y1 = maxY + 1;
-
-          // Apply padding relative to bbox height (mirrors extractBoxesFromContours)
-          if (padding) {
-            const bboxH = y1 - y0;
-            const vPad = Math.round(bboxH * (padding.vertical ?? 0));
-            const hPad = Math.round(bboxH * (padding.horizontal ?? 0));
-            x0 = Math.max(0, x0 - hPad);
-            y0 = Math.max(0, y0 - vPad);
-            x1 = Math.min(width, x1 + hPad);
-            y1 = Math.min(height, y1 + vPad);
-          }
-
-          // Scale coordinates (e.g. processed → original image space)
-          if (scale !== 1) {
-            x0 = Math.max(0, Math.round(x0 * scale));
-            y0 = Math.max(0, Math.round(y0 * scale));
-            x1 = Math.round(x1 * scale);
-            y1 = Math.round(y1 * scale);
-          }
-
-          regions.push({ bbox: { x0, y0, x1, y1 }, area });
-        }
-      }
-    }
-
-    return regions;
+    return detectRegions(data, width, height, options);
   }
 
   /**
@@ -428,9 +312,7 @@ export class CanvasProcessor {
    * If the value is already a CanvasLike it is returned as-is.
    */
   static async prepareCanvas(file: ArrayBuffer): Promise<CanvasLike> {
-    if (isCanvasLike(file)) return file as unknown as CanvasLike;
-
-    return getPlatform().loadImage(file);
+    return bufferToCanvas(file);
   }
 
   /**
@@ -438,37 +320,6 @@ export class CanvasProcessor {
    * If the value is already an ArrayBuffer it is returned as-is.
    */
   static async prepareBuffer(canvas: CanvasLike): Promise<ArrayBuffer> {
-    if (canvas instanceof ArrayBuffer) return canvas;
-
-    if (typeof canvas.toBuffer === "function") {
-      const buffer = canvas.toBuffer("image/png");
-      const arrayBuffer = new ArrayBuffer(buffer.byteLength);
-
-      new Uint8Array(arrayBuffer).set(new Uint8Array(buffer));
-      return arrayBuffer;
-    }
-
-    if (typeof canvas.toDataURL === "function") {
-      const dataURL = canvas.toDataURL("image/png");
-      const base64Data = dataURL.replace(/^data:image\/png;base64,/, "");
-
-      const binaryString = atob(base64Data);
-      const arrayBuffer = new ArrayBuffer(binaryString.length);
-      const bytes = new Uint8Array(arrayBuffer);
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      return arrayBuffer;
-    }
-
-    const ctx = canvas.getContext("2d");
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const canvasBuffer = new ArrayBuffer(imageData.data.byteLength);
-
-    new Uint8Array(canvasBuffer).set(
-      new Uint8Array(imageData.data.buffer, imageData.data.byteOffset, imageData.data.byteLength)
-    );
-
-    return canvasBuffer;
+    return canvasToBuffer(canvas);
   }
 }
