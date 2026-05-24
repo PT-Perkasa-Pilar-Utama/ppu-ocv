@@ -6,12 +6,12 @@ import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 
 /** Options for resizing the image to exact pixel dimensions. */
-export interface ResizeOptions extends RequiredOptions {
+export type ResizeOptions = RequiredOptions & {
   /** Width of the resized image */
   width: number;
   /** Height of the resized image */
   height: number;
-}
+};
 
 /** Resize the image to the given width and height. */
 export function resize(img: cv.Mat, options: ResizeOptions): OperationResult {

@@ -8,12 +8,12 @@ import { getPlatform, isCanvasLike } from "./canvas-factory.js";
 /**
  * A detected region returned by {@link CanvasProcessor.findRegions}.
  */
-export interface DetectedRegion {
+export type DetectedRegion = {
   /** Axis-aligned bounding box of the region (x1/y1 are exclusive). */
   bbox: BoundingBox;
   /** Number of foreground pixels in the region. */
   area: number;
-}
+};
 
 /**
  * Canvas-native image processing with no OpenCV dependency.

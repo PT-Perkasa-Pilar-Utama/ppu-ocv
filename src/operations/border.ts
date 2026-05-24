@@ -6,14 +6,14 @@ import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 
 /** Options for adding a constant-color border around the image. */
-export interface BorderOptions extends PartialOptions {
+export type BorderOptions = PartialOptions & {
   /** Size of the border in pixels */
   size: number;
   /** Border type (e.g., cv.BORDER_CONSTANT) */
   borderType: cv.BorderTypes;
   /** Border color in [B, G, R, A] format */
   borderColor: [cv.int, cv.int, cv.int, cv.int];
-}
+};
 
 function defaultOptions(): BorderOptions {
   return {

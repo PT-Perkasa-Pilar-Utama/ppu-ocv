@@ -6,7 +6,7 @@ import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 
 /** Options for the bitwise-NOT color inversion operation (no configurable fields). */
-export interface InvertOptions extends PartialOptions {}
+export type InvertOptions = PartialOptions;
 
 function defaultOptions(): InvertOptions {
   return {};

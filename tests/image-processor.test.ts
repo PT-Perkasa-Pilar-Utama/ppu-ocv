@@ -65,6 +65,7 @@ test("all pipeline operations can run and return this", () => {
 
   // Order matters see the table in the README
   expect(processor.grayscale()).toBe(processor);
+  expect(processor.equalize()).toBe(processor); // contrast normalise before threshold
   expect(processor.blur()).toBe(processor);
   expect(processor.threshold()).toBe(processor);
   expect(processor.invert()).toBe(processor);

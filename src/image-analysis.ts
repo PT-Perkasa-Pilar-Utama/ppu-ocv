@@ -16,12 +16,12 @@ import { ImageProcessor } from "./image-processor.js";
 /**
  * Options for calculating mean Lab lightness.
  */
-export interface CalculateMeanLightnessOptions {
+export type CalculateMeanLightnessOptions = {
   /** The canvas containing the image to be processed. */
   canvas: CanvasLike;
   /** The target dimensions for analysis (resizes internally). */
   dimension: { width: number; height: number };
-}
+};
 
 /**
  * Calculates the mean normalized lightness of an image using the L channel of the Lab color space.

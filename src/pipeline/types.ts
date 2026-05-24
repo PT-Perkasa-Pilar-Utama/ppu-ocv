@@ -9,6 +9,7 @@ import type { CannyOptions } from "../operations/canny.js";
 import type { ConvertOptions } from "../operations/convert.js";
 import type { DilateOptions } from "../operations/dilate.js";
 import type { ErodeOptions } from "../operations/erode.js";
+import type { EqualizeOptions } from "../operations/equalize.js";
 import type { GrayscaleOptions } from "../operations/grayscale.js";
 import type { InvertOptions } from "../operations/invert.js";
 import type { MorphologicalGradientOptions } from "../operations/morphological-gradient.js";
@@ -18,32 +19,32 @@ import type { ThresholdOptions } from "../operations/threshold.js";
 import type { WarpOptions } from "../operations/warp.js";
 
 /** The output produced by every pipeline operation: the transformed Mat plus its dimensions. */
-export interface OperationResult {
+export type OperationResult = {
   /** Resulting OpenCV Mat after the operation. The caller is responsible for deleting it. */
   img: cv.Mat;
   /** Width of the resulting image in pixels. */
   width: number;
   /** Height of the resulting image in pixels. */
   height: number;
-}
+};
 
 declare const RequiredBrand: unique symbol;
 /**
- * Marker interface for operation options that have no usable defaults and
- * must be supplied by the caller. Operation option types that extend this
+ * Marker type for operation options that have no usable defaults and
+ * must be supplied by the caller. Operation option types that intersect this
  * cannot be omitted when calling {@link ImageProcessor.execute}.
  */
-export interface RequiredOptions {
+export type RequiredOptions = {
   [RequiredBrand]?: never;
-}
+};
 declare const PartialBrand: unique symbol;
 /**
- * Marker interface for operation options that have sensible defaults.
- * Operation option types that extend this may be omitted or partially supplied.
+ * Marker type for operation options that have sensible defaults.
+ * Operation option types that intersect this may be omitted or partially supplied.
  */
-export interface PartialOptions {
+export type PartialOptions = {
   [PartialBrand]?: never;
-}
+};
 
 /** Signature every registered operation function must conform to. */
 export type OperationFunction<T> = (img: cv.Mat, options: T) => OperationResult;
@@ -74,6 +75,8 @@ export interface RegisteredOperations {
   convert: ConvertOptions;
   /** Morphological dilation. See {@link DilateOptions}. */
   dilate: DilateOptions;
+  /** Histogram equalisation (CLAHE or global). See {@link EqualizeOptions}. */
+  equalize: EqualizeOptions;
   /** Morphological erosion. See {@link ErodeOptions}. */
   erode: ErodeOptions;
   /** Convert to grayscale via `COLOR_RGBA2GRAY`. See {@link GrayscaleOptions}. */

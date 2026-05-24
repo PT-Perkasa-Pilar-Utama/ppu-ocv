@@ -6,12 +6,12 @@ import { cv } from "./cv-provider.js";
 import type { BoundingBox, Coordinate, Points } from "./index.interface.js";
 
 /** Options for configuring contour detection. */
-export interface ContoursOptions {
+export type ContoursOptions = {
   /** The contour retrieval mode. (cv.RETR_...) */
   mode: cv.RetrievalModes;
   /** The contour approximation method. (cv.CHAIN_...) */
   method: cv.ContourApproximationModes;
-}
+};
 
 function defaultOptions(): ContoursOptions {
   return {
