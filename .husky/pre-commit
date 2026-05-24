@@ -1,14 +1,14 @@
-# Format the repo and run lint-staged checks before committing. Still
-# bypassable with `git commit --no-verify`; CI is the ultimate guardrail.
+# Run staged-file checks before committing via lint-staged. Formatting (oxfmt)
+# is scoped to the staged files only — see lint-staged.config.mjs — so a commit
+# never sweeps in unrelated files the way a repo-wide `oxfmt .` + `git add -u`
+# did. Bypassable with `git commit --no-verify`; CI is the ultimate guardrail.
 #
-# Note: `bun run lint:fix` is intentionally NOT run here. oxlint's
-# auto-fix for `typescript/consistent-type-definitions` converts
-# `interface X { ... }` to `type X = { ... }` but leaves the closing
-# brace bare instead of `};`, producing invalid TypeScript. Until
-# upstream fixes that, lint findings should be addressed manually.
+# Note: `bun run lint:fix` is intentionally NOT run. oxlint's auto-fix for
+# `typescript/consistent-type-definitions` converts `interface X { ... }` to
+# `type X = { ... }` but leaves the closing brace bare instead of `};`,
+# producing invalid TypeScript. Until upstream fixes that, lint findings should
+# be addressed manually.
 
 set -e
 
-bun run fmt:fix
-git add -u
 bunx lint-staged
