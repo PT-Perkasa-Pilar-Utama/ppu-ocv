@@ -1,9 +1,12 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 
 /** Options for the grayscale conversion operation (no configurable fields). */
-export interface GrayscaleOptions extends PartialOptions {}
+export type GrayscaleOptions = PartialOptions;
 
 function defaultOptions(): GrayscaleOptions {
   return {};

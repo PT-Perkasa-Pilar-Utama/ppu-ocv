@@ -63,6 +63,8 @@ haven't exercised them — reviewers will know what still needs checking.
 - [ ] macOS
 - [ ] Linux
 - [ ] Windows
+- [ ] Android
+- [ ] iOS
 
 ### Related
 

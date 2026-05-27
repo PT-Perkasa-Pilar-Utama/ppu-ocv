@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 export { executeOperation, OperationRegistry, registry } from "./registry.js";
 export type {
   OperationFunction,
@@ -16,6 +19,7 @@ import "../operations/canny.js";
 import "../operations/convert.js";
 import "../operations/dilate.js";
 import "../operations/erode.js";
+import "../operations/equalize.js";
 import "../operations/grayscale.js";
 import "../operations/invert.js";
 import "../operations/morphological-gradient.js";
@@ -31,6 +35,7 @@ export type { CannyOptions } from "../operations/canny.js";
 export type { ConvertOptions } from "../operations/convert.js";
 export type { DilateOptions } from "../operations/dilate.js";
 export type { ErodeOptions } from "../operations/erode.js";
+export type { EqualizeOptions } from "../operations/equalize.js";
 export type { GrayscaleOptions } from "../operations/grayscale.js";
 export type { InvertOptions } from "../operations/invert.js";
 export type { MorphologicalGradientOptions } from "../operations/morphological-gradient.js";

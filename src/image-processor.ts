@@ -1,5 +1,8 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 import type { CanvasLike } from "./canvas-factory.js";
-import { getPlatform } from "./canvas-factory.js";
+import { getPlatform, isCanvasLike } from "./canvas-factory.js";
 import { cv } from "./cv-provider.js";
 
 import type {
@@ -9,6 +12,7 @@ import type {
   CannyOptions,
   ConvertOptions,
   DilateOptions,
+  EqualizeOptions,
   ErodeOptions,
   GrayscaleOptions,
   InvertOptions,
@@ -49,8 +53,11 @@ type NameWithOptionalOptions = Exclude<OperationName, NameWithRequiredOptions>;
  * ```
  */
 export class ImageProcessor {
+  /** Underlying OpenCV Mat. Each operation deletes the previous Mat and replaces this reference. */
   img: cv.Mat;
+  /** Current image width in pixels, kept in sync with `img.cols`. */
   width: number;
+  /** Current image height in pixels, kept in sync with `img.rows`. */
   height: number;
 
   /**
@@ -58,7 +65,7 @@ export class ImageProcessor {
    * @param source Source image as CanvasLike or cv.Mat
    */
   constructor(source: CanvasLike | cv.Mat) {
-    if (getPlatform().isCanvas(source)) {
+    if (isCanvasLike(source)) {
       const ctx = source.getContext("2d");
       const imageData = ctx.getImageData(0, 0, source.width, source.height);
       this.img = cv.matFromImageData(imageData);
@@ -162,6 +169,15 @@ export class ImageProcessor {
    */
   invert(options?: Partial<InvertOptions>): this {
     return this.execute<"invert">("invert", options);
+  }
+
+  /**
+   * Equalise image contrast using histogram equalization
+   * @description Usage order: (after) grayscale — input must be single-channel
+   * @param options Equalization configuration options
+   */
+  equalize(options?: Partial<EqualizeOptions>): this {
+    return this.execute<"equalize">("equalize", options);
   }
 
   /**

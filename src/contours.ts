@@ -1,14 +1,17 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 import type { CanvasLike } from "./canvas-factory.js";
 import { cv } from "./cv-provider.js";
 import type { BoundingBox, Coordinate, Points } from "./index.interface.js";
 
 /** Options for configuring contour detection. */
-export interface ContoursOptions {
+export type ContoursOptions = {
   /** The contour retrieval mode. (cv.RETR_...) */
   mode: cv.RetrievalModes;
   /** The contour approximation method. (cv.CHAIN_...) */
   method: cv.ContourApproximationModes;
-}
+};
 
 function defaultOptions(): ContoursOptions {
   return {

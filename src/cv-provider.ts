@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 /**
  * Lazy OpenCV accessor.
  *
@@ -40,9 +43,11 @@ export function setCv(instance: CV): void {
 }
 
 /**
- * TypeScript Declaration Merging:
- * By exporting both a `namespace cv` and a `const cv`, consumers importing `{ cv }`
- * get BOTH the types (e.g. `cv.Mat`) AND the runtime Proxy object.
+ * Type-side companion to the {@link cv} runtime proxy.
+ *
+ * Re-exports the OpenCV.js type aliases (Mat, Rect, Size, enum constants…) under
+ * the `cv.` namespace, so consumers importing `{ cv }` get the types AND the
+ * runtime Proxy object via TypeScript's declaration-merging rules.
  */
 export namespace cv {
   /** OpenCV Mat (matrix / image buffer). */

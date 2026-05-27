@@ -1,14 +1,17 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 
 /** Options for the Gaussian blur operation. */
-export interface BlurOptions extends PartialOptions {
+export type BlurOptions = PartialOptions & {
   /** Size of the blur [x, y] */
   size: [number, number];
   /** Gaussian kernel standard deviation on x axis */
   sigma: number;
-}
+};
 
 function defaultOptions(): BlurOptions {
   return { size: [5, 5], sigma: 0 };

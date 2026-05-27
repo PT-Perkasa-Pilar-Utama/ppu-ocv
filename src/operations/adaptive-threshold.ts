@@ -1,9 +1,12 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 
 /** Options for the adaptive threshold operation. */
-export interface AdaptiveThresholdOptions extends PartialOptions {
+export type AdaptiveThresholdOptions = PartialOptions & {
   /** Upper threshold value (0-255) */
   upper: number;
   /** Adaptive threshold method (cv.ADAPTIVE_THRESH_...) */
@@ -14,7 +17,7 @@ export interface AdaptiveThresholdOptions extends PartialOptions {
   size: number;
   /** Constant subtracted from the mean or weighted mean */
   constant: number;
-}
+};
 
 function defaultOptions(): AdaptiveThresholdOptions {
   return {

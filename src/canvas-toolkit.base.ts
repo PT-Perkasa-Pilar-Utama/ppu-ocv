@@ -1,11 +1,15 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 import type { BoundingBox } from "./index.interface.js";
 import type { CanvasLike, Context2DLike } from "./canvas-factory.js";
 import { getPlatform } from "./canvas-factory.js";
 
-/** Structural interface for contour-like objects with 32-bit signed integer point data */
-export interface ContourLike {
+/** Structural type for contour-like objects with 32-bit signed integer point data. */
+export type ContourLike = {
+  /** Flat `[x0, y0, x1, y1, ...]` point array. Matches `cv.Mat.data32S` for contour Mats. */
   data32S: Int32Array | number[];
-}
+};
 
 /**
  * Cross-platform base class for canvas manipulation utilities.

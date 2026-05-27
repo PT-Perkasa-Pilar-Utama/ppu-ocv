@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 /**
  * Default entry point — Node.js / Bun with OpenCV + `@napi-rs/canvas`.
  *
@@ -59,6 +62,7 @@ export type {
   BorderOptions,
   CannyOptions,
   DilateOptions,
+  EqualizeOptions,
   ErodeOptions,
   GrayscaleOptions,
   InvertOptions,

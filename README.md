@@ -1,6 +1,6 @@
 # ppu-ocv
 
-[![NPM](https://img.shields.io/npm/dw/ppu-ocv)](https://www.npmjs.com/package/ppu-ocv) [![JSR](https://jsr.io/badges/@snowfluke/ppu-ocv)](https://jsr.io/@snowfluke/ppu-ocv)
+[![NPM](https://img.shields.io/npm/dw/ppu-ocv)](https://www.npmjs.com/package/ppu-ocv) [![JSR](https://jsr.io/badges/@snowfluke/ppu-ocv)](https://jsr.io/@snowfluke/ppu-ocv) [![npm version](https://img.shields.io/npm/v/ppu-ocv)](https://www.npmjs.com/package/ppu-ocv) [![Provenance](https://img.shields.io/badge/npm-signed%20provenance-blue?logo=npm)](https://www.npmjs.com/package/ppu-ocv#provenance) [![License: MIT](https://img.shields.io/npm/l/ppu-ocv)](./LICENSE) [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/PT-Perkasa-Pilar-Utama/ppu-ocv/badge)](https://scorecard.dev/viewer/?uri=github.com/PT-Perkasa-Pilar-Utama/ppu-ocv) [![Socket Badge](https://socket.dev/api/badge/npm/package/ppu-ocv)](https://socket.dev/npm/package/ppu-ocv) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/12961/badge)](https://www.bestpractices.dev/projects/12961)
 
 A type-safe, modular, chainable image processing library built on top of OpenCV.js with a fluent API leveraging pipeline processing. Decoupled canvas utilities run anywhere — Node, Bun, browsers, browser extensions, and service workers — with or without OpenCV.
 
@@ -168,14 +168,24 @@ processor.destroy();
 
 ### Vanilla HTML (no bundler)
 
-`initRuntime()` automatically loads `@techstark/opencv-js` from the npm CDN if it's not already available. No extra script tags or import maps needed:
+The web build does not bundle OpenCV — load `opencv.js` yourself so it is on
+`globalThis.cv`, then `initRuntime()` waits for the WASM to finish initializing:
 
 ```html
+<!-- Load OpenCV; sets globalThis.cv (WASM initializes asynchronously). -->
+<script async src="https://docs.opencv.org/4.10.0/opencv.js"></script>
 <script type="module">
   import {
     CanvasProcessor,
     ImageProcessor,
   } from "https://cdn.jsdelivr.net/npm/ppu-ocv@3/index.web.js";
+
+  // Wait until the opencv.js script tag is present, then for the runtime.
+  await new Promise((resolve) => {
+    const ready = () => globalThis.cv && globalThis.cv.Mat;
+    const tick = () => (ready() ? resolve() : setTimeout(tick, 30));
+    tick();
+  });
   await ImageProcessor.initRuntime();
 
   const response = await fetch("/my-image.jpg");
@@ -191,6 +201,9 @@ processor.destroy();
   processor.destroy();
 </script>
 ```
+
+> With a bundler, importing `@techstark/opencv-js` once (it self-registers on
+> `globalThis.cv`) is enough — no script tag needed.
 
 > **Note:** ES modules require HTTP/HTTPS — use a local server (`npx serve .`) for dev, or deploy to GitHub Pages.
 
@@ -231,21 +244,22 @@ setPlatform(myPlatform);
 
 To avoid bloat, we only ship essential operations for chaining. Currently shipped operations are:
 
-| Operation                 | Depends on…                                 | Why                                                             |
-| ------------------------- | ------------------------------------------- | --------------------------------------------------------------- |
-| **grayscale**             | –                                           | Converts to single‐channel; many ops expect a gray image first. |
-| **blur**                  | _(ideally after)_ grayscale                 | Noise reduction works best on 1-channel data.                   |
-| **threshold**             | _(after)_ grayscale                         | Produces a binary image; needs gray levels.                     |
-| **adaptiveThreshold**     | _(after)_ grayscale (and optionally blur)   | Local thresholding on gray values (smoother if blurred first).  |
-| **invert**                | _(after)_ threshold or adaptiveThreshold    | Inverting a binary mask flips foreground/background.            |
-| **canny**                 | _(after)_ grayscale + blur                  | Edge detection expects a smoothed gray image.                   |
-| **dilate**                | _(after)_ threshold or edge detection       | Expands foreground regions—usually on a binary mask.            |
-| **erode**                 | _(after)_ threshold or edge detection       | Shrinks or cleans up binary regions.                            |
-| **morphologicalGradient** | _(after)_ dilation + erosion (or threshold) | Highlights boundaries by subtracting eroded from dilated image. |
-| **warp**                  | –                                           | Geometric transform; can be applied at any point.               |
-| **resize**                | –                                           | Also independent; purely geometry.                              |
-| **border**                | –                                           | Independent; purely geometry.                                   |
-| **rotate**                | –                                           | Independent.                                                    |
+| Operation                 | Depends on…                                 | Why                                                                                      |
+| ------------------------- | ------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| **grayscale**             | –                                           | Converts to single‐channel; many ops expect a gray image first.                          |
+| **blur**                  | _(ideally after)_ grayscale                 | Noise reduction works best on 1-channel data.                                            |
+| **equalize**              | _(after)_ grayscale                         | Histogram equalisation (CLAHE or global) for contrast normalisation before thresholding. |
+| **threshold**             | _(after)_ grayscale                         | Produces a binary image; needs gray levels.                                              |
+| **adaptiveThreshold**     | _(after)_ grayscale (and optionally blur)   | Local thresholding on gray values (smoother if blurred first).                           |
+| **invert**                | _(after)_ threshold or adaptiveThreshold    | Inverting a binary mask flips foreground/background.                                     |
+| **canny**                 | _(after)_ grayscale + blur                  | Edge detection expects a smoothed gray image.                                            |
+| **dilate**                | _(after)_ threshold or edge detection       | Expands foreground regions—usually on a binary mask.                                     |
+| **erode**                 | _(after)_ threshold or edge detection       | Shrinks or cleans up binary regions.                                                     |
+| **morphologicalGradient** | _(after)_ dilation + erosion (or threshold) | Highlights boundaries by subtracting eroded from dilated image.                          |
+| **warp**                  | –                                           | Geometric transform; can be applied at any point.                                        |
+| **resize**                | –                                           | Also independent; purely geometry.                                                       |
+| **border**                | –                                           | Independent; purely geometry.                                                            |
+| **rotate**                | –                                           | Independent.                                                                             |
 
 ## Extending operations
 

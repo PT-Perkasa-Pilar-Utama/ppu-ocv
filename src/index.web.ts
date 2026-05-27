@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 /**
  * Web entry point — browsers with OpenCV + DOM canvas.
  *
@@ -57,6 +60,7 @@ export type {
   BorderOptions,
   CannyOptions,
   DilateOptions,
+  EqualizeOptions,
   ErodeOptions,
   GrayscaleOptions,
   InvertOptions,

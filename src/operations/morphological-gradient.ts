@@ -1,12 +1,15 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 
 /** Options for the morphological gradient operation. */
-export interface MorphologicalGradientOptions extends PartialOptions {
+export type MorphologicalGradientOptions = PartialOptions & {
   /** Kernel size for the morphological gradient operation [x, y] */
   size: [number, number];
-}
+};
 
 function defaultOptions(): MorphologicalGradientOptions {
   return {

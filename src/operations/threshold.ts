@@ -1,16 +1,19 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 
 /** Options for the global threshold operation. */
-export interface ThresholdOptions extends PartialOptions {
+export type ThresholdOptions = PartialOptions & {
   /** Lower threshold value (0-255) */
   lower: number;
   /** Upper threshold value (0-255) */
   upper: number;
   /** Type of thresholding (cv.THRESH_...) */
   type: cv.ThresholdTypes;
-}
+};
 
 function defaultOptions(): ThresholdOptions {
   return {

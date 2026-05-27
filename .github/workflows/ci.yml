@@ -11,6 +11,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   ci:
     name: Quality Checks and Tests
@@ -18,9 +21,9 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version: 1.2.23
 
@@ -41,3 +44,34 @@ jobs:
 
       - name: Build
         run: bun run build
+
+      # Verify the build is reproducible: build a second time and confirm the
+      # output is byte-identical (OpenSSF Best Practices: build_reproducible).
+      - name: Verify reproducible build
+        run: |
+          h1=$(find lib -type f -exec shasum {} \; | sort | shasum)
+          rm -rf lib
+          bun run build
+          h2=$(find lib -type f -exec shasum {} \; | sort | shasum)
+          if [ "$h1" != "$h2" ]; then
+            echo "::error::Build is not reproducible: $h1 != $h2"
+            exit 1
+          fi
+          echo "Build is reproducible."
+
+  sca:
+    name: SCA (dependency vulnerabilities)
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      # Fails the run on any vulnerable dependency, blocking the change from
+      # merging once this job is a required status check (VM-05.03).
+      - name: Run osv-scanner
+        uses: google/osv-scanner-action/osv-scanner-action@9a498708959aeaef5ef730655706c5a1df1edbc2 # v2.3.8
+        with:
+          scan-args: |-
+            --lockfile=./bun.lock

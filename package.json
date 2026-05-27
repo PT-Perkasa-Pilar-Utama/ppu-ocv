@@ -1,6 +1,6 @@
 {
   "name": "ppu-ocv",
-  "version": "3.1.3",
+  "version": "3.2.1",
   "description": "A type-safe, modular, chainable image processing library built on top of OpenCV.js with a fluent API leveraging pipeline processing.",
   "keywords": [
     "open-cv",
@@ -41,6 +41,10 @@
     "./canvas-web": {
       "types": "./index.canvas-web.d.ts",
       "default": "./index.canvas-web.js"
+    },
+    "./canvas-mobile": {
+      "types": "./index.canvas-mobile.d.ts",
+      "default": "./index.canvas-mobile.js"
     }
   },
   "scripts": {
@@ -49,7 +53,7 @@
     "build:test": "bun task build && bun test",
     "build:publish": "bun task build && bun task report-size && bun task publish",
     "type-check": "bunx tsgo --noEmit",
-    "test": "bun test --parallel=$(ls tests/*.test.ts | wc -l | tr -d ' ')",
+    "test": "bun test --parallel=$(find tests -name '*.test.ts' | wc -l | tr -d ' ')",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt --check",
@@ -58,14 +62,16 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@shopify/react-native-skia": "^2.6.3",
     "@types/bun": "latest",
     "@types/uglify-js": "latest",
     "@typescript/native-preview": "^7.0.0-dev.20260513.1",
     "canvas": "^3.2.3",
+    "fast-check": "^4.8.0",
     "husky": "^9.1.7",
-    "lint-staged": "^16.0.0",
+    "lint-staged": "^17.0.4",
     "mitata": "latest",
-    "oxfmt": "^0.48.0",
+    "oxfmt": "^0.51.0",
     "oxlint": "^1.63.0",
     "tsx": "latest",
     "typescript": "latest",
@@ -76,7 +82,10 @@
     "url": "https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv.git"
   },
   "dependencies": {
-    "@napi-rs/canvas": "^0.1.69",
+    "@napi-rs/canvas": "^1.0.0",
     "@techstark/opencv-js": "^4.10.0-release.1"
-  }
+  },
+  "trustedDependencies": [
+    "@shopify/react-native-skia"
+  ]
 }

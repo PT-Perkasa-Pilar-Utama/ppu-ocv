@@ -779,7 +779,7 @@
           <polyline points="22 8.5 12 15.5 2 8.5" />
         </svg>
         ppu-ocv
-        <span class="topbar-badge">v3.1.0</span>
+        <span class="topbar-badge">v3.1.6</span>
         <div class="topbar-links">
           <a
             href="https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv"
@@ -888,19 +888,70 @@
               <span class="pipeline-order">3</span>
             </li>
             <li class="pipeline-item">
+              <input class="pipeline-checkbox" type="checkbox" id="op-equalize" />
+              <label class="pipeline-label" for="op-equalize">Equalize</label>
+              <span class="pipeline-order">4</span>
+              <div class="param-group">
+                <div class="param-row">
+                  <span class="param-label">method</span>
+                  <select
+                    id="equalize-method"
+                    style="
+                      font-size: 0.68rem;
+                      font-family: &quot;JetBrains Mono&quot;, monospace;
+                      background: var(--bg-secondary);
+                      color: var(--accent-secondary);
+                      border: none;
+                      cursor: pointer;
+                      outline: none;
+                    "
+                  >
+                    <option value="clahe">clahe</option>
+                    <option value="global">global</option>
+                  </select>
+                </div>
+                <div class="param-row" style="margin-top: 0.25rem">
+                  <span class="param-label">clipLimit</span>
+                  <span class="param-value" id="equalize-clip-val">2</span>
+                </div>
+                <input
+                  class="param-slider"
+                  type="range"
+                  id="equalize-clip"
+                  min="1"
+                  max="8"
+                  step="0.5"
+                  value="2"
+                />
+                <div class="param-row" style="margin-top: 0.25rem">
+                  <span class="param-label">tileGridSize</span>
+                  <span class="param-value" id="equalize-tile-val">8</span>
+                </div>
+                <input
+                  class="param-slider"
+                  type="range"
+                  id="equalize-tile"
+                  min="2"
+                  max="32"
+                  step="2"
+                  value="8"
+                />
+              </div>
+            </li>
+            <li class="pipeline-item">
               <input class="pipeline-checkbox" type="checkbox" id="op-invert" />
               <label class="pipeline-label" for="op-invert">Invert</label>
-              <span class="pipeline-order">4</span>
+              <span class="pipeline-order">5</span>
             </li>
             <li class="pipeline-item">
               <input class="pipeline-checkbox" type="checkbox" id="op-canny" />
               <label class="pipeline-label" for="op-canny">Canny Edge</label>
-              <span class="pipeline-order">5</span>
+              <span class="pipeline-order">6</span>
             </li>
             <li class="pipeline-item">
               <input class="pipeline-checkbox" type="checkbox" id="op-dilate" />
               <label class="pipeline-label" for="op-dilate">Dilate</label>
-              <span class="pipeline-order">6</span>
+              <span class="pipeline-order">7</span>
               <div class="param-group">
                 <div class="param-row">
                   <span class="param-label">size</span>
@@ -920,7 +971,7 @@
             <li class="pipeline-item">
               <input class="pipeline-checkbox" type="checkbox" id="op-erode" />
               <label class="pipeline-label" for="op-erode">Erode</label>
-              <span class="pipeline-order">7</span>
+              <span class="pipeline-order">8</span>
             </li>
           </ul>
         </div>
@@ -1083,6 +1134,11 @@
       const blurValEl = document.getElementById("blur-val");
       const dilateSlider = document.getElementById("dilate-size");
       const dilateValEl = document.getElementById("dilate-val");
+      const equalizeMethod = document.getElementById("equalize-method");
+      const equalizeClipSlider = document.getElementById("equalize-clip");
+      const equalizeClipValEl = document.getElementById("equalize-clip-val");
+      const equalizeTileSlider = document.getElementById("equalize-tile");
+      const equalizeTileValEl = document.getElementById("equalize-tile-val");
       const dropOverlay = document.getElementById("drop-overlay");
       const btnCopy = document.getElementById("btn-copy");
       const copyLabel = document.getElementById("copy-label");
@@ -1101,7 +1157,23 @@
       let currentMode = "pipeline"; // 'pipeline' | 'deskew'
 
       // -- Init OpenCV --
+      // The ppu-ocv/web build does not bundle OpenCV (it is loaded at runtime so
+      // bundler-less and CSP-restricted consumers can opt out). Load opencv.js
+      // into globalThis.cv, then initRuntime() confirms the WASM is ready.
       try {
+        setStatus("loading", "Loading OpenCV…");
+        await new Promise((resolve, reject) => {
+          if (globalThis.cv?.Mat) {
+            resolve(); // already loaded (e.g. hot-reload)
+            return;
+          }
+          const s = document.createElement("script");
+          s.async = true;
+          s.src = "https://docs.opencv.org/4.10.0/opencv.js";
+          s.onload = resolve;
+          s.onerror = () => reject(new Error("Failed to load opencv.js from CDN"));
+          document.head.appendChild(s);
+        });
         await ImageProcessor.initRuntime();
         setStatus("ready", "Ready");
       } catch (err) {
@@ -1200,6 +1272,15 @@
         dilateValEl.textContent = dilateSlider.value;
         updateCodePreview();
       });
+      equalizeClipSlider.addEventListener("input", () => {
+        equalizeClipValEl.textContent = equalizeClipSlider.value;
+        updateCodePreview();
+      });
+      equalizeTileSlider.addEventListener("input", () => {
+        equalizeTileValEl.textContent = equalizeTileSlider.value;
+        updateCodePreview();
+      });
+      equalizeMethod.addEventListener("change", () => updateCodePreview());
       deskewAreaSlider.addEventListener("input", () => {
         deskewAreaValEl.textContent = deskewAreaSlider.value;
         updateCodePreview();
@@ -1223,6 +1304,16 @@
           steps.push({ name: "blur", opts: { size: [bsz, bsz] } });
         }
         if (document.getElementById("op-threshold").checked) steps.push({ name: "threshold" });
+        if (document.getElementById("op-equalize").checked) {
+          steps.push({
+            name: "equalize",
+            opts: {
+              method: equalizeMethod.value,
+              clipLimit: parseFloat(equalizeClipSlider.value),
+              tileGridSize: parseInt(equalizeTileSlider.value),
+            },
+          });
+        }
         if (document.getElementById("op-invert").checked) steps.push({ name: "invert" });
         if (document.getElementById("op-canny").checked) steps.push({ name: "canny" });
         if (document.getElementById("op-dilate").checked) {

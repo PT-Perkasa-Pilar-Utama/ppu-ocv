@@ -1,5 +1,174 @@
 # Changelog
 
+## [Unreleased]
+
+## [3.2.1] — 2026-05-24
+
+### Added
+
+- **300-line-of-code cap, enforced.** The `max-lines` oxlint rule now fails the
+  build on any source or test file over 300 lines of code (blank lines and
+  comments excluded). `CONTRIBUTING.md` documents the cap and the splitting
+  conventions under "Code Quality → File size".
+
+### Changed
+
+- **`consistent-type-definitions` set to `type`.** `type` aliases are now
+  required over `interface` across the codebase; existing `interface`
+  declarations were converted.
+- **`deskew.ts` split.** The skew-angle estimators (`minAreaRect`, baseline,
+  Hough, and the consensus reducer) moved into `src/deskew-angles.ts` as pure
+  functions, bringing `deskew.ts` under the line cap.
+- **`canvas-processor.ts` split.** The flood-fill region detector moved to
+  `src/canvas-regions.ts` (`detectRegions`) and the canvas/buffer conversions to
+  `src/canvas-io.ts`; `CanvasProcessor` is now a thin wrapper over both.
+- **Comparison and canvas-processor test suites modularized.**
+  `tests/comparison.test.ts` split into `tests/comparison/` (`helpers.ts` plus
+  `pixel`, `geometry`, and `regions` test files) and
+  `tests/canvas-processor.test.ts` into `tests/canvas-processor/` (`ops` and
+  `shapes`), each within the 300-line limit.
+
+### Fixed
+
+- **Pre-commit no longer reformats the whole repository.** The hook ran
+  `oxfmt .` and `git add -u`, sweeping every modified file into a commit that
+  staged only a few. Formatting now runs through lint-staged, scoped to the
+  staged files only.
+- **Vanilla-HTML demo loads OpenCV correctly.** `index.html` and the README's
+  vanilla example now load `opencv.js` via a script tag before calling
+  `ImageProcessor.initRuntime()`, fixing the "OpenCV is not loaded" error.
+- **`canvasToBuffer` serialization across runtimes.** The browser path now uses
+  the native async `canvas.toBlob()` (`HTMLCanvasElement`) and
+  `convertToBlob()` (`OffscreenCanvas`, used in workers and browser extensions)
+  instead of the synchronous `toDataURL` → `atob` → byte-copy loop. This removes
+  the base64 CPU/memory spike on large images and fixes `OffscreenCanvas`, which
+  has no `toDataURL` and previously fell through to a raw-RGBA buffer.
+
+## [3.2.0] — 2026-05-24
+
+### Added
+
+- **Reproducible-build verification.** CI now builds twice and fails if the
+  output is not byte-identical; `docs/REPRODUCIBLE_BUILD.md` documents the
+  deterministic build and how to verify it (OpenSSF Best Practices Gold).
+- **Fuzz testing (dynamic analysis).** `tests/fuzz.test.ts` uses `fast-check` to
+  feed many random inputs to the image decoder on every CI run, asserting it
+  never crashes on malformed input — exercising the untrusted-input boundary
+  from the threat model (OpenSSF Best Practices Gold dynamic_analysis).
+- **`equalize` test suite modularized into `tests/equalize/`.** The 558-line
+  `tests/equalize.test.ts` has been split into focused files under a dedicated
+  subfolder, each within the 300-line limit:
+  - `tests/equalize/helpers.ts` — shared `makeMono`, `pixels`, `loadDibco`, and
+    `initRuntime` utilities (no test code).
+  - `tests/equalize/unit.test.ts` — operation registration, global mode, CLAHE
+    mode, options defaults, and `ImageProcessor` integration (sections 1–5).
+  - `tests/equalize/realimage.test.ts` — real-image integration against
+    `dibco_cropped.png` and Wasm memory-management assertions (sections 6–7).
+  - `package.json` test script updated to use `find tests -name '*.test.ts'`
+    so `--parallel` stays accurate as more subfolders are added.
+
+### Fixed
+
+- **Node and web entry points can now be used in the same process.** Canvas
+  detection (`ImageProcessor` constructor, `CanvasProcessor.prepareCanvas`) used
+  the globally-registered platform's `isCanvas`, so once `ppu-ocv/web` was
+  loaded a Node-created canvas was rejected with "Invalid source type. Must be
+  either Canvas or cv.Mat." Detection is now structural (a new exported
+  `isCanvasLike`) and platform-independent, unblocking dual-target consumers and
+  test suites. ([#16](https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv/issues/16))
+
+### New Features
+
+#### `equalize` — histogram contrast-equalisation operation
+
+A new chainable `equalize` operation normalises pixel intensity on a
+single-channel (grayscale) `cv.Mat` using one of two algorithms:
+
+- **`"clahe"`** (default) — Contrast Limited Adaptive Histogram Equalization.
+  Spreads intensity locally without over-amplifying bright regions; the
+  standard pre-processing step for document OCR pipelines.
+- **`"global"`** — Whole-image histogram spreading (`cv.equalizeHist`); faster
+  but may blow out highlights on high-contrast images.
+
+Run `.grayscale()` before `.equalize()` — input must be single-channel.
+
+```ts
+new ImageProcessor(canvas)
+  .grayscale()
+  .equalize() // CLAHE defaults: clipLimit=2.0, tileGridSize=8
+  .threshold()
+  .toCanvas();
+
+// Or with explicit options:
+new ImageProcessor(canvas)
+  .grayscale()
+  .equalize({ method: "clahe", clipLimit: 4.0, tileGridSize: 16 })
+  .threshold()
+  .toCanvas();
+```
+
+Closes [#13](https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv/issues/13).
+
+
+### Security
+
+- **Supply-chain hardening.** All GitHub Actions are now pinned to commit SHAs
+  (Dependabot keeps them current), `npm publish` passes `--provenance` so each
+  release carries a signed SLSA attestation, and a new OpenSSF Scorecard
+  workflow publishes a supply-chain health score.
+- **Published package runs no install scripts.** The publish manifest is now
+  sanitized — `scripts` (including `prepare`) and `devDependencies` are stripped
+  before publishing, so an installed copy can execute no lifecycle code.
+- **`SECURITY.md`** documents the Socket "obfuscated code" alerts on
+  `@techstark/opencv-js` / `@napi-rs/canvas` as false positives on minified and
+  prebuilt-native upstream artifacts.
+- **LICENSE now ships in the npm tarball** (previously only the SPDX field
+  traveled).
+- **OpenSSF Security Baseline.** Added CodeQL on every push/PR, an osv-scanner
+  SCA gate (CI and pre-release), a CycloneDX SBOM attached to each release, and
+  the supporting docs: `GOVERNANCE.md`, `docs/DESIGN.md`,
+  `docs/THREAT_MODEL.md`, a release-verification / dependency / remediation /
+  VEX policy in `SECURITY.md`, and a DCO sign-off requirement in
+  `CONTRIBUTING.md`.
+- **`ROADMAP.md`** added, and CI now enforces a 90% line/function coverage
+  floor (`bunfig.toml`).
+
+## [3.1.5] — 2026-05-14
+
+### Dependencies
+
+- **`@napi-rs/canvas` 0.1.100 → 1.0.0.** Upstream marked the API stable after ~11M weekly downloads. The maintainer explicitly notes no breaking changes, so this is a drop-in upgrade for everyone using the Node entry points (`ppu-ocv`, `ppu-ocv/canvas`).
+
+### Infrastructure
+
+- Added `.github/dependabot.yml` so npm dependencies and GitHub Actions stay current automatically (weekly schedule).
+- Tightened `permissions:` on the CI quality-check workflow.
+- Bumped publish workflow Node runtime 20 → 22 (Node 20 reaches EOL April 2026).
+- Bumped CI actions to current majors: `actions/checkout` v4 → v6, `actions/setup-node` v4 → v6, `oven-sh/setup-bun` v1 → v2.
+- Bumped dev tooling: `lint-staged` 16.4.0 → 17.0.4 (now requires Node ≥22.22.1, matches the new CI baseline), `oxfmt` 0.48.0 → 0.49.0.
+
+### Documentation
+
+- Added launch article and SVG illustrations under `docs/`.
+- Added `skill-ppu-ocv/` at the repo root with usage guidance for AI coding assistants.
+
+No public API changes. Drop-in upgrade from 3.1.4.
+
+## [3.1.4] — 2026-05-14
+
+### Documentation
+
+- **JSR symbol-doc coverage** raised from 38% to a much higher score by
+  documenting every previously bare interface member. Newly documented:
+  all fields of `CanvasLike`, `Context2DLike`, and `CanvasPlatform` in
+  `canvas-factory.ts`; `ContourLike.data32S`; every key of
+  `RegisteredOperations` in `pipeline/types.ts`; the public `img` /
+  `width` / `height` fields on `ImageProcessor`; the `getInstance`
+  override on `CanvasToolkit`; the `DeskewService` constructor; and the
+  `cv` namespace itself in `cv-provider.ts`.
+
+No public API changes. Drop-in upgrade from 3.1.3.
+
 ## [3.1.3] — 2026-05-14
 
 ### Documentation

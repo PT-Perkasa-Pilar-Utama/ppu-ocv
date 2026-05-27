@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 PT Perkasa Pilar Utama
+
 import type { CanvasLike } from "./canvas-factory.js";
 import { CanvasToolkitBase } from "./canvas-toolkit.base.js";
 
@@ -15,6 +18,7 @@ export class CanvasToolkit extends CanvasToolkitBase {
     super();
   }
 
+  /** Return the singleton instance of {@link CanvasToolkit}. */
   public static override getInstance(): CanvasToolkit {
     if (!CanvasToolkit._nodeInstance) {
       CanvasToolkit._nodeInstance = new CanvasToolkit();
