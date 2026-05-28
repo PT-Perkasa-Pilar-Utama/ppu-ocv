@@ -779,7 +779,7 @@
           <polyline points="22 8.5 12 15.5 2 8.5" />
         </svg>
         ppu-ocv
-        <span class="topbar-badge">v3.1.6</span>
+        <span class="topbar-badge">v3.2.2</span>
         <div class="topbar-links">
           <a
             href="https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv"
@@ -1107,7 +1107,7 @@
       } catch (e) {
         // Fallback to npm CDN if local build is missing or deployed to GH Pages
         console.log("Local build not found, falling back to CDN...");
-        const cdn = await import("https://cdn.jsdelivr.net/npm/ppu-ocv@3/index.web.js");
+        const cdn = await import("https://cdn.jsdelivr.net/npm/ppu-ocv@3.2.2/index.web.js");
         ImageProcessor = cdn.ImageProcessor;
         CanvasProcessor = cdn.CanvasProcessor;
         DeskewService = cdn.DeskewService;

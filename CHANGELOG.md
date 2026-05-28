@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+## [3.2.2] — 2026-05-24
+
+### Added
+
+- **Signed release artifacts.** The publish workflow now packs the published
+  tarball, signs it keyless with cosign (Sigstore/Fulcio, via OIDC — no
+  long-lived keys), and attaches the `.tgz` + `.sig` + `.pem` to the GitHub
+  release. This satisfies OpenSSF Scorecard's Signed-Releases check, which reads
+  release assets and does not see npm provenance.
+
+### Fixed
+
+- **Demo (`index.html`) loads a version with `equalize`.** The CDN import was
+  pinned to the `ppu-ocv@3` range, which jsdelivr's edge cache could resolve to
+  a pre-`equalize` 3.1.x build, causing `Operation "equalize" not found in
+registry`. Pinned to an exact version and updated the version badge.
+
 ## [3.2.1] — 2026-05-24
 
 ### Added
