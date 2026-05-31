@@ -20,13 +20,19 @@ export function calculateLineAngle(points: Array<{ x: number; y: number }>): num
   if (points.length < 2) return 0;
 
   const n = points.length;
-  const sumX = points.reduce((sum, p) => sum + p.x, 0);
-  const sumY = points.reduce((sum, p) => sum + p.y, 0);
-  const sumXY = points.reduce((sum, p) => sum + p.x * p.y, 0);
-  const sumXX = points.reduce((sum, p) => sum + p.x * p.x, 0);
+  let sumX = 0,
+    sumY = 0,
+    sumXY = 0,
+    sumXX = 0;
+
+  for (const p of points) {
+    sumX += p.x;
+    sumY += p.y;
+    sumXY += p.x * p.y;
+    sumXX += p.x * p.x;
+  }
 
   const denominator = n * sumXX - sumX * sumX;
-
   if (Math.abs(denominator) < 1e-10) return 0;
 
   const slope = (n * sumXY - sumX * sumY) / denominator;
