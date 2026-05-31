@@ -208,23 +208,17 @@ export function calculateConsensusAngle(
     return sortedAngles[medianIndex]?.angle || 0;
   }
 
-  const totalWeight = filteredAngles.reduce((sum, a) => sum + a.weight, 0);
+  let totalWeight = 0;
+  let weightedSum = 0;
+  let unweightedSum = 0;
+  const methodCounts: Record<string, number> = {};
 
-  if (totalWeight === 0) {
-    const average = filteredAngles.reduce((sum, a) => sum + a.angle, 0) / filteredAngles.length;
-    return average;
+  for (const a of filteredAngles) {
+    totalWeight += a.weight;
+    weightedSum += a.angle * a.weight;
+    unweightedSum += a.angle;
+    methodCounts[a.method] = (methodCounts[a.method] || 0) + 1;
   }
-
-  const weightedSum = filteredAngles.reduce((sum, a) => sum + a.angle * a.weight, 0);
-  const weightedAverage = weightedSum / totalWeight;
-
-  const methodCounts = filteredAngles.reduce(
-    (counts, a) => {
-      counts[a.method] = (counts[a.method] || 0) + 1;
-      return counts;
-    },
-    {} as Record<string, number>
-  );
 
   log(
     `Angle methods used: ${Object.entries(methodCounts)
@@ -232,5 +226,10 @@ export function calculateConsensusAngle(
       .join(", ")}`
   );
 
+  if (totalWeight === 0) {
+    return unweightedSum / filteredAngles.length;
+  }
+
+  const weightedAverage = weightedSum / totalWeight;
   return Math.max(minAngle, Math.min(maxAngle, weightedAverage));
 }
