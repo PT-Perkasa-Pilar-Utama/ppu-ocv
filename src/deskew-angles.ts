@@ -77,38 +77,41 @@ export function calculateBaselineAngles(textRegions: TextRegion[]): WeightedAngl
       const points = region.contour.data32S;
       if (!points || points.length < 8) continue;
 
-      const bottomPoints: Array<{ x: number; y: number }> = [];
+      // First pass: find x bounds
+      let minX = Infinity;
+      let maxX = -Infinity;
+
+      for (let i = 0; i < points.length; i += 2) {
+        const x = points[i];
+        if (x !== undefined) {
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+        }
+      }
+
+      if (minX === Infinity) continue;
+
+      // Second pass: bucket into 3 x-segments, track max-y per bucket
+      const bucketMaxY: Array<{ x: number; y: number } | null> = [null, null, null];
+      const xRange = maxX - minX || 1;
 
       for (let i = 0; i < points.length; i += 2) {
         const x = points[i];
         const y = points[i + 1];
-        if (x !== undefined && y !== undefined) {
-          bottomPoints.push({ x, y });
+        if (x === undefined || y === undefined) continue;
+
+        const bucket = Math.min(2, Math.floor(((x - minX) / xRange) * 3));
+        const current = bucketMaxY[bucket];
+        if (current === null || y > current.y) {
+          bucketMaxY[bucket] = { x, y };
         }
       }
 
-      if (bottomPoints.length < 3) continue;
-      bottomPoints.sort((a, b) => a.x - b.x);
-
-      const segments = 3;
-      const segmentSize = Math.floor(bottomPoints.length / segments);
-      const baselinePoints: Array<{ x: number; y: number }> = [];
-
-      for (let seg = 0; seg < segments; seg++) {
-        const start = seg * segmentSize;
-        const end = seg === segments - 1 ? bottomPoints.length : (seg + 1) * segmentSize;
-        const segmentPoints = bottomPoints.slice(start, end);
-
-        if (segmentPoints.length > 0) {
-          const maxYPoint = segmentPoints.reduce((max, point) => (point.y > max.y ? point : max));
-          baselinePoints.push(maxYPoint);
-        }
-      }
+      const baselinePoints = bucketMaxY.filter((p): p is { x: number; y: number } => p !== null);
 
       if (baselinePoints.length >= 2) {
         const angle = calculateLineAngle(baselinePoints);
         const weight = region.area * Math.min(region.aspectRatio, 1 / region.aspectRatio);
-
         angles.push({ angle, weight });
       }
     } catch {
