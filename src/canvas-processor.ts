@@ -311,7 +311,7 @@ export class CanvasProcessor {
    * Convert an ArrayBuffer (image file bytes) or string URI to a CanvasLike.
    * If the value is already a CanvasLike it is returned as-is.
    */
-  static async prepareCanvas(file: ArrayBuffer | string): Promise<CanvasLike> {
+  static async prepareCanvas(file: ArrayBuffer | string | CanvasLike): Promise<CanvasLike> {
     return bufferToCanvas(file);
   }
 

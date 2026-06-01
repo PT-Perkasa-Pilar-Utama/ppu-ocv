@@ -49,7 +49,7 @@
   },
   "scripts": {
     "task": "bun scripts/task.ts",
-    "build": "bun task build",
+    "build": "bun task build && bun task prepare-publish",
     "build:test": "bun task build && bun test",
     "build:publish": "bun task build && bun task report-size && bun task publish",
     "type-check": "bunx tsgo --noEmit",
@@ -84,6 +84,14 @@
   "dependencies": {
     "@napi-rs/canvas": "^1.0.0",
     "@techstark/opencv-js": "^4.10.0-release.1"
+  },
+  "peerDependencies": {
+    "@shopify/react-native-skia": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@shopify/react-native-skia": {
+      "optional": true
+    }
   },
   "trustedDependencies": [
     "@shopify/react-native-skia"

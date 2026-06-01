@@ -33,7 +33,6 @@ describe("CanvasProcessor (canvas-only, no OpenCV)", () => {
     const { createCanvas } = await import("@napi-rs/canvas");
 
     const c = createCanvas(4, 4);
-    // @ts-expect-error - passing CanvasLike where ArrayBuffer is expected to test pass-through
     const result = await CanvasProcessor.prepareCanvas(c);
     expect(result).toBe(c);
   });

@@ -55,3 +55,16 @@ Ensure you have a mobile phone with the **Expo Go** app installed:
    ```
 
 5. Scan the QR code displayed in the terminal with your phone camera (iOS) or the Expo Go app (Android) to open the app!
+
+## Tested Environment
+
+| Item                         | Value                       |
+| ---------------------------- | --------------------------- |
+| Platform                     | Android Emulator            |~~~~
+| Host OS                      | Windows 11                  |
+| Emulator                     | Pixel 7 API 34 (Android 14) |
+| React Native                 | 0.74                        |
+| Expo SDK                     | 51   ~~~~                       |
+| `@shopify/react-native-skia` | 2.6.3                       |
+
+> **Note:** iOS real device testing is pending. Updates will be added once verified.

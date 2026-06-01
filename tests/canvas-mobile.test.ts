@@ -5,9 +5,8 @@
  * Unit tests for the canvas-mobile platform adapter.
  *
  * @shopify/react-native-skia cannot run in a Node/Bun environment, so these
- * tests replace the Skia module with a mock that satisfies the same duck-typed
- * API shape. The mock is injected via the module-level require() call in
- * platform/mobile.ts before each test group.
+ * tests validate the entry-point shape and integration using a hand-written
+ * duck-typed mock platform. They do NOT exercise the real Skia-backed adapter.
  */
 
 import { beforeEach, describe, expect, test } from "bun:test";
