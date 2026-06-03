@@ -24,6 +24,12 @@
         "typescript": "latest",
         "uglify-js": ">=2.4.24",
       },
+      "peerDependencies": {
+        "@shopify/react-native-skia": ">=1.0.0",
+      },
+      "optionalPeers": [
+        "@shopify/react-native-skia",
+      ],
     },
   },
   "trustedDependencies": [

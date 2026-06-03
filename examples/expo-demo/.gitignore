@@ -39,3 +39,11 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# npm lockfile — this repo uses bun exclusively; only bun.lock is committed
+package-lock.json
+
+# local AI-agent scaffolding — not part of the demo
+.claude/
+CLAUDE.md
+AGENTS.md
