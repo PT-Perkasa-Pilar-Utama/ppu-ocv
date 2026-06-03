@@ -21,13 +21,16 @@
  */
 
 import type { CanvasLike, CanvasPlatform, Context2DLike } from "../canvas-factory.js";
-import type * as Skia from "@shopify/react-native-skia";
 
 // ---------------------------------------------------------------------------
 // Lazy Skia access helper
 // ---------------------------------------------------------------------------
 
-type SkiaModule = typeof Skia;
+// @shopify/react-native-skia is an optional peer dependency; its types are
+// resolved at runtime via require(). We use `any` here so the library compiles
+// in environments where Skia is not installed (Node, web).
+// oxlint-disable-next-line typescript/no-explicit-any
+type SkiaModule = any;
 
 let _skia: SkiaModule | null = null;
 
@@ -58,19 +61,21 @@ class SkiaContext2DLike implements Context2DLike {
   private readonly _skCanvas: any;
   // oxlint-disable-next-line typescript/no-explicit-any -- path is resolved at runtime
   private _path: any | null = null;
+  private readonly _parentCanvas: SkiaCanvasLike;
 
   strokeStyle: string | CanvasGradient | CanvasPattern = "#000000";
   fillStyle: string | CanvasGradient | CanvasPattern = "#000000";
   lineWidth: number = 1;
 
   // oxlint-disable-next-line typescript/no-explicit-any -- Skia surface type is runtime-resolved
-  constructor(surface: any) {
+  constructor(surface: any, parentCanvas: SkiaCanvasLike) {
     this._surface = surface;
     this._skCanvas = surface.getCanvas();
+    this._parentCanvas = parentCanvas;
   }
 
   get canvas(): CanvasLike {
-    return new SkiaCanvasLike(this._surface);
+    return this._parentCanvas;
   }
 
   // -------------------------------------------------------------------------
@@ -135,6 +140,7 @@ class SkiaContext2DLike implements Context2DLike {
     }
 
     this._skCanvas.drawImage(img, dx, dy);
+    this._surface.flush();
   }
 
   // oxlint-disable-next-line typescript/no-explicit-any -- ImageData is a platform type
@@ -291,7 +297,7 @@ class SkiaCanvasLike implements CanvasLike {
 
   getContext(_contextId: "2d"): SkiaContext2DLike {
     if (!this._ctx) {
-      this._ctx = new SkiaContext2DLike(this._surface);
+      this._ctx = new SkiaContext2DLike(this._surface, this);
     }
     return this._ctx;
   }
