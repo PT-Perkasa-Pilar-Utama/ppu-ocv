@@ -6,7 +6,8 @@
     ".": "./src/index.ts",
     "./web": "./src/index.web.ts",
     "./canvas": "./src/index.canvas.ts",
-    "./canvas-web": "./src/index.canvas-web.ts"
+    "./canvas-web": "./src/index.canvas-web.ts",
+    "./canvas-mobile": "./src/index.canvas-mobile.ts"
   },
   "publish": {
     "include": ["LICENSE", "README.md", "package.json", "tsconfig.json", "src/**/*.ts"],

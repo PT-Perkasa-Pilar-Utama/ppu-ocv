@@ -18,7 +18,6 @@ export type CanvasLike = {
   /** Serialize the canvas to a binary buffer (Node-side `@napi-rs/canvas`). Absent on browser canvases. */
   // oxlint-disable-next-line typescript/no-explicit-any -- platform bridging type
   toBuffer?: (...args: any[]) => Buffer;
-  /** Serialize the canvas to a data-URL string (browser canvases). Absent on Node-side `@napi-rs/canvas`. */
   // oxlint-disable-next-line typescript/no-explicit-any -- platform bridging type
   toDataURL?: (...args: any[]) => string;
   /** Asynchronously serialize to a `Blob` via callback (browser `HTMLCanvasElement`). */
@@ -101,7 +100,8 @@ export function getPlatform(): CanvasPlatform {
     throw new Error(
       "No canvas platform registered. " +
         'Import "ppu-ocv" (Node), "ppu-ocv/web" (browser), ' +
-        '"ppu-ocv/canvas" (Node canvas-only), or "ppu-ocv/canvas-web" (browser canvas-only) to auto-register.'
+        '"ppu-ocv/canvas" (Node canvas-only), "ppu-ocv/canvas-web" (browser canvas-only), ' +
+        'or "ppu-ocv/canvas-mobile" (React Native / Skia) to auto-register.'
     );
   }
   return _platform;

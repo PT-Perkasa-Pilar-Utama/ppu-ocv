@@ -2,6 +2,38 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`ppu-ocv/canvas-mobile` entry point (React Native, canvas-only).** A new
+  fourth public entry point backed by `@shopify/react-native-skia` (≥ 1.0.0).
+  Exports the same canvas-only surface as `ppu-ocv/canvas-web` — `CanvasProcessor`,
+  `CanvasToolkitBase`, and canvas factory types — but registers the Skia-backed
+  mobile platform instead of `HTMLCanvasElement`/`OffscreenCanvas`. OpenCV is
+  never imported, keeping the bundle WASM-free on iOS and Android.
+
+  ```ts
+  import { CanvasProcessor } from "ppu-ocv/canvas-mobile";
+
+  // Load from a URI (e.g. from expo-image-picker or Camera Roll)
+  const canvas = await CanvasProcessor.prepareCanvas("file:///path/to/image.jpg");
+
+  const regions = new CanvasProcessor(canvas)
+    .grayscale()
+    .threshold({ thresh: 127 })
+    .findRegions({ foreground: "light", minArea: 20 });
+  ```
+
+  Requires `@shopify/react-native-skia` listed as a peer/optional dependency in
+  the consuming project. Follow the `react-native-skia` setup guide to initialise
+  Skia before calling any `ppu-ocv` APIs.
+
+- **`prepareCanvas` / `bufferToCanvas` accept a URI string.** `CanvasProcessor.prepareCanvas`
+  now accepts `ArrayBuffer | string | CanvasLike`, consistent with the pre-existing
+  `CanvasPlatform.loadImage(source: ArrayBuffer | string)` contract. Passing a
+  string routes the call through `platform.loadImage`, enabling URI-based loading
+  (e.g. `"file:///…"` on mobile, `"https://…"` where the platform supports it)
+  without a separate fetch step.
+
 ## [3.2.2] — 2026-05-24
 
 ### Added

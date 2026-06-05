@@ -26,5 +26,7 @@
     "declarationDir": "lib",
     "stripInternal": true,
     "isolatedDeclarations": true
-  }
+  },
+  "include": ["src/**/*", "tests/**/*", "scripts/**/*"],
+  "exclude": ["node_modules", "examples/**/*", "lib/**/*"]
 }

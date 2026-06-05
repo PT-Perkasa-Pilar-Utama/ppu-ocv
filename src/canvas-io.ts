@@ -10,10 +10,10 @@ import type { CanvasLike } from "./canvas-factory.js";
 import { getPlatform, isCanvasLike } from "./canvas-factory.js";
 
 /**
- * Convert an ArrayBuffer (image file bytes) to a CanvasLike. If the value is
+ * Convert an ArrayBuffer (image file bytes) or string URI to a CanvasLike. If the value is
  * already a CanvasLike it is returned as-is.
  */
-export async function bufferToCanvas(file: ArrayBuffer): Promise<CanvasLike> {
+export async function bufferToCanvas(file: ArrayBuffer | string | CanvasLike): Promise<CanvasLike> {
   if (isCanvasLike(file)) return file as unknown as CanvasLike;
 
   return getPlatform().loadImage(file);

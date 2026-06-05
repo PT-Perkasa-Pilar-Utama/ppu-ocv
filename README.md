@@ -29,6 +29,7 @@ Based on [TechStark/opencv-js](https://github.com/TechStark/opencv-js).
 - [Usage (Node.js / Bun)](#usage-nodejs--bun)
 - [Canvas-only Usage (no OpenCV)](#canvas-only-usage-no-opencv)
 - [Web / Browser Support](#web--browser-support)
+- [React Native / Mobile Support](#react-native--mobile-support)
 - [Built-in Pipeline Operations](#built-in-pipeline-operations)
 - [Extending Operations](#extending-operations)
 - [Class Documentation](#class-documentation)
@@ -211,12 +212,13 @@ See the [interactive demo](./index.html) for a full working example.
 
 ### Entry point reference
 
-| Import path          | OpenCV | Canvas backend                        | `CanvasToolkit`      | Use case                                   |
-| -------------------- | ------ | ------------------------------------- | -------------------- | ------------------------------------------ |
-| `ppu-ocv`            | ✅     | `@napi-rs/canvas`                     | Full (with file I/O) | Full pipeline, Node.js / Bun               |
-| `ppu-ocv/web`        | ✅     | `HTMLCanvasElement`/`OffscreenCanvas` | Base only            | Full pipeline, browser                     |
-| `ppu-ocv/canvas`     | ❌     | `@napi-rs/canvas`                     | Full (with file I/O) | Canvas-only, Node (extensions, edge, etc.) |
-| `ppu-ocv/canvas-web` | ❌     | `HTMLCanvasElement`/`OffscreenCanvas` | Base only            | Canvas-only, browser extensions / SW       |
+| Import path             | OpenCV | Canvas backend                        | `CanvasToolkit`      | Use case                                   |
+| ----------------------- | ------ | ------------------------------------- | -------------------- | ------------------------------------------ |
+| `ppu-ocv`               | ✅     | `@napi-rs/canvas`                     | Full (with file I/O) | Full pipeline, Node.js / Bun               |
+| `ppu-ocv/web`           | ✅     | `HTMLCanvasElement`/`OffscreenCanvas` | Base only            | Full pipeline, browser                     |
+| `ppu-ocv/canvas`        | ❌     | `@napi-rs/canvas`                     | Full (with file I/O) | Canvas-only, Node (extensions, edge, etc.) |
+| `ppu-ocv/canvas-web`    | ❌     | `HTMLCanvasElement`/`OffscreenCanvas` | Base only            | Canvas-only, browser extensions / SW       |
+| `ppu-ocv/canvas-mobile` | ❌     | `@shopify/react-native-skia`          | Base only            | Canvas-only, React Native / Expo           |
 
 ### Platform abstraction
 
@@ -239,6 +241,57 @@ const myPlatform: CanvasPlatform = {
 
 setPlatform(myPlatform);
 ```
+
+## React Native / Mobile Support
+
+Import from `ppu-ocv/canvas-mobile` for React Native apps (iOS / Android). This
+entry point is backed by [`@shopify/react-native-skia`](https://shopify.github.io/react-native-skia/)
+and is functionally equivalent to `ppu-ocv/canvas-web` — it exposes `CanvasProcessor`,
+`CanvasToolkitBase`, and canvas factory types **without any OpenCV or WASM dependency**.
+
+### Installation
+
+```bash
+# In your React Native / Expo project
+npm install ppu-ocv @shopify/react-native-skia
+# or
+bun add ppu-ocv @shopify/react-native-skia
+```
+
+Follow the [react-native-skia setup guide](https://shopify.github.io/react-native-skia/docs/getting-started/installation)
+to complete native installation (pod install / Gradle sync). Skia **must** be
+initialised by the time you call any `ppu-ocv` API.
+
+### Usage
+
+```ts
+import { CanvasProcessor } from "ppu-ocv/canvas-mobile";
+
+// Load from an ArrayBuffer (e.g. from expo-file-system or fetch)
+const response = await fetch("https://example.com/receipt.jpg");
+const canvas = await CanvasProcessor.prepareCanvas(await response.arrayBuffer());
+
+// Or load directly from a URI (file:// or https://)
+const canvas = await CanvasProcessor.prepareCanvas("file:///path/to/photo.jpg");
+
+// Chainable canvas-only pipeline (no OpenCV)
+const regions = new CanvasProcessor(canvas)
+  .grayscale()
+  .threshold({ thresh: 127 })
+  .findRegions({ foreground: "light", minArea: 20 });
+
+// Export back to bytes
+const buffer = await CanvasProcessor.prepareBuffer(canvas);
+```
+
+### Requirements
+
+- `@shopify/react-native-skia` ≥ 1.0.0
+- React Native ≥ 0.74 / Expo SDK ≥ 51 (Hermes engine)
+
+> **Note:** OpenCV (`@techstark/opencv-js`) is never loaded by this entry point.
+> If you need full OpenCV operations in a React Native context, consider running
+> the processing server-side and streaming results to the device.
 
 ## Built-in pipeline operations
 
