@@ -97,7 +97,10 @@ export function calculateBaselineAngles(textRegions: TextRegion[]): WeightedAngl
 
       if (minX === Infinity) continue;
 
-      // Second pass: bucket into 3 x-segments, track max-y per bucket
+      // Second pass: bucket into 3 equal-width x-segments (left/center/right
+      // thirds of the region), tracking the max-y point per bucket. This is a
+      // spatial split, not the prior equal-count split; empty buckets (sparse
+      // or near-vertical contours) yield fewer baseline points by design.
       const bucketMaxY: Array<{ x: number; y: number } | null> = [null, null, null];
       const xRange = maxX - minX || 1;
 
@@ -220,15 +223,15 @@ export function calculateConsensusAngle(
     methodCounts[a.method] = (methodCounts[a.method] || 0) + 1;
   }
 
+  if (totalWeight === 0) {
+    return unweightedSum / filteredAngles.length;
+  }
+
   log(
     `Angle methods used: ${Object.entries(methodCounts)
       .map(([method, count]) => `${method}:${count}`)
       .join(", ")}`
   );
-
-  if (totalWeight === 0) {
-    return unweightedSum / filteredAngles.length;
-  }
 
   const weightedAverage = weightedSum / totalWeight;
   return Math.max(minAngle, Math.min(maxAngle, weightedAverage));

@@ -34,6 +34,25 @@
   (e.g. `"file:///…"` on mobile, `"https://…"` where the platform supports it)
   without a separate fetch step.
 
+### Changed
+
+- **Deskew baseline heuristic uses spatial x-thirds.** `calculateBaselineAngles`
+  now buckets each region's contour points into three equal-width `x` segments
+  (left/center/right thirds) and fits the max-`y` point of each, replacing the
+  prior sort-and-split-by-count approach. This is faster on large contours but
+  is a behavior change: on non-uniform point distributions the selected baseline
+  points — and therefore the estimated skew angle — can differ slightly, and
+  sparse or near-vertical contours that collapse into a single bucket now
+  contribute no baseline vote. Direct unit tests pin the new behavior.
+
+### Internal Changes
+
+- **Faster deskew angle estimation.** `calculateLineAngle` and
+  `calculateConsensusAngle` accumulate their sums in a single pass instead of
+  multiple `reduce` passes (no behavior change), and `calculateBaselineAngles`
+  scans contours linearly instead of sorting. Largest gains are on dense
+  contours (~3–6× on 10k–100k-point inputs); see `bench/deskew-angles.bench.ts`.
+
 ## [3.2.2] — 2026-05-24
 
 ### Added
