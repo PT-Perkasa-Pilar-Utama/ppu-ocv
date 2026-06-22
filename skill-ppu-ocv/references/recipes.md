@@ -1,6 +1,6 @@
 # `ppu-ocv` recipes
 
-Copy-paste-ready patterns for the most common tasks. Each recipe names the entry point it assumes — swap to `/web`, `/canvas`, or `/canvas-web` to match the runtime.
+Copy-paste-ready patterns for the most common tasks. Each recipe names the entry point it assumes — swap to `/web`, `/canvas`, `/canvas-web`, or `/canvas-mobile` to match the runtime.
 
 ## Recipe 1: OCR preprocess (binarize for text recognition)
 
@@ -144,6 +144,33 @@ regions.sort((a, b) => b.area - a.area);
 ```
 
 This runs without `new Function`, so it works under MV3 CSP. The IoU vs an OpenCV `findContours` pipeline on the same input is ~98%.
+
+## Recipe 4b: Same, on React Native (Expo) from a picked image
+
+Goal: in an Expo app, binarize and find regions on an image the user picked from the Camera Roll — no OpenCV, no manual decode.
+
+```ts
+import { CanvasProcessor } from "ppu-ocv/canvas-mobile";
+
+// `uri` is a local file:// path, e.g. from expo-image-picker's result.assets[0].uri.
+// prepareCanvas takes the URI string directly — Skia decodes it via Data.fromURI.
+const canvas = await CanvasProcessor.prepareCanvas(uri);
+
+const binary = new CanvasProcessor(canvas)
+  .grayscale()
+  .threshold({ thresh: 127 })
+  .invert()
+  .toCanvas();
+
+const regions = new CanvasProcessor(binary).findRegions({
+  foreground: "light",
+  minArea: 20,
+  padding: { vertical: 0.4, horizontal: 0.6 },
+});
+regions.sort((a, b) => b.area - a.area);
+```
+
+Requires `@shopify/react-native-skia` (≥ 1.0.0) installed in the app and Skia initialised before this runs — it's an optional peer dependency, not bundled with `ppu-ocv`. The API surface is identical to Recipe 4; only the entry point and the URI-string input differ.
 
 ## Recipe 5: Quick "is the scan too dark?" gate
 

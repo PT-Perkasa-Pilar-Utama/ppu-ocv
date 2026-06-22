@@ -160,9 +160,9 @@ Equivalent at the bbox level to `cv.findContours(RETR_EXTERNAL) + boundingRect`.
 
 Both live on `CanvasProcessor` and are available from every entry point:
 
-| Method                                  | Signature                                            | Use when…                                                         |
-| --------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------- |
-| `CanvasProcessor.prepareCanvas(buffer)` | `(ArrayBuffer) => Promise<CanvasLike>`               | You have image file bytes and need a canvas to feed the pipeline. |
-| `CanvasProcessor.prepareBuffer(canvas)` | `(CanvasLike) => Promise<ArrayBuffer>` (PNG-encoded) | You finished the pipeline and need to ship the result somewhere.  |
+| Method                                  | Signature                                                      | Use when…                                                                                                                                                                                                                          |
+| --------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CanvasProcessor.prepareCanvas(source)` | `(ArrayBuffer \| string \| CanvasLike) => Promise<CanvasLike>` | You have image file bytes, a URI string (e.g. `file://` on mobile), or an existing canvas, and need a canvas to feed the pipeline. A string routes through the platform's `loadImage`; an existing `CanvasLike` is returned as-is. |
+| `CanvasProcessor.prepareBuffer(canvas)` | `(CanvasLike) => Promise<ArrayBuffer>` (PNG-encoded)           | You finished the pipeline and need to ship the result somewhere.                                                                                                                                                                   |
 
 Both are async because the underlying platform `loadImage` / `toBuffer` calls may be async, depending on runtime.
