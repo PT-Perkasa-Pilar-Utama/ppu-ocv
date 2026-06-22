@@ -1,11 +1,11 @@
 ---
 name: skill-ppu-ocv
-description: Use this skill whenever the user is writing TypeScript/JavaScript code that imports `ppu-ocv`, `ppu-ocv/web`, `ppu-ocv/canvas`, or `ppu-ocv/canvas-web`, or asks about chainable image processing, OpenCV.js, document/receipt preprocessing, perspective warp, deskew, contour detection, or running OpenCV in browsers / browser extensions / Bun / Node. Trigger even when the user says "image processing in TypeScript" or "OpenCV.js wrapper" without naming ppu-ocv, as long as the codebase imports it. This skill encodes the four entry points, which classes each unlocks, when to pick `ImageProcessor` (OpenCV) vs `CanvasProcessor` (canvas-native), the chainable pipeline order, and the runtime-init dance.
+description: Use this skill whenever the user is writing TypeScript/JavaScript code that imports `ppu-ocv`, `ppu-ocv/web`, `ppu-ocv/canvas`, `ppu-ocv/canvas-web`, or `ppu-ocv/canvas-mobile`, or asks about chainable image processing, OpenCV.js, document/receipt preprocessing, perspective warp, deskew, contour detection, or running OpenCV in browsers / browser extensions / React Native / Bun / Node. Trigger even when the user says "image processing in TypeScript" or "OpenCV.js wrapper" without naming ppu-ocv, as long as the codebase imports it. This skill encodes the five entry points, which classes each unlocks, when to pick `ImageProcessor` (OpenCV) vs `CanvasProcessor` (canvas-native), the chainable pipeline order, and the runtime-init dance.
 ---
 
 # Writing code with `ppu-ocv`
 
-`ppu-ocv` is a type-safe, chainable image-processing library built on `@techstark/opencv-js`. Canvas I/O is decoupled from OpenCV, so the same package ships **four entry points** that trade off capability vs runtime constraints. Picking the right one is the single most common source of "why does my import throw?" — get it right first, everything else follows.
+`ppu-ocv` is a type-safe, chainable image-processing library built on `@techstark/opencv-js`. Canvas I/O is decoupled from OpenCV, so the same package ships **five entry points** that trade off capability vs runtime constraints. Picking the right one is the single most common source of "why does my import throw?" — get it right first, everything else follows.
 
 ## The two-class mental model
 
@@ -22,16 +22,17 @@ There are exactly two image-processing classes the agent will reach for:
 
 This is the table to internalize. Always confirm the runtime before suggesting an import:
 
-| Import path          | OpenCV        | Canvas backend                          | When to recommend                                                                                                                         |
-| -------------------- | ------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `ppu-ocv`            | available     | `@napi-rs/canvas` (native)              | **Node.js or Bun servers / CLIs.** Full pipeline. Includes Node-only `CanvasToolkit` with file I/O.                                       |
-| `ppu-ocv/web`        | available     | `HTMLCanvasElement` / `OffscreenCanvas` | **Browsers with a normal CSP.** Full pipeline. `CanvasToolkit` is aliased to the base (no `saveImage`).                                   |
-| `ppu-ocv/canvas`     | not available | `@napi-rs/canvas` (native)              | **Node / Bun, but you only want canvas ops.** Smaller bundle, never touches OpenCV WASM.                                                  |
-| `ppu-ocv/canvas-web` | not available | `HTMLCanvasElement` / `OffscreenCanvas` | **Chrome MV3 extensions, service workers, edge runtimes.** Anywhere OpenCV.js can't run because Emscripten's embind needs `new Function`. |
+| Import path             | OpenCV        | Canvas backend                              | When to recommend                                                                                                                                                                                                           |
+| ----------------------- | ------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ppu-ocv`               | available     | `@napi-rs/canvas` (native)                  | **Node.js or Bun servers / CLIs.** Full pipeline. Includes Node-only `CanvasToolkit` with file I/O.                                                                                                                         |
+| `ppu-ocv/web`           | available     | `HTMLCanvasElement` / `OffscreenCanvas`     | **Browsers with a normal CSP.** Full pipeline. `CanvasToolkit` is aliased to the base (no `saveImage`).                                                                                                                     |
+| `ppu-ocv/canvas`        | not available | `@napi-rs/canvas` (native)                  | **Node / Bun, but you only want canvas ops.** Smaller bundle, never touches OpenCV WASM.                                                                                                                                    |
+| `ppu-ocv/canvas-web`    | not available | `HTMLCanvasElement` / `OffscreenCanvas`     | **Chrome MV3 extensions, service workers, edge runtimes.** Anywhere OpenCV.js can't run because Emscripten's embind needs `new Function`.                                                                                   |
+| `ppu-ocv/canvas-mobile` | not available | `@shopify/react-native-skia` (Skia surface) | **React Native / Expo apps (iOS, Android).** Same canvas-only surface as `canvas-web`, but Skia-backed. WASM-free, so no OpenCV. Requires `@shopify/react-native-skia` (≥ 1.0.0) installed and initialised by the host app. |
 
 A few hard rules:
 
-- `ImageProcessor` and `cv` exist only on `ppu-ocv` and `ppu-ocv/web`. Importing them from a `/canvas*` entry point will fail at type-check time.
+- `ImageProcessor` and `cv` exist only on `ppu-ocv` and `ppu-ocv/web`. Importing them from a `/canvas*` entry point (including `/canvas-mobile`) will fail at type-check time.
 - `CanvasToolkit.saveImage` and `clearOutput` only exist on the Node side (`ppu-ocv` / `ppu-ocv/canvas`) — they use `fs`. The web entry points export `CanvasToolkit` as an alias of `CanvasToolkitBase`, which does **not** include file I/O.
 - `CanvasProcessor`, `Contours`, `DeskewService`, `calculateMeanGrayscaleValue`, and `calculateMeanNormalizedLabLightness` are all OpenCV-backed and live on the OpenCV-aware entry points (with the exception of `CanvasProcessor`, which is canvas-native and exists everywhere).
 
@@ -139,6 +140,25 @@ regions.sort((a, b) => b.area - a.area);
 ```
 
 This whole snippet runs without OpenCV. `findRegions` uses an 8-connected DFS flood-fill and matches `cv.findContours(RETR_EXTERNAL) + boundingRect` to ~98% IoU on binary inputs.
+
+## Canonical React Native pipeline (no OpenCV)
+
+For Expo / React Native on iOS and Android, use `ppu-ocv/canvas-mobile`. It's the same canvas-only surface as `canvas-web`, but the platform is backed by `@shopify/react-native-skia` instead of `HTMLCanvasElement`. The host app must install `@shopify/react-native-skia` (≥ 1.0.0) and have Skia initialised before any `ppu-ocv` call — `@shopify/react-native-skia` is an **optional peer dependency**, not bundled.
+
+```ts
+import { CanvasProcessor } from "ppu-ocv/canvas-mobile";
+
+// prepareCanvas accepts a URI string directly — no manual fetch/decode.
+// Pass a local file:// URI (e.g. from expo-image-picker or the Camera Roll).
+const canvas = await CanvasProcessor.prepareCanvas("file:///path/to/receipt.jpg");
+
+const regions = new CanvasProcessor(canvas)
+  .grayscale()
+  .threshold({ thresh: 127 })
+  .findRegions({ foreground: "light", minArea: 20 });
+```
+
+The URI-string overload is the mobile-specific ergonomics win: `prepareCanvas` (and the underlying `bufferToCanvas`) now accept `ArrayBuffer | string | CanvasLike`. On mobile a string routes through Skia's `Data.fromURI`, so a `file://` (or, where the platform supports it, `https://`) path loads without a separate fetch step. The `ArrayBuffer` form still works on every entry point. There is **no** `CanvasToolkit.saveImage` here — like the web entries, `CanvasToolkit` is the filesystem-free base.
 
 ## Chaining order matters
 
@@ -301,7 +321,8 @@ Forgetting this is the second most common bug, after picking the wrong entry poi
 
 When reviewing or writing ppu-ocv code, watch for these:
 
-- **Importing `ImageProcessor` from `ppu-ocv/canvas` or `ppu-ocv/canvas-web`.** It doesn't exist there. Switch entry points or remove the OpenCV step.
+- **Importing `ImageProcessor` from `ppu-ocv/canvas`, `ppu-ocv/canvas-web`, or `ppu-ocv/canvas-mobile`.** It doesn't exist on any canvas-only entry point. Switch entry points or remove the OpenCV step.
+- **Using `ppu-ocv/canvas-mobile` without `@shopify/react-native-skia` installed/initialised.** It's an optional peer dependency the host app must provide; calls into the Skia surface throw if Skia isn't ready. Follow the `react-native-skia` setup guide before the first `ppu-ocv` call.
 - **Calling a `cv.*` constant before `await ImageProcessor.initRuntime()`.** Throws "OpenCV is not loaded". Move the `await` to the top of the async entry point.
 - **Building a long-running server that never calls `.destroy()`.** WASM heap grows until the process dies. Wrap pipelines in `try/finally`.
 - **Calling `toolkit.saveImage` from `ppu-ocv/web` or `ppu-ocv/canvas-web`.** Those entry points export `CanvasToolkit` as the base class — `saveImage` is not defined. Use `CanvasProcessor.prepareBuffer` + a manual write, or move that step to a Node worker.
