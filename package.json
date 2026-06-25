@@ -83,7 +83,7 @@
   },
   "dependencies": {
     "@napi-rs/canvas": "^1.0.0",
-    "@techstark/opencv-js": "^4.10.0-release.1"
+    "@techstark/opencv-js": "^5.0.0-release.1"
   },
   "peerDependencies": {
     "@shopify/react-native-skia": ">=1.0.0"
