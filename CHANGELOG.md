@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.0.0] — 2026-06-28
+
+### Changed
+
+- **Bumped `@techstark/opencv-js` from `4.10.0-release.1` to `5.0.0-release.1`**
+  (OpenCV 5.0). v5 changed the Node default export from a module carrying an
+  `onRuntimeInitialized` callback to a `Promise` that resolves to the ready
+  module. `ImageProcessor.initRuntime()` now awaits this Promise before falling
+  back to the legacy callback path, so existing `await ImageProcessor.initRuntime()`
+  call sites keep working unchanged. Major version bump reflects the underlying
+  OpenCV major upgrade.
+- Bumped dev dependency `oxfmt` from `0.54.0` to `0.56.0`.
+
 ## [3.3.0] — 2026-06-22
 
 ### Added

@@ -43,6 +43,30 @@ export function setCv(instance: CV): void {
 }
 
 /**
+ * Resolve the OpenCV module to a ready instance.
+ *
+ * @techstark/opencv-js v5 changed the default export from a module with an
+ * `onRuntimeInitialized` callback to a `Promise` that resolves to the ready
+ * module. This awaits that Promise (when present) and re-stores the resolved
+ * instance. On v4 / browser-global setups the stored value is already the
+ * module, so this is a no-op passthrough.
+ */
+export async function resolveCv(): Promise<CV | null> {
+  let candidate: unknown = _cv;
+  if (!candidate && typeof globalThis !== "undefined") {
+    candidate = (globalThis as { cv?: unknown }).cv;
+  }
+  if (candidate instanceof Promise) {
+    candidate = await candidate;
+  }
+  if (candidate) {
+    setCv(candidate as CV);
+    return candidate as CV;
+  }
+  return null;
+}
+
+/**
  * Type-side companion to the {@link cv} runtime proxy.
  *
  * Re-exports the OpenCV.js type aliases (Mat, Rect, Size, enum constants…) under

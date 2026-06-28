@@ -3,7 +3,7 @@
 
 import type { CanvasLike } from "./canvas-factory.js";
 import { getPlatform, isCanvasLike } from "./canvas-factory.js";
-import { cv } from "./cv-provider.js";
+import { cv, resolveCv } from "./cv-provider.js";
 
 import type {
   AdaptiveThresholdOptions,
@@ -85,6 +85,8 @@ export class ImageProcessor {
    * image processing.
    */
   static async initRuntime(): Promise<void> {
+    // v5 exports a Promise that resolves to the ready module; await it first.
+    await resolveCv();
     return new Promise((res) => {
       if (cv && cv.Mat) {
         res();
