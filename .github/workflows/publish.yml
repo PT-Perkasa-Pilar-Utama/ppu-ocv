@@ -5,6 +5,9 @@ name: Publish
 on:
   release:
     types: [published]
+  # Manual trigger for re-publishing (e.g. jsr fell behind npm). Runs against
+  # the selected ref; the npm step below skips versions already published.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -66,7 +69,13 @@ jobs:
       # --provenance generates a signed SLSA attestation linking the tarball to
       # this commit + workflow run; requires the id-token: write permission above.
       - name: Publish to npm
-        run: npm publish ./lib --access=public --provenance
+        run: |
+          ver=$(node -p "require('./lib/package.json').version")
+          if npm view "ppu-ocv@$ver" version >/dev/null 2>&1; then
+            echo "ppu-ocv@$ver already published to npm, skipping."
+          else
+            npm publish ./lib --access=public --provenance
+          fi
 
       # Generate a CycloneDX SBOM and attach it to the GitHub release so
       # consumers can audit the dependency set of each version (QA-02.02).
