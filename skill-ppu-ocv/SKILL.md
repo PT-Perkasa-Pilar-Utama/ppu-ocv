@@ -34,7 +34,7 @@ A few hard rules:
 
 - `ImageProcessor` and `cv` exist only on `ppu-ocv` and `ppu-ocv/web`. Importing them from a `/canvas*` entry point (including `/canvas-mobile`) will fail at type-check time.
 - `CanvasToolkit.saveImage` and `clearOutput` only exist on the Node side (`ppu-ocv` / `ppu-ocv/canvas`) — they use `fs`. The web entry points export `CanvasToolkit` as an alias of `CanvasToolkitBase`, which does **not** include file I/O.
-- `CanvasProcessor`, `Contours`, `DeskewService`, `calculateMeanGrayscaleValue`, and `calculateMeanNormalizedLabLightness` are all OpenCV-backed and live on the OpenCV-aware entry points (with the exception of `CanvasProcessor`, which is canvas-native and exists everywhere).
+- `Contours`, `DeskewService`, `calculateMeanGrayscaleValue`, and `calculateMeanNormalizedLabLightness` are OpenCV-backed and exist only on `ppu-ocv` and `ppu-ocv/web`. `CanvasProcessor` is canvas-native and exists on every entry point.
 
 When the user describes their runtime in even general terms ("I'm in a Chrome extension service worker", "this runs on Cloudflare Workers", "it's a Bun CLI"), bind the entry-point choice to that constraint immediately rather than copy-pasting a generic example.
 
@@ -107,7 +107,7 @@ For vanilla HTML with no bundler, import the published ESM build directly:
   import {
     CanvasProcessor,
     ImageProcessor,
-  } from "https://cdn.jsdelivr.net/npm/ppu-ocv@3/index.web.js";
+  } from "https://cdn.jsdelivr.net/npm/ppu-ocv@4/index.web.js";
   await ImageProcessor.initRuntime();
   // ...
 </script>
@@ -158,7 +158,7 @@ const regions = new CanvasProcessor(canvas)
   .findRegions({ foreground: "light", minArea: 20 });
 ```
 
-The URI-string overload is the mobile-specific ergonomics win: `prepareCanvas` (and the underlying `bufferToCanvas`) now accept `ArrayBuffer | string | CanvasLike`. On mobile a string routes through Skia's `Data.fromURI`, so a `file://` (or, where the platform supports it, `https://`) path loads without a separate fetch step. The `ArrayBuffer` form still works on every entry point. There is **no** `CanvasToolkit.saveImage` here — like the web entries, `CanvasToolkit` is the filesystem-free base.
+The URI-string overload is the mobile-specific ergonomics win: `prepareCanvas` (and the underlying `bufferToCanvas`) accept `ArrayBuffer | string | CanvasLike`. On mobile a string routes through Skia's `Data.fromURI`, so a `file://` (or, where the platform supports it, `https://`) path loads without a separate fetch step. The `ArrayBuffer` form still works on every entry point. There is **no** `CanvasToolkit.saveImage` here — like the web entries, `CanvasToolkit` is the filesystem-free base.
 
 ## Chaining order matters
 
