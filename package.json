@@ -95,5 +95,8 @@
   },
   "trustedDependencies": [
     "@shopify/react-native-skia"
-  ]
+  ],
+  "overrides": {
+    "tinypool": "2.1.2"
+  }
 }
