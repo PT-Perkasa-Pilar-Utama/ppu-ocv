@@ -89,3 +89,25 @@ test("getLargestContourArea frees every contour except the one it returns", () =
     mat.delete();
   }
 });
+
+// Both methods take ownership of the contour they read. A contour that is not
+// a point list makes OpenCV throw, and the contour must still be freed.
+test("getCornerPoints and getApproximateRectangleContour free the contour when OpenCV throws", () => {
+  const mat = new cv.Mat(4, 4, cv.CV_8UC1, new cv.Scalar(0));
+  const contours = new Contours(mat);
+
+  try {
+    const forCorners = new cv.Mat(3, 3, cv.CV_8UC1, new cv.Scalar(0));
+    expect(() =>
+      contours.getCornerPoints({ canvas: createCanvas(4, 4), contour: forCorners })
+    ).toThrow();
+    expect(forCorners.isDeleted()).toBe(true);
+
+    const forApproximation = new cv.Mat(3, 3, cv.CV_8UC1, new cv.Scalar(0));
+    expect(() => contours.getApproximateRectangleContour({ contour: forApproximation })).toThrow();
+    expect(forApproximation.isDeleted()).toBe(true);
+  } finally {
+    contours.destroy();
+    mat.delete();
+  }
+});

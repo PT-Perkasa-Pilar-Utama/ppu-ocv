@@ -4,6 +4,7 @@
 import type { CanvasLike } from "./canvas-factory.js";
 import { cv } from "./cv-provider.js";
 import type { BoundingBox, Coordinate, Points } from "./index.interface.js";
+import { writeToNewMat } from "./write-to-new-mat.js";
 
 /** Options for configuring contour detection. */
 export type ContoursOptions = {
@@ -48,9 +49,14 @@ export class Contours {
       const contours = new cv.MatVector();
       const hierarchy = new cv.Mat();
 
-      cv.findContours(img, contours, hierarchy, opts.mode, opts.method);
-
-      hierarchy.delete();
+      try {
+        cv.findContours(img, contours, hierarchy, opts.mode, opts.method);
+      } catch (error) {
+        contours.delete();
+        throw error;
+      } finally {
+        hierarchy.delete();
+      }
 
       this.contours = contours;
     } else {
@@ -185,10 +191,16 @@ export class Contours {
       };
     }
 
-    const rect = cv.minAreaRect(contour);
-    const vertices = (cv.RotatedRect as unknown as { points: (r: unknown) => Coordinate[] }).points(
-      rect
-    );
+    // This method owns the contour, so it is freed even when OpenCV throws.
+    let vertices: Coordinate[];
+    try {
+      const rect = cv.minAreaRect(contour);
+      vertices = (cv.RotatedRect as unknown as { points: (r: unknown) => Coordinate[] }).points(
+        rect
+      );
+    } finally {
+      contour.delete();
+    }
 
     const points = {
       topLeft: { x: 0, y: 0 },
@@ -249,8 +261,6 @@ export class Contours {
       y: vertices[bottomLeftIdx].y,
     };
 
-    contour.delete();
-
     const ensureInBounds = (p: { x: number; y: number }) => {
       p.x = Math.max(0, Math.min(canvas.width, p.x));
       p.y = Math.max(0, Math.min(canvas.height, p.y));
@@ -288,12 +298,13 @@ export class Contours {
 
     if (!contour) return undefined;
 
-    const epsilon = threshold * cv.arcLength(contour, true);
-    const approxContour = new cv.Mat();
-    cv.approxPolyDP(contour, approxContour, epsilon, true);
-
-    contour.delete();
-    return approxContour;
+    // This method owns the contour, so it is freed even when OpenCV throws.
+    try {
+      const epsilon = threshold * cv.arcLength(contour, true);
+      return writeToNewMat((out) => cv.approxPolyDP(contour, out, epsilon, true));
+    } finally {
+      contour.delete();
+    }
   }
 
   /**

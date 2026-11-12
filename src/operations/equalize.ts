@@ -1,6 +1,7 @@
 import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
+import { writeToNewMat } from "../write-to-new-mat.js";
 
 /** Options for the histogram equalization operation. */
 export type EqualizeOptions = PartialOptions & {
@@ -43,16 +44,19 @@ function defaultOptions(): EqualizeOptions {
  * The input Mat is deleted by this operation.
  */
 export function equalize(img: cv.Mat, options: EqualizeOptions): OperationResult {
-  const dst = new cv.Mat();
+  let dst: cv.Mat;
 
   if (options.method === "global") {
-    cv.equalizeHist(img, dst);
+    dst = writeToNewMat((out) => cv.equalizeHist(img, out));
   } else {
     // CLAHE — @techstark/opencv-js exposes this as a constructor, not cv.createCLAHE()
     const tileSize = new cv.Size(options.tileGridSize, options.tileGridSize);
     const clahe = new cv.CLAHE(options.clipLimit, tileSize);
-    clahe.apply(img, dst);
-    clahe.delete();
+    try {
+      dst = writeToNewMat((out) => clahe.apply(img, out));
+    } finally {
+      clahe.delete();
+    }
   }
 
   img.delete();

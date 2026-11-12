@@ -4,6 +4,7 @@
 import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
+import { writeToNewMat } from "../write-to-new-mat.js";
 
 /** Options for the Canny edge-detection operation. */
 export type CannyOptions = PartialOptions & {
@@ -22,8 +23,7 @@ function defaultOptions(): CannyOptions {
 
 /** Detect edges using the Canny algorithm. */
 export function canny(img: cv.Mat, options: CannyOptions): OperationResult {
-  const imgCanny = new cv.Mat();
-  cv.Canny(img, imgCanny, options.lower, options.upper);
+  const imgCanny = writeToNewMat((out) => cv.Canny(img, out, options.lower, options.upper));
   img.delete();
 
   return {

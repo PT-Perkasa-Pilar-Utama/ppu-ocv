@@ -4,6 +4,7 @@
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 import type { OperationResult, PartialOptions } from "../pipeline/types.js";
+import { writeToNewMat } from "../write-to-new-mat.js";
 
 /** Options for the adaptive threshold operation. */
 export type AdaptiveThresholdOptions = PartialOptions & {
@@ -31,16 +32,16 @@ function defaultOptions(): AdaptiveThresholdOptions {
 
 /** Apply adaptive thresholding to convert a grayscale image to binary. */
 export function adaptiveThreshold(img: cv.Mat, options: AdaptiveThresholdOptions): OperationResult {
-  const imgAdaptiveThreshold = new cv.Mat();
-
-  cv.adaptiveThreshold(
-    img,
-    imgAdaptiveThreshold,
-    options.upper,
-    options.method,
-    options.type,
-    options.size,
-    options.constant
+  const imgAdaptiveThreshold = writeToNewMat((out) =>
+    cv.adaptiveThreshold(
+      img,
+      out,
+      options.upper,
+      options.method,
+      options.type,
+      options.size,
+      options.constant
+    )
   );
   img.delete();
 
