@@ -779,7 +779,7 @@
           <polyline points="22 8.5 12 15.5 2 8.5" />
         </svg>
         ppu-ocv
-        <span class="topbar-badge">v3.3.0</span>
+        <span class="topbar-badge">v4.0.1</span>
         <div class="topbar-links">
           <a
             href="https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv"
@@ -882,15 +882,10 @@
                 />
               </div>
             </li>
-            <li class="pipeline-item active">
-              <input class="pipeline-checkbox" type="checkbox" id="op-threshold" checked />
-              <label class="pipeline-label" for="op-threshold">Threshold</label>
-              <span class="pipeline-order">3</span>
-            </li>
             <li class="pipeline-item">
               <input class="pipeline-checkbox" type="checkbox" id="op-equalize" />
               <label class="pipeline-label" for="op-equalize">Equalize</label>
-              <span class="pipeline-order">4</span>
+              <span class="pipeline-order">3</span>
               <div class="param-group">
                 <div class="param-row">
                   <span class="param-label">method</span>
@@ -938,20 +933,45 @@
                 />
               </div>
             </li>
+            <li class="pipeline-item active">
+              <input class="pipeline-checkbox" type="checkbox" id="op-threshold" checked />
+              <label class="pipeline-label" for="op-threshold">Threshold</label>
+              <span class="pipeline-order">4</span>
+            </li>
+            <li class="pipeline-item">
+              <input class="pipeline-checkbox" type="checkbox" id="op-adaptive-threshold" />
+              <label class="pipeline-label" for="op-adaptive-threshold">Adaptive Threshold</label>
+              <span class="pipeline-order">5</span>
+              <div class="param-group">
+                <div class="param-row">
+                  <span class="param-label">size</span>
+                  <span class="param-value" id="adaptive-threshold-val">7</span>
+                </div>
+                <input
+                  class="param-slider"
+                  type="range"
+                  id="adaptive-threshold-size"
+                  min="3"
+                  max="51"
+                  step="2"
+                  value="7"
+                />
+              </div>
+            </li>
             <li class="pipeline-item">
               <input class="pipeline-checkbox" type="checkbox" id="op-invert" />
               <label class="pipeline-label" for="op-invert">Invert</label>
-              <span class="pipeline-order">5</span>
+              <span class="pipeline-order">6</span>
             </li>
             <li class="pipeline-item">
               <input class="pipeline-checkbox" type="checkbox" id="op-canny" />
               <label class="pipeline-label" for="op-canny">Canny Edge</label>
-              <span class="pipeline-order">6</span>
+              <span class="pipeline-order">7</span>
             </li>
             <li class="pipeline-item">
               <input class="pipeline-checkbox" type="checkbox" id="op-dilate" />
               <label class="pipeline-label" for="op-dilate">Dilate</label>
-              <span class="pipeline-order">7</span>
+              <span class="pipeline-order">8</span>
               <div class="param-group">
                 <div class="param-row">
                   <span class="param-label">size</span>
@@ -971,7 +991,89 @@
             <li class="pipeline-item">
               <input class="pipeline-checkbox" type="checkbox" id="op-erode" />
               <label class="pipeline-label" for="op-erode">Erode</label>
-              <span class="pipeline-order">8</span>
+              <span class="pipeline-order">9</span>
+            </li>
+            <li class="pipeline-item">
+              <input class="pipeline-checkbox" type="checkbox" id="op-morphological-gradient" />
+              <label class="pipeline-label" for="op-morphological-gradient"
+                >Morphological Gradient</label
+              >
+              <span class="pipeline-order">10</span>
+              <div class="param-group">
+                <div class="param-row">
+                  <span class="param-label">size</span>
+                  <span class="param-value" id="morphological-gradient-val">3</span>
+                </div>
+                <input
+                  class="param-slider"
+                  type="range"
+                  id="morphological-gradient-size"
+                  min="1"
+                  max="21"
+                  step="2"
+                  value="3"
+                />
+              </div>
+            </li>
+            <li class="pipeline-item">
+              <input class="pipeline-checkbox" type="checkbox" id="op-resize" />
+              <label class="pipeline-label" for="op-resize">Resize</label>
+              <span class="pipeline-order">11</span>
+              <div class="param-group">
+                <div class="param-row">
+                  <span class="param-label">scale (%)</span>
+                  <span class="param-value" id="resize-val">50</span>
+                </div>
+                <input
+                  class="param-slider"
+                  type="range"
+                  id="resize-scale"
+                  min="10"
+                  max="200"
+                  step="10"
+                  value="50"
+                />
+              </div>
+            </li>
+            <li class="pipeline-item">
+              <input class="pipeline-checkbox" type="checkbox" id="op-border" />
+              <label class="pipeline-label" for="op-border">Border</label>
+              <span class="pipeline-order">12</span>
+              <div class="param-group">
+                <div class="param-row">
+                  <span class="param-label">size</span>
+                  <span class="param-value" id="border-val">10</span>
+                </div>
+                <input
+                  class="param-slider"
+                  type="range"
+                  id="border-size"
+                  min="1"
+                  max="100"
+                  step="1"
+                  value="10"
+                />
+              </div>
+            </li>
+            <li class="pipeline-item">
+              <input class="pipeline-checkbox" type="checkbox" id="op-rotate" />
+              <label class="pipeline-label" for="op-rotate">Rotate</label>
+              <span class="pipeline-order">13</span>
+              <div class="param-group">
+                <div class="param-row">
+                  <span class="param-label">angle</span>
+                  <span class="param-value" id="rotate-val">10</span>
+                </div>
+                <input
+                  class="param-slider"
+                  type="range"
+                  id="rotate-angle"
+                  min="-180"
+                  max="180"
+                  step="1"
+                  value="10"
+                />
+              </div>
             </li>
           </ul>
         </div>
@@ -1107,7 +1209,7 @@
       } catch (e) {
         // Fallback to npm CDN if local build is missing or deployed to GH Pages
         console.log("Local build not found, falling back to CDN...");
-        const cdn = await import("https://cdn.jsdelivr.net/npm/ppu-ocv@3.3.0/index.web.js");
+        const cdn = await import("https://cdn.jsdelivr.net/npm/ppu-ocv@4.0.1/index.web.js");
         ImageProcessor = cdn.ImageProcessor;
         CanvasProcessor = cdn.CanvasProcessor;
         DeskewService = cdn.DeskewService;
@@ -1134,6 +1236,16 @@
       const blurValEl = document.getElementById("blur-val");
       const dilateSlider = document.getElementById("dilate-size");
       const dilateValEl = document.getElementById("dilate-val");
+      const adaptiveThresholdSlider = document.getElementById("adaptive-threshold-size");
+      const adaptiveThresholdValEl = document.getElementById("adaptive-threshold-val");
+      const gradientSlider = document.getElementById("morphological-gradient-size");
+      const gradientValEl = document.getElementById("morphological-gradient-val");
+      const resizeSlider = document.getElementById("resize-scale");
+      const resizeValEl = document.getElementById("resize-val");
+      const borderSlider = document.getElementById("border-size");
+      const borderValEl = document.getElementById("border-val");
+      const rotateSlider = document.getElementById("rotate-angle");
+      const rotateValEl = document.getElementById("rotate-val");
       const equalizeMethod = document.getElementById("equalize-method");
       const equalizeClipSlider = document.getElementById("equalize-clip");
       const equalizeClipValEl = document.getElementById("equalize-clip-val");
@@ -1158,18 +1270,20 @@
 
       // -- Init OpenCV --
       // The ppu-ocv/web build does not bundle OpenCV (it is loaded at runtime so
-      // bundler-less and CSP-restricted consumers can opt out). Load opencv.js
-      // into globalThis.cv, then initRuntime() confirms the WASM is ready.
+      // bundler-less and CSP-restricted consumers can opt out). Load the
+      // OpenCV 5 build that ppu-ocv 4 is built against: it sets globalThis.cv
+      // to a Promise of the module, and initRuntime() awaits it.
       try {
         setStatus("loading", "Loading OpenCV…");
         await new Promise((resolve, reject) => {
-          if (globalThis.cv?.Mat) {
+          if (globalThis.cv) {
             resolve(); // already loaded (e.g. hot-reload)
             return;
           }
           const s = document.createElement("script");
           s.async = true;
-          s.src = "https://docs.opencv.org/4.10.0/opencv.js";
+          s.src =
+            "https://cdn.jsdelivr.net/npm/@techstark/opencv-js@5.0.0-release.1/dist/opencv.js";
           s.onload = resolve;
           s.onerror = () => reject(new Error("Failed to load opencv.js from CDN"));
           document.head.appendChild(s);
@@ -1264,27 +1378,25 @@
       }
 
       // -- Sliders --
-      blurSlider.addEventListener("input", () => {
-        blurValEl.textContent = blurSlider.value;
-        updateCodePreview();
-      });
-      dilateSlider.addEventListener("input", () => {
-        dilateValEl.textContent = dilateSlider.value;
-        updateCodePreview();
-      });
-      equalizeClipSlider.addEventListener("input", () => {
-        equalizeClipValEl.textContent = equalizeClipSlider.value;
-        updateCodePreview();
-      });
-      equalizeTileSlider.addEventListener("input", () => {
-        equalizeTileValEl.textContent = equalizeTileSlider.value;
-        updateCodePreview();
-      });
+      const sliderValues = [
+        [blurSlider, blurValEl],
+        [dilateSlider, dilateValEl],
+        [equalizeClipSlider, equalizeClipValEl],
+        [equalizeTileSlider, equalizeTileValEl],
+        [adaptiveThresholdSlider, adaptiveThresholdValEl],
+        [gradientSlider, gradientValEl],
+        [resizeSlider, resizeValEl],
+        [borderSlider, borderValEl],
+        [rotateSlider, rotateValEl],
+        [deskewAreaSlider, deskewAreaValEl],
+      ];
+      for (const [slider, valueEl] of sliderValues) {
+        slider.addEventListener("input", () => {
+          valueEl.textContent = slider.value;
+          updateCodePreview();
+        });
+      }
       equalizeMethod.addEventListener("change", () => updateCodePreview());
-      deskewAreaSlider.addEventListener("input", () => {
-        deskewAreaValEl.textContent = deskewAreaSlider.value;
-        updateCodePreview();
-      });
       deskewVerbose.addEventListener("change", () => updateCodePreview());
 
       // -- Checkboxes --
@@ -1296,15 +1408,18 @@
       });
 
       // -- Pipeline steps --
+      // A step's opts is an object, or a function of the processor for
+      // options that depend on the image size at that point in the pipeline.
+      // previewArgs is then the code shown for those options.
       function getActiveSteps() {
+        const checked = (id) => document.getElementById(`op-${id}`).checked;
         const steps = [];
-        if (document.getElementById("op-grayscale").checked) steps.push({ name: "grayscale" });
-        if (document.getElementById("op-blur").checked) {
+        if (checked("grayscale")) steps.push({ name: "grayscale" });
+        if (checked("blur")) {
           const bsz = parseInt(blurSlider.value);
           steps.push({ name: "blur", opts: { size: [bsz, bsz] } });
         }
-        if (document.getElementById("op-threshold").checked) steps.push({ name: "threshold" });
-        if (document.getElementById("op-equalize").checked) {
+        if (checked("equalize")) {
           steps.push({
             name: "equalize",
             opts: {
@@ -1314,13 +1429,41 @@
             },
           });
         }
-        if (document.getElementById("op-invert").checked) steps.push({ name: "invert" });
-        if (document.getElementById("op-canny").checked) steps.push({ name: "canny" });
-        if (document.getElementById("op-dilate").checked) {
+        if (checked("threshold")) steps.push({ name: "threshold" });
+        if (checked("adaptive-threshold")) {
+          steps.push({
+            name: "adaptiveThreshold",
+            opts: { size: parseInt(adaptiveThresholdSlider.value) },
+          });
+        }
+        if (checked("invert")) steps.push({ name: "invert" });
+        if (checked("canny")) steps.push({ name: "canny" });
+        if (checked("dilate")) {
           const sz = parseInt(dilateSlider.value);
           steps.push({ name: "dilate", opts: { size: [sz, sz] } });
         }
-        if (document.getElementById("op-erode").checked) steps.push({ name: "erode" });
+        if (checked("erode")) steps.push({ name: "erode" });
+        if (checked("morphological-gradient")) {
+          const gsz = parseInt(gradientSlider.value);
+          steps.push({ name: "morphologicalGradient", opts: { size: [gsz, gsz] } });
+        }
+        if (checked("resize")) {
+          const scale = parseInt(resizeSlider.value) / 100;
+          steps.push({
+            name: "resize",
+            opts: (processor) => ({
+              width: Math.max(1, Math.round(processor.width * scale)),
+              height: Math.max(1, Math.round(processor.height * scale)),
+            }),
+            previewArgs: `{ width: Math.round(processor.width * ${scale}), height: Math.round(processor.height * ${scale}) }`,
+          });
+        }
+        if (checked("border")) {
+          steps.push({ name: "border", opts: { size: parseInt(borderSlider.value) } });
+        }
+        if (checked("rotate")) {
+          steps.push({ name: "rotate", opts: { angle: parseInt(rotateSlider.value) } });
+        }
         return steps;
       }
 
@@ -1351,7 +1494,7 @@
         } else {
           for (const s of steps) {
             if (s.opts) {
-              const optsStr = JSON.stringify(s.opts);
+              const optsStr = s.previewArgs ?? JSON.stringify(s.opts);
               raw += `processor.${s.name}(${optsStr});\n`;
               const htmlOpts = optsStr
                 .replace(/"([^"]+)":/g, '<span class="str">$1</span>: ')
@@ -1457,7 +1600,10 @@
           srcCanvas.getContext("2d").drawImage(loadedImage, 0, 0);
 
           const processor = new ImageProcessor(srcCanvas);
-          for (const step of steps) processor.execute(step.name, step.opts);
+          for (const step of steps) {
+            const opts = typeof step.opts === "function" ? step.opts(processor) : step.opts;
+            processor.execute(step.name, opts);
+          }
           const output = processor.toCanvas();
           const elapsed = (performance.now() - t0).toFixed(1);
 
