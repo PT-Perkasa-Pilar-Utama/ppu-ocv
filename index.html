@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Interactive demo of ppu-ocv — a type-safe, chainable image processing library built on OpenCV.js"
+      content="Run ppu-ocv image operations on your own image in the browser and copy the code that does the same."
     />
-    <title>ppu-ocv — Interactive Demo</title>
+    <title>ppu-ocv playground</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap"
       rel="stylesheet"
     />
     <style>
@@ -23,728 +23,731 @@
         padding: 0;
       }
 
+      /* Neutral graphite so the colors of the image under test read true.
+         Amber is the only hue in the chrome, like a darkroom safelight. */
       :root {
-        --bg-primary: #0a0a0f;
-        --bg-secondary: #12121a;
-        --bg-card: #1a1a26;
-        --bg-card-hover: #22222e;
-        --border: #2a2a3a;
-        --border-active: #6366f1;
-        --text-primary: #e8e8f0;
-        --text-secondary: #9898b0;
-        --text-muted: #68688a;
-        --accent: #6366f1;
-        --accent-glow: rgba(99, 102, 241, 0.25);
-        --accent-secondary: #818cf8;
-        --success: #34d399;
-        --warning: #fbbf24;
-        --error: #f87171;
-        --radius: 12px;
-        --radius-sm: 8px;
-        --radius-xs: 6px;
-        --shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
-        --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        --sidebar-w: 280px;
+        color-scheme: dark;
+        --bg-deep: #0f0f10;
+        --bg: #141415;
+        --surface: #19191b;
+        --raised: #232325;
+        --line: rgba(237, 237, 237, 0.08);
+        --line-strong: rgba(237, 237, 237, 0.16);
+        --text: #ededed;
+        --text-2: #a1a1a6;
+        --text-3: #85858b;
+        --accent: #e0a243;
+        --accent-hover: #e9b25c;
+        --accent-ink: #1a1408;
+        --positive: #4cc38a;
+        --negative: #e5484d;
+        --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+        --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+        --ease: cubic-bezier(0.22, 1, 0.36, 1);
+        --fast: 150ms;
+        --topbar-h: 56px;
+        --sidebar-w: 272px;
+        --code-h: 248px;
       }
 
       body {
-        font-family:
-          "Inter",
-          -apple-system,
-          BlinkMacSystemFont,
-          sans-serif;
-        background: var(--bg-primary);
-        color: var(--text-primary);
-        min-height: 100vh;
-        line-height: 1.6;
+        font-family: var(--font-sans);
+        font-size: 14px;
+        line-height: 20px;
+        background: var(--bg);
+        color: var(--text);
         -webkit-font-smoothing: antialiased;
       }
 
-      /* --- Top Bar --- */
-      .topbar {
-        background: linear-gradient(180deg, rgba(99, 102, 241, 0.08) 0%, transparent 100%);
-        border-bottom: 1px solid var(--border);
-        padding: 1rem 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        flex-wrap: wrap;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        backdrop-filter: blur(12px);
-        background-color: rgba(10, 10, 15, 0.85);
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
       }
 
-      .topbar-brand {
+      button {
+        font: inherit;
+        color: inherit;
+      }
+
+      .icon {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      /* --- Top bar --- */
+      .topbar {
+        min-height: var(--topbar-h);
+        padding: 0 16px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px 16px;
+        background: var(--bg-deep);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .brand {
         display: flex;
         align-items: center;
-        gap: 0.6rem;
-        font-size: 1rem;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        color: var(--text-primary);
+        gap: 8px;
+        min-width: 0;
         margin-right: auto;
       }
-
-      .topbar-brand svg {
+      .brand-mark {
         width: 18px;
         height: 18px;
-        color: var(--accent-secondary);
+        color: var(--text-2);
       }
-
-      .topbar-badge {
-        font-size: 0.65rem;
+      .brand-name {
+        font-size: 16px;
         font-weight: 500;
-        padding: 0.2rem 0.55rem;
-        background: rgba(99, 102, 241, 0.12);
-        border: 1px solid rgba(99, 102, 241, 0.2);
-        border-radius: 100px;
-        color: var(--accent-secondary);
       }
-
-      .topbar-links {
+      .brand-version {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text-3);
+      }
+      .brand-links {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        margin-left: 0.5rem;
+        gap: 4px;
+        margin-left: 8px;
       }
-      .topbar-links a {
-        color: var(--text-secondary);
-        transition: color var(--transition);
+      .brand-links a {
         display: flex;
         align-items: center;
         justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        color: var(--text-3);
+        transition: color var(--fast) var(--ease);
       }
-      .topbar-links a:hover {
-        color: var(--text-primary);
-      }
-      .topbar-links svg {
+      .brand-links .icon {
         width: 18px;
         height: 18px;
       }
+      .brand-links .icon-fill {
+        fill: currentColor;
+        stroke: none;
+      }
 
-      .status-indicator {
+      /* Fixed width, so a long status or error never moves the buttons */
+      .status {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        font-size: 0.75rem;
-        color: var(--text-secondary);
+        gap: 8px;
+        width: 240px;
+        min-width: 0;
+        font-size: 13px;
+        color: var(--text-2);
       }
-
-      .status-dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: var(--text-muted);
-        flex-shrink: 0;
-      }
-      .status-dot.ready {
-        background: var(--success);
-        box-shadow: 0 0 8px rgba(52, 211, 153, 0.4);
-      }
-      .status-dot.loading {
-        background: var(--warning);
-        animation: pulse 1.2s ease-in-out infinite;
-      }
-      .status-dot.error {
-        background: var(--error);
-      }
-      @keyframes pulse {
-        0%,
-        100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.4;
-        }
-      }
-
-      /* Upload row */
-      .upload-row {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-      }
-
-      .btn-upload {
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-        padding: 0.5rem 1rem;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
-        background: var(--bg-card);
-        color: var(--text-primary);
-        font-family: inherit;
-        font-size: 0.8rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all var(--transition);
-      }
-      .btn-upload:hover {
-        border-color: var(--accent);
-        background: var(--bg-card-hover);
-      }
-      .btn-upload svg {
-        width: 15px;
-        height: 15px;
-      }
-
-      .btn-process {
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-        padding: 0.5rem 1.2rem;
-        border: none;
-        border-radius: var(--radius-sm);
-        background: linear-gradient(135deg, var(--accent) 0%, #4f46e5 100%);
-        color: white;
-        font-family: inherit;
-        font-size: 0.8rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all var(--transition);
-      }
-      .btn-process:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 20px var(--accent-glow);
-      }
-      .btn-process:active {
-        transform: translateY(0);
-      }
-      .btn-process:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-      }
-
-      .file-name {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        font-family: "JetBrains Mono", monospace;
-        max-width: 200px;
+      .status-text {
+        min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+      }
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--text-3);
+        flex-shrink: 0;
+      }
+      .status-dot.ready {
+        background: var(--positive);
+      }
+      .status-dot.loading {
+        animation: pulse 1.2s var(--ease) infinite;
+      }
+      .status-dot.error {
+        background: var(--negative);
+      }
+      @keyframes pulse {
+        50% {
+          opacity: 0.35;
+        }
+      }
+
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 36px;
+        padding: 0 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+        cursor: pointer;
+        transition:
+          background-color var(--fast) var(--ease),
+          border-color var(--fast) var(--ease),
+          color var(--fast) var(--ease),
+          transform var(--fast) var(--ease);
+      }
+      .btn:active:not(:disabled) {
+        transform: scale(0.98);
+      }
+
+      .btn-secondary {
+        border: 1px solid var(--line-strong);
+        background: var(--raised);
+        color: var(--text);
+      }
+
+      /* Fixed width: the label switches between "Process" and "Deskew" */
+      .btn-primary {
+        width: 112px;
+        border: none;
+        background: var(--accent);
+        color: var(--accent-ink);
+      }
+      .btn-primary:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .btn-small {
+        min-height: 28px;
+        min-width: 80px;
+        padding: 0 10px;
+        border-radius: 6px;
+        font-size: 13px;
+      }
+      .btn-copy.copied {
+        color: var(--positive);
       }
 
       #file-input {
         display: none;
       }
 
-      /* --- Main Layout --- */
+      /* --- Shell --- */
       .app {
         display: grid;
-        grid-template-columns: var(--sidebar-w) 1fr;
-        height: calc(100vh - 57px); /* minus topbar */
+        grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
       }
 
-      @media (max-width: 800px) {
+      /* Desktop: one screen with fixed regions. Nothing inside a region can
+         change the size of another, so checking operations, loading an image
+         or a long status never moves the layout. */
+      @media (min-width: 801px) and (min-height: 560px) {
+        body {
+          height: 100dvh;
+          overflow: hidden;
+          display: grid;
+          grid-template-rows: auto minmax(0, 1fr);
+        }
         .app {
-          grid-template-columns: 1fr;
-          height: auto;
+          min-height: 0;
         }
         .sidebar {
-          max-height: 40vh;
+          min-height: 0;
+        }
+        .content {
+          min-height: 0;
+          grid-template-rows: minmax(0, 1fr) var(--code-h);
         }
       }
 
       /* --- Sidebar --- */
       .sidebar {
-        border-right: 1px solid var(--border);
-        background: var(--bg-secondary);
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        background: var(--bg-deep);
+        border-right: 1px solid var(--line);
       }
 
-      .sidebar::-webkit-scrollbar {
-        width: 4px;
-      }
-      .sidebar::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      .sidebar::-webkit-scrollbar-thumb {
-        background: var(--border);
-        border-radius: 2px;
-      }
-
-      /* --- Mode Tabs --- */
       .mode-tabs {
         display: flex;
-        border-bottom: 1px solid var(--border);
-        flex-shrink: 0;
+        gap: 16px;
+        padding: 0 16px;
+        border-bottom: 1px solid var(--line);
       }
       .mode-tab {
-        flex: 1;
-        padding: 0.6rem 0.5rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-align: center;
-        cursor: pointer;
-        color: var(--text-muted);
+        min-height: 40px;
         background: none;
         border: none;
-        font-family: inherit;
-        transition: all var(--transition);
         border-bottom: 2px solid transparent;
         margin-bottom: -1px;
-      }
-      .mode-tab:hover {
-        color: var(--text-secondary);
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-3);
+        cursor: pointer;
+        transition:
+          color var(--fast) var(--ease),
+          border-color var(--fast) var(--ease);
       }
       .mode-tab.active {
-        color: var(--accent-secondary);
-        border-bottom-color: var(--accent);
+        color: var(--text);
+        border-bottom-color: var(--text);
       }
 
       .sidebar-panel {
-        padding: 1rem;
-        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        scrollbar-gutter: stable;
+        overscroll-behavior: contain;
+        padding: 16px 12px 24px 16px;
       }
       .sidebar-panel.hidden {
         display: none;
       }
 
       .section-title {
-        font-size: 0.7rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--text-muted);
-        margin-bottom: 0.6rem;
-        padding: 0 0.25rem;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-2);
+        margin-bottom: 4px;
       }
 
-      .pipeline-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.35rem;
+      /* --- Operation rows --- */
+      .op-list {
         list-style: none;
       }
+      .op + .op {
+        border-top: 1px solid var(--line);
+      }
 
-      .pipeline-item {
-        display: flex;
+      /* Checkbox, then the label with the API call it adds stacked under
+         it, so long method names never squeeze the label */
+      .op-head {
+        display: grid;
+        grid-template-columns: 16px minmax(0, 1fr);
+        column-gap: 10px;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0.45rem 0.6rem;
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-xs);
+        padding: 8px 0;
         cursor: pointer;
-        transition: all var(--transition);
         user-select: none;
-        flex-wrap: wrap;
       }
-      .pipeline-item:hover {
-        background: var(--bg-card-hover);
-        border-color: var(--border-active);
+      .op-label {
+        overflow-wrap: anywhere;
+        color: var(--text-2);
+        transition: color var(--fast) var(--ease);
       }
-      .pipeline-item.active {
-        border-color: var(--accent);
-        background: rgba(99, 102, 241, 0.08);
+      .op.active .op-label {
+        color: var(--text);
+      }
+      .op-call {
+        grid-column: 2;
+        overflow-wrap: anywhere;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--text-3);
       }
 
-      .pipeline-checkbox {
+      .checkbox {
         appearance: none;
         -webkit-appearance: none;
+        position: relative;
         width: 16px;
         height: 16px;
-        border: 2px solid var(--border);
-        border-radius: 3px;
-        background: var(--bg-primary);
-        cursor: pointer;
-        position: relative;
         flex-shrink: 0;
-        transition: all var(--transition);
+        border: 1.5px solid var(--text-3);
+        border-radius: 4px;
+        background: transparent;
+        cursor: pointer;
+        transition:
+          background-color var(--fast) var(--ease),
+          border-color var(--fast) var(--ease);
       }
-      .pipeline-checkbox:checked {
+      .checkbox:checked {
         background: var(--accent);
         border-color: var(--accent);
       }
-      .pipeline-checkbox:checked::after {
+      .checkbox:checked::after {
         content: "";
         position: absolute;
-        left: 3px;
-        top: 0px;
+        left: 4px;
+        top: 1px;
         width: 5px;
-        height: 8px;
-        border: solid white;
+        height: 9px;
+        border: solid var(--accent-ink);
         border-width: 0 2px 2px 0;
         transform: rotate(45deg);
       }
 
-      .pipeline-label {
-        font-size: 0.78rem;
-        font-weight: 500;
-        color: var(--text-primary);
-        flex: 1;
-      }
-      .pipeline-order {
-        font-size: 0.6rem;
-        font-weight: 600;
-        width: 18px;
-        height: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 4px;
-        background: rgba(99, 102, 241, 0.12);
-        color: var(--accent-secondary);
+      /* Parameters keep their height whether the operation is on or off,
+         so checking a row never moves the rows below it */
+      .op-params {
+        display: grid;
+        gap: 8px;
+        padding: 0 0 12px 26px;
       }
 
-      .param-group {
-        width: 100%;
-        margin-top: 0.3rem;
-        padding: 0.4rem 0.5rem;
-        background: var(--bg-primary);
-        border-radius: var(--radius-xs);
-      }
-      .param-row {
-        display: flex;
+      .param {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
         align-items: center;
-        justify-content: space-between;
+        column-gap: 8px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        line-height: 16px;
       }
-      .param-label {
-        font-size: 0.68rem;
-        color: var(--text-muted);
-        font-family: "JetBrains Mono", monospace;
+      .param-name {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--text-3);
       }
       .param-value {
-        font-size: 0.68rem;
-        color: var(--accent-secondary);
-        font-family: "JetBrains Mono", monospace;
+        color: var(--text-2);
+        font-variant-numeric: tabular-nums;
+      }
+      .param-hint {
+        grid-column: 1 / -1;
+        margin-top: 4px;
+        font-family: var(--font-sans);
+        font-size: 12px;
+        color: var(--text-3);
       }
 
-      .param-slider {
+      .param-select {
+        min-height: 28px;
+        padding: 0 8px;
+        border: 1px solid var(--line-strong);
+        border-radius: 6px;
+        background: var(--raised);
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        cursor: pointer;
+      }
+
+      .slider {
+        grid-column: 1 / -1;
         -webkit-appearance: none;
         appearance: none;
         width: 100%;
-        height: 3px;
-        background: var(--border);
-        border-radius: 2px;
-        margin-top: 0.25rem;
+        height: 20px;
+        background: transparent;
+        cursor: pointer;
       }
-      .param-slider::-webkit-slider-thumb {
+      .slider::-webkit-slider-runnable-track {
+        height: 2px;
+        border-radius: 1px;
+        background: var(--line-strong);
+      }
+      .slider::-moz-range-track {
+        height: 2px;
+        border-radius: 1px;
+        background: var(--line-strong);
+      }
+      .slider::-webkit-slider-thumb {
         -webkit-appearance: none;
         width: 12px;
         height: 12px;
+        margin-top: -5px;
         border-radius: 50%;
+        border: none;
+        background: var(--text-2);
+      }
+      .slider::-moz-range-thumb {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: none;
+        background: var(--text-2);
+      }
+      .op.active .slider::-webkit-slider-thumb,
+      .field .slider::-webkit-slider-thumb {
         background: var(--accent);
-        cursor: pointer;
-        box-shadow: 0 0 0 3px var(--accent-glow);
+      }
+      .op.active .slider::-moz-range-thumb,
+      .field .slider::-moz-range-thumb {
+        background: var(--accent);
       }
 
-      /* --- Deskew sidebar --- */
-      .deskew-settings {
-        display: flex;
-        flex-direction: column;
-        gap: 0.6rem;
+      /* --- Deskew panel --- */
+      .fields {
+        display: grid;
+        margin-top: 4px;
       }
-
-      .deskew-field {
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-xs);
-        padding: 0.55rem 0.7rem;
+      .field {
+        padding: 12px 0;
+      }
+      .field + .field {
+        border-top: 1px solid var(--line);
       }
 
       .toggle-row {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        gap: 12px;
       }
-      .toggle-label {
-        font-size: 0.78rem;
-        font-weight: 500;
-        color: var(--text-primary);
+      .toggle-text {
+        flex: 1;
+        min-width: 0;
       }
       .toggle-desc {
-        font-size: 0.68rem;
-        color: var(--text-muted);
-        margin-top: 0.15rem;
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--text-3);
+        margin-top: 2px;
       }
 
       .toggle {
         position: relative;
         width: 32px;
-        height: 18px;
+        height: 20px;
         flex-shrink: 0;
       }
       .toggle input {
+        position: absolute;
         opacity: 0;
-        width: 0;
-        height: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        cursor: pointer;
       }
       .toggle-track {
         position: absolute;
         inset: 0;
-        background: var(--border);
-        border-radius: 100px;
-        cursor: pointer;
-        transition: background var(--transition);
+        border-radius: 10px;
+        background: var(--raised);
+        border: 1px solid var(--line-strong);
+        pointer-events: none;
+        transition:
+          background-color var(--fast) var(--ease),
+          border-color var(--fast) var(--ease);
       }
       .toggle-track::before {
         content: "";
         position: absolute;
-        width: 12px;
-        height: 12px;
-        left: 3px;
-        top: 3px;
-        background: white;
+        width: 14px;
+        height: 14px;
+        left: 2px;
+        top: 2px;
         border-radius: 50%;
-        transition: transform var(--transition);
+        background: var(--text-2);
+        transition:
+          transform var(--fast) var(--ease),
+          background-color var(--fast) var(--ease);
       }
       .toggle input:checked + .toggle-track {
         background: var(--accent);
+        border-color: var(--accent);
       }
       .toggle input:checked + .toggle-track::before {
-        transform: translateX(14px);
+        transform: translateX(12px);
+        background: var(--accent-ink);
+      }
+      .toggle input:focus-visible + .toggle-track {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
       }
 
-      .deskew-result-info {
-        margin-top: 0.75rem;
-        padding: 0.6rem 0.75rem;
-        background: var(--bg-primary);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-xs);
+      .deskew-result {
         display: none;
+        padding-top: 16px;
+        border-top: 1px solid var(--line);
       }
-      .deskew-result-info.visible {
+      .deskew-result.visible {
         display: block;
       }
-      .deskew-angle-label {
-        font-size: 0.68rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        font-weight: 600;
+      .deskew-result-label {
+        font-size: 13px;
+        color: var(--text-2);
       }
-      .deskew-angle-value {
-        font-size: 1.4rem;
-        font-weight: 700;
-        font-family: "JetBrains Mono", monospace;
-        color: var(--accent-secondary);
-        line-height: 1.2;
-        margin-top: 0.1rem;
+      .deskew-result-value {
+        margin-top: 4px;
+        font-family: var(--font-mono);
+        font-size: 28px;
+        line-height: 32px;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+        color: var(--accent);
       }
-      .deskew-angle-sub {
-        font-size: 0.68rem;
-        color: var(--text-muted);
-        margin-top: 0.2rem;
+      .deskew-result-sub {
+        margin-top: 4px;
+        font-size: 13px;
+        color: var(--text-3);
       }
 
-      /* --- Content Area --- */
+      /* --- Content --- */
       .content {
-        display: flex;
-        flex-direction: column;
-        overflow-y: auto;
+        display: grid;
       }
 
-      /* Canvas area */
       .canvas-area {
-        flex: 1;
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1px;
-        background: var(--border);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         min-height: 0;
       }
-
-      @media (max-width: 600px) {
-        .canvas-area {
-          grid-template-columns: 1fr;
-        }
+      .canvas-panel {
+        display: grid;
+        grid-template-rows: 40px minmax(0, 1fr);
+        min-width: 0;
+        min-height: 0;
+      }
+      .canvas-panel + .canvas-panel {
+        border-left: 1px solid var(--line);
       }
 
-      .canvas-panel {
-        position: relative;
-        background: var(--bg-primary);
+      .panel-head {
         display: flex;
         align-items: center;
-        justify-content: center;
+        gap: 12px;
+        min-width: 0;
+        padding: 0 16px;
+        border-bottom: 1px solid var(--line);
+      }
+      .panel-title {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-2);
+      }
+      .panel-meta {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        flex: 1;
+        min-width: 0;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text-3);
+        font-variant-numeric: tabular-nums;
+      }
+      .panel-meta > * {
+        min-width: 0;
         overflow: hidden;
-        min-height: 250px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .meta-skew {
+        color: var(--accent);
       }
 
-      .canvas-panel canvas {
-        max-width: 100%;
-        max-height: 100%;
-        display: block;
+      /* The canvas is sized by the stage, not by the image, so a large or
+         rotated result never resizes the panel */
+      .stage {
+        position: relative;
+        min-height: 0;
+        background: var(--bg);
+      }
+      .stage canvas {
+        position: absolute;
+        inset: 16px;
+        width: calc(100% - 32px);
+        height: calc(100% - 32px);
         object-fit: contain;
       }
-
-      .canvas-label {
-        position: absolute;
-        top: 0.6rem;
-        left: 0.6rem;
-        padding: 0.2rem 0.6rem;
-        background: rgba(0, 0, 0, 0.55);
-        backdrop-filter: blur(8px);
-        border-radius: 100px;
-        font-size: 0.65rem;
-        font-weight: 500;
-        color: var(--text-secondary);
-        z-index: 2;
-      }
-
       .placeholder {
+        position: absolute;
+        inset: 0;
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0.5rem;
+        padding: 16px;
         text-align: center;
-        color: var(--text-muted);
-      }
-      .placeholder svg {
-        width: 36px;
-        height: 36px;
-        opacity: 0.25;
-      }
-      .placeholder p {
-        font-size: 0.78rem;
+        font-size: 13px;
+        color: var(--text-3);
       }
 
-      .timing-badge {
-        position: absolute;
-        bottom: 0.6rem;
-        right: 0.6rem;
-        padding: 0.2rem 0.6rem;
-        background: rgba(0, 0, 0, 0.55);
-        backdrop-filter: blur(8px);
-        border-radius: 100px;
-        font-size: 0.65rem;
-        font-family: "JetBrains Mono", monospace;
-        color: var(--success);
-        z-index: 2;
-        display: none;
-      }
-
-      .angle-badge {
-        position: absolute;
-        bottom: 0.6rem;
-        left: 0.6rem;
-        padding: 0.2rem 0.7rem;
-        background: rgba(0, 0, 0, 0.65);
-        backdrop-filter: blur(8px);
-        border-radius: 100px;
-        font-size: 0.65rem;
-        font-family: "JetBrains Mono", monospace;
-        color: var(--warning);
-        z-index: 2;
-        display: none;
-      }
-
-      /* --- Code Section (bottom, full width) --- */
+      /* --- Code panel --- */
       .code-section {
-        border-top: 1px solid var(--border);
-        background: var(--bg-secondary);
-        padding: 0.75rem 1rem;
+        display: grid;
+        grid-template-rows: 40px minmax(0, 1fr);
+        min-height: 0;
+        background: var(--surface);
+        border-top: 1px solid var(--line);
       }
-
       .code-header {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        margin-bottom: 0.5rem;
+        gap: 12px;
+        padding: 0 8px 0 16px;
+        border-bottom: 1px solid var(--line);
       }
-
       .code-title {
-        font-size: 0.7rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--text-muted);
-      }
-
-      .btn-copy {
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding: 0.3rem 0.7rem;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-xs);
-        background: var(--bg-card);
-        color: var(--text-secondary);
-        font-family: inherit;
-        font-size: 0.7rem;
+        flex: 1;
+        font-size: 13px;
         font-weight: 500;
-        cursor: pointer;
-        transition: all var(--transition);
-      }
-      .btn-copy:hover {
-        border-color: var(--accent);
-        color: var(--text-primary);
-      }
-      .btn-copy.copied {
-        border-color: var(--success);
-        color: var(--success);
-      }
-      .btn-copy svg {
-        width: 13px;
-        height: 13px;
+        color: var(--text-2);
       }
 
       .code-block {
-        background: var(--bg-primary);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
-        padding: 0.75rem 1rem;
-        overflow-x: auto;
-        font-family: "JetBrains Mono", monospace;
-        font-size: 0.73rem;
-        line-height: 1.7;
-        color: var(--text-secondary);
+        min-height: 0;
+        overflow: auto;
+        scrollbar-gutter: stable;
+        overscroll-behavior: contain;
+        padding: 12px 16px;
+        font-family: var(--font-mono);
+        font-size: 13px;
+        line-height: 20px;
+        color: #d4d4d8;
         white-space: pre;
       }
       .code-block .kw {
-        color: #c792ea;
+        color: var(--text-3);
       }
       .code-block .fn {
-        color: #82aaff;
+        color: #e8c27a;
       }
       .code-block .str {
-        color: #c3e88d;
+        color: #a8c48f;
       }
       .code-block .num {
-        color: #f78c6c;
+        color: #8fb8d6;
       }
       .code-block .cm {
-        color: #546e7a;
+        color: var(--text-3);
+      }
+      .code-raw {
+        position: absolute;
+        left: -9999px;
       }
 
-      /* Dropzone overlay */
+      /* --- Drop overlay --- */
       .dropzone-overlay {
         position: fixed;
         inset: 0;
-        z-index: 999;
-        background: rgba(99, 102, 241, 0.08);
-        border: 3px dashed var(--accent);
+        z-index: 10;
         display: none;
         align-items: center;
         justify-content: center;
+        background: rgba(15, 15, 16, 0.8);
         pointer-events: none;
+      }
+      .dropzone-overlay::before {
+        content: "";
+        position: absolute;
+        inset: 16px;
+        border: 1.5px dashed var(--accent);
+        border-radius: 16px;
       }
       .dropzone-overlay.visible {
         display: flex;
       }
       .dropzone-overlay-text {
-        padding: 1rem 2rem;
-        background: var(--bg-card);
-        border-radius: var(--radius);
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--accent-secondary);
-        box-shadow: var(--shadow);
+        padding: 12px 20px;
+        border-radius: 10px;
+        background: var(--surface);
+        font-size: 15px;
+        color: var(--text);
       }
 
       @keyframes fadeIn {
         from {
           opacity: 0;
-          transform: translateY(6px);
+          transform: translateY(8px);
         }
         to {
           opacity: 1;
@@ -752,52 +755,116 @@
         }
       }
       .fade-in {
-        animation: fadeIn 0.3s ease-out forwards;
+        animation: fadeIn 300ms var(--ease) both;
+      }
+
+      @media (hover: hover) {
+        .brand-links a:hover {
+          color: var(--text);
+        }
+        .btn-secondary:hover {
+          border-color: rgba(237, 237, 237, 0.24);
+          background: #2a2a2d;
+        }
+        .btn-primary:hover:not(:disabled) {
+          background: var(--accent-hover);
+        }
+        .mode-tab:hover {
+          color: var(--text-2);
+        }
+        .mode-tab.active:hover {
+          color: var(--text);
+        }
+      }
+
+      /* iOS Safari zooms on focus below 16px */
+      @media (pointer: coarse) {
+        .param-select {
+          font-size: 16px;
+        }
+      }
+
+      /* --- Narrow screens: one column that scrolls --- */
+      @media (max-width: 800px) {
+        .topbar {
+          padding: 8px 16px;
+        }
+        .status {
+          order: 3;
+          width: 100%;
+        }
+        .actions {
+          flex: 1 1 auto;
+          justify-content: flex-end;
+        }
+        .app {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .sidebar {
+          max-height: 50vh;
+          border-right: none;
+          border-bottom: 1px solid var(--line);
+        }
+        .stage {
+          height: 320px;
+        }
+        .code-section {
+          grid-template-rows: 40px auto;
+        }
+        .code-block {
+          max-height: 360px;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .canvas-area {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .canvas-panel + .canvas-panel {
+          border-left: none;
+          border-top: 1px solid var(--line);
+        }
+      }
+
+      @media (min-width: 801px) and (max-height: 559px) {
+        .stage {
+          height: 320px;
+        }
+        .sidebar-panel {
+          max-height: 640px;
+        }
+        .code-block {
+          max-height: 360px;
+        }
       }
     </style>
   </head>
   <body>
-    <!-- Full-page drop overlay -->
     <div class="dropzone-overlay" id="drop-overlay">
-      <div class="dropzone-overlay-text">📷 Drop image to process</div>
+      <div class="dropzone-overlay-text">Drop an image to load it</div>
     </div>
 
-    <!-- Top Bar -->
-    <nav class="topbar">
-      <div class="topbar-brand">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
+    <header class="topbar">
+      <div class="brand">
+        <svg class="icon brand-mark" viewBox="0 0 24 24" aria-hidden="true">
           <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" />
           <line x1="12" y1="22" x2="12" y2="15.5" />
           <polyline points="22 8.5 12 15.5 2 8.5" />
         </svg>
-        ppu-ocv
-        <span class="topbar-badge">v4.0.1</span>
-        <div class="topbar-links">
+        <span class="brand-name">ppu-ocv</span>
+        <span class="brand-version">v4.0.1</span>
+        <nav class="brand-links">
           <a
             href="https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv"
             target="_blank"
             rel="noopener noreferrer"
             title="GitHub"
+            aria-label="ppu-ocv on GitHub"
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
               <path
                 d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"
-              ></path>
+              />
             </svg>
           </a>
           <a
@@ -805,382 +872,139 @@
             target="_blank"
             rel="noopener noreferrer"
             title="npm"
+            aria-label="ppu-ocv on npm"
           >
-            <svg viewBox="0 0 24 24" fill="currentColor">
+            <svg class="icon icon-fill" viewBox="0 0 24 24" aria-hidden="true">
               <path
                 d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H3.334v-4h3.332v4zm4 1.336H8V8.668h2.666v6.666zm10.666-1.336H14.666v-4h2.666v4h1.334v-4h2.666v4z"
               />
             </svg>
           </a>
-        </div>
+        </nav>
       </div>
 
-      <div class="upload-row">
-        <button class="btn-upload" id="btn-upload">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+      <div class="status" role="status">
+        <span class="status-dot loading" id="status-dot"></span>
+        <span class="status-text" id="status-text">Loading OpenCV…</span>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-secondary" id="btn-upload" type="button">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
             <polyline points="17 8 12 3 7 8" />
             <line x1="12" y1="3" x2="12" y2="15" />
           </svg>
-          Upload Image
+          Upload image
         </button>
-        <span class="file-name" id="file-name"></span>
         <input type="file" id="file-input" accept="image/*" />
-        <button class="btn-process" id="btn-process" disabled>▶ Process</button>
+        <button class="btn btn-primary" id="btn-process" type="button" disabled>Process</button>
       </div>
+    </header>
 
-      <div class="status-indicator">
-        <div class="status-dot loading" id="status-dot"></div>
-        <span id="status-text">Loading OpenCV…</span>
-      </div>
-    </nav>
-
-    <!-- App Layout -->
     <div class="app">
-      <!-- Sidebar -->
       <aside class="sidebar">
-        <!-- Mode tabs -->
-        <div class="mode-tabs">
-          <button class="mode-tab active" id="tab-pipeline">Pipeline</button>
-          <button class="mode-tab" id="tab-deskew">Deskew</button>
+        <div class="mode-tabs" role="tablist">
+          <button
+            class="mode-tab active"
+            id="tab-pipeline"
+            type="button"
+            role="tab"
+            aria-selected="true"
+          >
+            Pipeline
+          </button>
+          <button class="mode-tab" id="tab-deskew" type="button" role="tab" aria-selected="false">
+            Deskew
+          </button>
         </div>
 
-        <!-- Pipeline panel -->
         <div class="sidebar-panel" id="panel-pipeline">
-          <div class="section-title">Pipeline Operations</div>
-          <ul class="pipeline-list">
-            <li class="pipeline-item active">
-              <input class="pipeline-checkbox" type="checkbox" id="op-grayscale" checked />
-              <label class="pipeline-label" for="op-grayscale">Grayscale</label>
-              <span class="pipeline-order">1</span>
-            </li>
-            <li class="pipeline-item active">
-              <input class="pipeline-checkbox" type="checkbox" id="op-blur" checked />
-              <label class="pipeline-label" for="op-blur">Gaussian Blur</label>
-              <span class="pipeline-order">2</span>
-              <div class="param-group">
-                <div class="param-row">
-                  <span class="param-label">size</span>
-                  <span class="param-value" id="blur-val">5</span>
-                </div>
-                <input
-                  class="param-slider"
-                  type="range"
-                  id="blur-size"
-                  min="1"
-                  max="31"
-                  step="2"
-                  value="5"
-                />
-              </div>
-            </li>
-            <li class="pipeline-item">
-              <input class="pipeline-checkbox" type="checkbox" id="op-equalize" />
-              <label class="pipeline-label" for="op-equalize">Equalize</label>
-              <span class="pipeline-order">3</span>
-              <div class="param-group">
-                <div class="param-row">
-                  <span class="param-label">method</span>
-                  <select
-                    id="equalize-method"
-                    style="
-                      font-size: 0.68rem;
-                      font-family: &quot;JetBrains Mono&quot;, monospace;
-                      background: var(--bg-secondary);
-                      color: var(--accent-secondary);
-                      border: none;
-                      cursor: pointer;
-                      outline: none;
-                    "
-                  >
-                    <option value="clahe">clahe</option>
-                    <option value="global">global</option>
-                  </select>
-                </div>
-                <div class="param-row" style="margin-top: 0.25rem">
-                  <span class="param-label">clipLimit</span>
-                  <span class="param-value" id="equalize-clip-val">2</span>
-                </div>
-                <input
-                  class="param-slider"
-                  type="range"
-                  id="equalize-clip"
-                  min="1"
-                  max="8"
-                  step="0.5"
-                  value="2"
-                />
-                <div class="param-row" style="margin-top: 0.25rem">
-                  <span class="param-label">tileGridSize</span>
-                  <span class="param-value" id="equalize-tile-val">8</span>
-                </div>
-                <input
-                  class="param-slider"
-                  type="range"
-                  id="equalize-tile"
-                  min="2"
-                  max="32"
-                  step="2"
-                  value="8"
-                />
-              </div>
-            </li>
-            <li class="pipeline-item active">
-              <input class="pipeline-checkbox" type="checkbox" id="op-threshold" checked />
-              <label class="pipeline-label" for="op-threshold">Threshold</label>
-              <span class="pipeline-order">4</span>
-            </li>
-            <li class="pipeline-item">
-              <input class="pipeline-checkbox" type="checkbox" id="op-adaptive-threshold" />
-              <label class="pipeline-label" for="op-adaptive-threshold">Adaptive Threshold</label>
-              <span class="pipeline-order">5</span>
-              <div class="param-group">
-                <div class="param-row">
-                  <span class="param-label">size</span>
-                  <span class="param-value" id="adaptive-threshold-val">7</span>
-                </div>
-                <input
-                  class="param-slider"
-                  type="range"
-                  id="adaptive-threshold-size"
-                  min="3"
-                  max="51"
-                  step="2"
-                  value="7"
-                />
-              </div>
-            </li>
-            <li class="pipeline-item">
-              <input class="pipeline-checkbox" type="checkbox" id="op-invert" />
-              <label class="pipeline-label" for="op-invert">Invert</label>
-              <span class="pipeline-order">6</span>
-            </li>
-            <li class="pipeline-item">
-              <input class="pipeline-checkbox" type="checkbox" id="op-canny" />
-              <label class="pipeline-label" for="op-canny">Canny Edge</label>
-              <span class="pipeline-order">7</span>
-            </li>
-            <li class="pipeline-item">
-              <input class="pipeline-checkbox" type="checkbox" id="op-dilate" />
-              <label class="pipeline-label" for="op-dilate">Dilate</label>
-              <span class="pipeline-order">8</span>
-              <div class="param-group">
-                <div class="param-row">
-                  <span class="param-label">size</span>
-                  <span class="param-value" id="dilate-val">3</span>
-                </div>
-                <input
-                  class="param-slider"
-                  type="range"
-                  id="dilate-size"
-                  min="1"
-                  max="21"
-                  step="2"
-                  value="3"
-                />
-              </div>
-            </li>
-            <li class="pipeline-item">
-              <input class="pipeline-checkbox" type="checkbox" id="op-erode" />
-              <label class="pipeline-label" for="op-erode">Erode</label>
-              <span class="pipeline-order">9</span>
-            </li>
-            <li class="pipeline-item">
-              <input class="pipeline-checkbox" type="checkbox" id="op-morphological-gradient" />
-              <label class="pipeline-label" for="op-morphological-gradient"
-                >Morphological Gradient</label
-              >
-              <span class="pipeline-order">10</span>
-              <div class="param-group">
-                <div class="param-row">
-                  <span class="param-label">size</span>
-                  <span class="param-value" id="morphological-gradient-val">3</span>
-                </div>
-                <input
-                  class="param-slider"
-                  type="range"
-                  id="morphological-gradient-size"
-                  min="1"
-                  max="21"
-                  step="2"
-                  value="3"
-                />
-              </div>
-            </li>
-            <li class="pipeline-item">
-              <input class="pipeline-checkbox" type="checkbox" id="op-resize" />
-              <label class="pipeline-label" for="op-resize">Resize</label>
-              <span class="pipeline-order">11</span>
-              <div class="param-group">
-                <div class="param-row">
-                  <span class="param-label">scale (%)</span>
-                  <span class="param-value" id="resize-val">50</span>
-                </div>
-                <input
-                  class="param-slider"
-                  type="range"
-                  id="resize-scale"
-                  min="10"
-                  max="200"
-                  step="10"
-                  value="50"
-                />
-              </div>
-            </li>
-            <li class="pipeline-item">
-              <input class="pipeline-checkbox" type="checkbox" id="op-border" />
-              <label class="pipeline-label" for="op-border">Border</label>
-              <span class="pipeline-order">12</span>
-              <div class="param-group">
-                <div class="param-row">
-                  <span class="param-label">size</span>
-                  <span class="param-value" id="border-val">10</span>
-                </div>
-                <input
-                  class="param-slider"
-                  type="range"
-                  id="border-size"
-                  min="1"
-                  max="100"
-                  step="1"
-                  value="10"
-                />
-              </div>
-            </li>
-            <li class="pipeline-item">
-              <input class="pipeline-checkbox" type="checkbox" id="op-rotate" />
-              <label class="pipeline-label" for="op-rotate">Rotate</label>
-              <span class="pipeline-order">13</span>
-              <div class="param-group">
-                <div class="param-row">
-                  <span class="param-label">angle</span>
-                  <span class="param-value" id="rotate-val">10</span>
-                </div>
-                <input
-                  class="param-slider"
-                  type="range"
-                  id="rotate-angle"
-                  min="-180"
-                  max="180"
-                  step="1"
-                  value="10"
-                />
-              </div>
-            </li>
-          </ul>
+          <h2 class="section-title">Operations</h2>
+          <!-- Rows are rendered from OPERATIONS in the script below -->
+          <ul class="op-list" id="op-list"></ul>
         </div>
 
-        <!-- Deskew panel -->
         <div class="sidebar-panel hidden" id="panel-deskew">
-          <div class="section-title">Deskew Settings</div>
-          <div class="deskew-settings">
-            <div class="deskew-field">
-              <div class="param-row">
-                <span class="param-label">minimumAreaThreshold</span>
-                <span class="param-value" id="deskew-area-val">20</span>
-              </div>
-              <input
-                class="param-slider"
-                type="range"
-                id="deskew-area"
-                min="5"
-                max="200"
-                step="5"
-                value="20"
-              />
-              <div class="toggle-desc" style="margin-top: 0.3rem">
-                Min contour area (px) for text region detection
-              </div>
+          <h2 class="section-title">Options</h2>
+          <div class="fields">
+            <div class="field">
+              <label class="param" for="deskew-area">
+                <span class="param-name">minimumAreaThreshold</span>
+                <output class="param-value" id="deskew-area-val">20</output>
+                <input
+                  class="slider"
+                  type="range"
+                  id="deskew-area"
+                  min="5"
+                  max="200"
+                  step="5"
+                  value="20"
+                />
+                <span class="param-hint">Minimum contour area in pixels for a text region</span>
+              </label>
             </div>
 
-            <div class="deskew-field">
+            <div class="field">
               <div class="toggle-row">
-                <div>
-                  <div class="toggle-label">Verbose</div>
-                  <div class="toggle-desc">Log analysis steps to console</div>
+                <div class="toggle-text">
+                  <div id="deskew-verbose-label">Verbose</div>
+                  <div class="toggle-desc">Logs each analysis step to the console</div>
                 </div>
-                <label class="toggle">
-                  <input type="checkbox" id="deskew-verbose" />
+                <span class="toggle">
+                  <input
+                    type="checkbox"
+                    id="deskew-verbose"
+                    aria-labelledby="deskew-verbose-label"
+                  />
                   <span class="toggle-track"></span>
-                </label>
+                </span>
               </div>
             </div>
 
-            <div class="deskew-result-info" id="deskew-result-info">
-              <div class="deskew-angle-label">Detected Skew</div>
-              <div class="deskew-angle-value" id="deskew-angle-value">—</div>
-              <div class="deskew-angle-sub" id="deskew-angle-sub"></div>
+            <div class="deskew-result" id="deskew-result-info">
+              <div class="deskew-result-label">Detected skew</div>
+              <div class="deskew-result-value" id="deskew-angle-value">—</div>
+              <div class="deskew-result-sub" id="deskew-angle-sub"></div>
             </div>
           </div>
         </div>
       </aside>
 
-      <!-- Main Content -->
-      <div class="content">
-        <!-- Canvas Results -->
+      <main class="content">
         <div class="canvas-area">
-          <div class="canvas-panel" id="original-panel">
-            <div class="canvas-label">Original</div>
-            <div class="placeholder" id="original-placeholder">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-              >
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21 15 16 10 5 21" />
-              </svg>
-              <p>Upload an image to begin</p>
+          <section class="canvas-panel" id="original-panel">
+            <div class="panel-head">
+              <h2 class="panel-title">Original</h2>
+              <div class="panel-meta">
+                <span id="file-name"></span>
+              </div>
             </div>
-            <canvas id="original-canvas" style="display: none"></canvas>
-            <div class="angle-badge" id="angle-badge"></div>
-          </div>
-          <div class="canvas-panel" id="result-panel">
-            <div class="canvas-label" id="result-label">Processed</div>
-            <div class="placeholder" id="result-placeholder">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-              >
-                <path
-                  d="M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7m0-18H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7m0-18v18"
-                />
-              </svg>
-              <p>Result will appear here</p>
+            <div class="stage">
+              <p class="placeholder" id="original-placeholder">Upload or drop an image</p>
+              <canvas id="original-canvas" style="display: none"></canvas>
             </div>
-            <canvas id="result-canvas" style="display: none"></canvas>
-            <div class="timing-badge" id="timing-badge"></div>
-          </div>
+          </section>
+          <section class="canvas-panel" id="result-panel">
+            <div class="panel-head">
+              <h2 class="panel-title" id="result-label">Processed</h2>
+              <div class="panel-meta">
+                <span class="meta-skew" id="angle-badge" style="display: none"></span>
+                <span id="timing-badge" style="display: none"></span>
+              </div>
+            </div>
+            <div class="stage">
+              <p class="placeholder" id="result-placeholder">The result appears here after a run</p>
+              <canvas id="result-canvas" style="display: none"></canvas>
+            </div>
+          </section>
         </div>
 
-        <!-- Code Preview -->
-        <div class="code-section">
+        <section class="code-section">
           <div class="code-header">
-            <span class="code-title">Generated Code</span>
-            <button class="btn-copy" id="btn-copy">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
+            <h2 class="code-title">Code</h2>
+            <button class="btn btn-secondary btn-small btn-copy" id="btn-copy" type="button">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
               </svg>
@@ -1188,16 +1012,164 @@
             </button>
           </div>
           <pre class="code-block" id="code-preview"></pre>
-          <textarea
-            id="code-raw"
-            style="position: absolute; left: -9999px"
-            aria-hidden="true"
-          ></textarea>
-        </div>
-      </div>
+          <textarea class="code-raw" id="code-raw" aria-hidden="true" tabindex="-1"></textarea>
+        </section>
+      </main>
     </div>
 
     <script type="module">
+      // -- Operations --
+      // One entry per pipeline operation. To add an operation to the
+      // playground, add an entry here: the sidebar row, its parameters, the
+      // run, and the generated code all read from this table. Entries run in
+      // table order.
+
+      /**
+       * @typedef {{ kind: "range", key: string, label?: string, min: number, max: number, step: number, value: number }} RangeParam
+       * @typedef {{ kind: "select", key: string, options: string[], value: string }} SelectParam
+       * @typedef {RangeParam | SelectParam} Param
+       * @typedef {Record<string, number | string>} ParamValues
+       * @typedef {(processor: { width: number, height: number }) => object} SizedOpts
+       *   Options that depend on the image size at that point in the pipeline.
+       * @typedef {{
+       *   method: string,
+       *   label: string,
+       *   checked?: boolean,
+       *   params?: Param[],
+       *   opts?: (v: ParamValues) => object | SizedOpts,
+       *   previewArgs?: (v: ParamValues) => string,
+       * }} Operation
+       *   method is the ImageProcessor method name. previewArgs is the code
+       *   shown for options that opts computes at run time.
+       */
+
+      /** @type {(key: string, min: number, max: number, step: number, value: number, label?: string) => RangeParam} */
+      const range = (key, min, max, step, value, label) => ({
+        kind: "range",
+        key,
+        label,
+        min,
+        max,
+        step,
+        value,
+      });
+
+      /** @type {Operation[]} */
+      const OPERATIONS = [
+        { method: "grayscale", label: "Grayscale", checked: true },
+        {
+          method: "blur",
+          label: "Gaussian blur",
+          checked: true,
+          params: [range("size", 1, 31, 2, 5)],
+          opts: (v) => ({ size: [v.size, v.size] }),
+        },
+        {
+          method: "equalize",
+          label: "Equalize",
+          params: [
+            { kind: "select", key: "method", options: ["clahe", "global"], value: "clahe" },
+            range("clipLimit", 1, 8, 0.5, 2),
+            range("tileGridSize", 2, 32, 2, 8),
+          ],
+          opts: (v) => ({ method: v.method, clipLimit: v.clipLimit, tileGridSize: v.tileGridSize }),
+        },
+        { method: "threshold", label: "Threshold", checked: true },
+        {
+          method: "adaptiveThreshold",
+          label: "Adaptive threshold",
+          params: [range("size", 3, 51, 2, 7)],
+          opts: (v) => ({ size: v.size }),
+        },
+        { method: "invert", label: "Invert" },
+        { method: "canny", label: "Canny edge" },
+        {
+          method: "dilate",
+          label: "Dilate",
+          params: [range("size", 1, 21, 2, 3)],
+          opts: (v) => ({ size: [v.size, v.size] }),
+        },
+        { method: "erode", label: "Erode" },
+        {
+          method: "morphologicalGradient",
+          label: "Morphological gradient",
+          params: [range("size", 1, 21, 2, 3)],
+          opts: (v) => ({ size: [v.size, v.size] }),
+        },
+        {
+          method: "resize",
+          label: "Resize",
+          params: [range("scale", 10, 200, 10, 50, "scale (%)")],
+          opts: (v) => {
+            const scale = v.scale / 100;
+            return (processor) => ({
+              width: Math.max(1, Math.round(processor.width * scale)),
+              height: Math.max(1, Math.round(processor.height * scale)),
+            });
+          },
+          previewArgs: (v) => {
+            const scale = v.scale / 100;
+            return `{ width: Math.round(processor.width * ${scale}), height: Math.round(processor.height * ${scale}) }`;
+          },
+        },
+        {
+          method: "border",
+          label: "Border",
+          params: [range("size", 1, 100, 1, 10)],
+          opts: (v) => ({ size: v.size }),
+        },
+        {
+          method: "rotate",
+          label: "Rotate",
+          params: [range("angle", -180, 180, 1, 10)],
+          opts: (v) => ({ angle: v.angle }),
+        },
+      ];
+
+      const paramId = (op, param) => `${op.method}-${param.key}`;
+
+      function renderParam(op, param) {
+        const id = paramId(op, param);
+        if (param.kind === "select") {
+          const options = param.options
+            .map((o) => `<option value="${o}"${o === param.value ? " selected" : ""}>${o}</option>`)
+            .join("");
+          return `<label class="param" for="${id}"><span class="param-name">${param.key}</span><select class="param-select" id="${id}">${options}</select></label>`;
+        }
+        return `<label class="param" for="${id}">
+          <span class="param-name">${param.label ?? param.key}</span>
+          <output class="param-value" id="${id}-val">${param.value}</output>
+          <input class="slider" type="range" id="${id}" min="${param.min}" max="${param.max}" step="${param.step}" value="${param.value}" />
+        </label>`;
+      }
+
+      function renderOperation(op) {
+        const params = op.params
+          ? `<div class="op-params">${op.params.map((p) => renderParam(op, p)).join("")}</div>`
+          : "";
+        return `<li class="op${op.checked ? " active" : ""}">
+          <label class="op-head">
+            <input class="checkbox" type="checkbox" id="op-${op.method}"${op.checked ? " checked" : ""} />
+            <span class="op-label">${op.label}</span>
+            <code class="op-call">${op.method}()</code>
+          </label>
+          ${params}
+        </li>`;
+      }
+
+      const opList = document.getElementById("op-list");
+      opList.innerHTML = OPERATIONS.map(renderOperation).join("");
+
+      /** @returns {ParamValues} */
+      function readParams(op) {
+        const values = {};
+        for (const param of op.params ?? []) {
+          const el = document.getElementById(paramId(op, param));
+          values[param.key] = param.kind === "range" ? Number(el.value) : el.value;
+        }
+        return values;
+      }
+
       let ImageProcessor, CanvasProcessor, DeskewService, cv;
       try {
         // Try local build first (for development)
@@ -1232,25 +1204,6 @@
       const codeRaw = document.getElementById("code-raw");
       const timingBadge = document.getElementById("timing-badge");
       const angleBadge = document.getElementById("angle-badge");
-      const blurSlider = document.getElementById("blur-size");
-      const blurValEl = document.getElementById("blur-val");
-      const dilateSlider = document.getElementById("dilate-size");
-      const dilateValEl = document.getElementById("dilate-val");
-      const adaptiveThresholdSlider = document.getElementById("adaptive-threshold-size");
-      const adaptiveThresholdValEl = document.getElementById("adaptive-threshold-val");
-      const gradientSlider = document.getElementById("morphological-gradient-size");
-      const gradientValEl = document.getElementById("morphological-gradient-val");
-      const resizeSlider = document.getElementById("resize-scale");
-      const resizeValEl = document.getElementById("resize-val");
-      const borderSlider = document.getElementById("border-size");
-      const borderValEl = document.getElementById("border-val");
-      const rotateSlider = document.getElementById("rotate-angle");
-      const rotateValEl = document.getElementById("rotate-val");
-      const equalizeMethod = document.getElementById("equalize-method");
-      const equalizeClipSlider = document.getElementById("equalize-clip");
-      const equalizeClipValEl = document.getElementById("equalize-clip-val");
-      const equalizeTileSlider = document.getElementById("equalize-tile");
-      const equalizeTileValEl = document.getElementById("equalize-tile-val");
       const dropOverlay = document.getElementById("drop-overlay");
       const btnCopy = document.getElementById("btn-copy");
       const copyLabel = document.getElementById("copy-label");
@@ -1308,9 +1261,11 @@
         currentMode = mode;
         tabPipeline.classList.toggle("active", mode === "pipeline");
         tabDeskew.classList.toggle("active", mode === "deskew");
+        tabPipeline.setAttribute("aria-selected", String(mode === "pipeline"));
+        tabDeskew.setAttribute("aria-selected", String(mode === "deskew"));
         panelPipeline.classList.toggle("hidden", mode !== "pipeline");
         panelDeskew.classList.toggle("hidden", mode !== "deskew");
-        btnProcess.textContent = mode === "deskew" ? "▶ Deskew" : "▶ Process";
+        btnProcess.textContent = mode === "deskew" ? "Deskew" : "Process";
         resultLabel.textContent = mode === "deskew" ? "Deskewed" : "Processed";
         angleBadge.style.display = "none";
         timingBadge.style.display = "none";
@@ -1351,8 +1306,7 @@
           setStatus("error", "Invalid file");
           return;
         }
-        setStatus("loading", "Loading…");
-        fileNameEl.textContent = file.name;
+        setStatus("loading", "Loading image…");
 
         const arrayBuffer = await file.arrayBuffer();
         const blob = new Blob([arrayBuffer], { type: file.type });
@@ -1372,99 +1326,45 @@
           timingBadge.style.display = "none";
           resultCanvas.style.display = "none";
           resultPlaceholder.style.display = "";
-          setStatus("ready", `${img.width}×${img.height}`);
+          fileNameEl.textContent = `${file.name} · ${img.width}×${img.height}`;
+          setStatus("ready", "Ready");
         };
         img.src = url;
       }
 
-      // -- Sliders --
-      const sliderValues = [
-        [blurSlider, blurValEl],
-        [dilateSlider, dilateValEl],
-        [equalizeClipSlider, equalizeClipValEl],
-        [equalizeTileSlider, equalizeTileValEl],
-        [adaptiveThresholdSlider, adaptiveThresholdValEl],
-        [gradientSlider, gradientValEl],
-        [resizeSlider, resizeValEl],
-        [borderSlider, borderValEl],
-        [rotateSlider, rotateValEl],
-        [deskewAreaSlider, deskewAreaValEl],
-      ];
-      for (const [slider, valueEl] of sliderValues) {
-        slider.addEventListener("input", () => {
-          valueEl.textContent = slider.value;
-          updateCodePreview();
-        });
-      }
-      equalizeMethod.addEventListener("change", () => updateCodePreview());
-      deskewVerbose.addEventListener("change", () => updateCodePreview());
-
-      // -- Checkboxes --
-      document.querySelectorAll(".pipeline-checkbox").forEach((cb) => {
-        cb.addEventListener("change", () => {
-          cb.closest(".pipeline-item").classList.toggle("active", cb.checked);
-          updateCodePreview();
-        });
+      // -- Parameters and checkboxes --
+      opList.addEventListener("input", (e) => {
+        if (e.target.type !== "range") return;
+        document.getElementById(`${e.target.id}-val`).textContent = e.target.value;
+        updateCodePreview();
       });
+      opList.addEventListener("change", (e) => {
+        if (e.target.type === "checkbox") {
+          e.target.closest(".op").classList.toggle("active", e.target.checked);
+        }
+        updateCodePreview();
+      });
+      deskewAreaSlider.addEventListener("input", () => {
+        deskewAreaValEl.textContent = deskewAreaSlider.value;
+        updateCodePreview();
+      });
+      deskewVerbose.addEventListener("change", () => updateCodePreview());
 
       // -- Pipeline steps --
       // A step's opts is an object, or a function of the processor for
       // options that depend on the image size at that point in the pipeline.
       // previewArgs is then the code shown for those options.
       function getActiveSteps() {
-        const checked = (id) => document.getElementById(`op-${id}`).checked;
-        const steps = [];
-        if (checked("grayscale")) steps.push({ name: "grayscale" });
-        if (checked("blur")) {
-          const bsz = parseInt(blurSlider.value);
-          steps.push({ name: "blur", opts: { size: [bsz, bsz] } });
-        }
-        if (checked("equalize")) {
-          steps.push({
-            name: "equalize",
-            opts: {
-              method: equalizeMethod.value,
-              clipLimit: parseFloat(equalizeClipSlider.value),
-              tileGridSize: parseInt(equalizeTileSlider.value),
-            },
-          });
-        }
-        if (checked("threshold")) steps.push({ name: "threshold" });
-        if (checked("adaptive-threshold")) {
-          steps.push({
-            name: "adaptiveThreshold",
-            opts: { size: parseInt(adaptiveThresholdSlider.value) },
-          });
-        }
-        if (checked("invert")) steps.push({ name: "invert" });
-        if (checked("canny")) steps.push({ name: "canny" });
-        if (checked("dilate")) {
-          const sz = parseInt(dilateSlider.value);
-          steps.push({ name: "dilate", opts: { size: [sz, sz] } });
-        }
-        if (checked("erode")) steps.push({ name: "erode" });
-        if (checked("morphological-gradient")) {
-          const gsz = parseInt(gradientSlider.value);
-          steps.push({ name: "morphologicalGradient", opts: { size: [gsz, gsz] } });
-        }
-        if (checked("resize")) {
-          const scale = parseInt(resizeSlider.value) / 100;
-          steps.push({
-            name: "resize",
-            opts: (processor) => ({
-              width: Math.max(1, Math.round(processor.width * scale)),
-              height: Math.max(1, Math.round(processor.height * scale)),
-            }),
-            previewArgs: `{ width: Math.round(processor.width * ${scale}), height: Math.round(processor.height * ${scale}) }`,
-          });
-        }
-        if (checked("border")) {
-          steps.push({ name: "border", opts: { size: parseInt(borderSlider.value) } });
-        }
-        if (checked("rotate")) {
-          steps.push({ name: "rotate", opts: { angle: parseInt(rotateSlider.value) } });
-        }
-        return steps;
+        return OPERATIONS.filter((op) => document.getElementById(`op-${op.method}`).checked).map(
+          (op) => {
+            const values = readParams(op);
+            return {
+              name: op.method,
+              opts: op.opts?.(values),
+              previewArgs: op.previewArgs?.(values),
+            };
+          }
+        );
       }
 
       // -- Code preview --
@@ -1555,7 +1455,7 @@
       btnCopy.addEventListener("click", async () => {
         try {
           await navigator.clipboard.writeText(codeRaw.value);
-          copyLabel.textContent = "Copied!";
+          copyLabel.textContent = "Copied";
           btnCopy.classList.add("copied");
           setTimeout(() => {
             copyLabel.textContent = "Copy";
@@ -1564,12 +1464,19 @@
         } catch {
           codeRaw.select();
           document.execCommand("copy");
-          copyLabel.textContent = "Copied!";
+          copyLabel.textContent = "Copied";
           setTimeout(() => {
             copyLabel.textContent = "Copy";
           }, 1500);
         }
       });
+
+      // Restart the entrance animation on every new result
+      function replayFadeIn(el) {
+        el.classList.remove("fade-in");
+        void el.offsetWidth;
+        el.classList.add("fade-in");
+      }
 
       // -- Process --
       btnProcess.addEventListener("click", async () => {
@@ -1612,14 +1519,14 @@
           resultCanvas.getContext("2d").drawImage(output, 0, 0);
           resultCanvas.style.display = "block";
           resultPlaceholder.style.display = "none";
-          resultCanvas.className = "fade-in";
+          replayFadeIn(resultCanvas);
 
           angleBadge.style.display = "none";
-          timingBadge.textContent = `${elapsed} ms`;
+          timingBadge.textContent = `${resultCanvas.width}×${resultCanvas.height} · ${elapsed} ms`;
           timingBadge.style.display = "block";
 
           processor.destroy();
-          setStatus("ready", `Done in ${elapsed}ms`);
+          setStatus("ready", `Done in ${elapsed} ms`);
         } catch (err) {
           console.error(err);
           setStatus("error", err.message);
@@ -1657,14 +1564,14 @@
           resultCanvas.getContext("2d").drawImage(deskewed, 0, 0);
           resultCanvas.style.display = "block";
           resultPlaceholder.style.display = "none";
-          resultCanvas.className = "fade-in";
+          replayFadeIn(resultCanvas);
 
-          // Angle badge on original
+          // Skew angle in the result header
           const sign = angle > 0 ? "+" : "";
-          angleBadge.textContent = `Skew: ${sign}${angle.toFixed(2)}°`;
+          angleBadge.textContent = `Skew ${sign}${angle.toFixed(2)}°`;
           angleBadge.style.display = "block";
 
-          timingBadge.textContent = `${elapsed} ms`;
+          timingBadge.textContent = `${resultCanvas.width}×${resultCanvas.height} · ${elapsed} ms`;
           timingBadge.style.display = "block";
 
           // Sidebar result info
@@ -1675,7 +1582,7 @@
               : `Rotated by ${sign}${(-angle).toFixed(2)}° to correct`;
           deskewResultInfo.classList.add("visible");
 
-          setStatus("ready", `Deskewed in ${elapsed}ms`);
+          setStatus("ready", `Deskewed in ${elapsed} ms`);
         } catch (err) {
           console.error(err);
           setStatus("error", err.message);
