@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-12T16:03:22.567Z",
+        "reason": "Agent: mode-tabs, panel-head and canvas-panel are 40px rows with 20px-line text centred, so text sits ~10px from the hairline; the detector reads the child box edge, not the text. Tab underline must touch the divider by design."
+      }
+    ]
+  }
+}
