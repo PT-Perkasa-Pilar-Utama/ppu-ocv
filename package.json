@@ -1,6 +1,6 @@
 {
   "name": "ppu-ocv",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "A type-safe, modular, chainable image processing library built on top of OpenCV.js with a fluent API leveraging pipeline processing.",
   "keywords": [
     "open-cv",
