@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test } from "bun:test";
+import { beforeAll, describe, expect, spyOn, test } from "bun:test";
 import { CanvasProcessor, createCanvas, cv, DeskewService, ImageProcessor } from "../src";
 import { calculateHoughAngles } from "../src/deskew-angles";
 import { recordKernels } from "./support/record-kernels.js";
@@ -175,4 +175,29 @@ test("calculateHoughAngles frees its kernel when the transform fails", () => {
   expect(angles).toEqual([]);
   expect(kernels).toHaveLength(1);
   expect(kernels.every((kernel) => kernel.isDeleted())).toBe(true);
+});
+
+// The Hough step reads the binary Mat, so calculateSkewAngle must keep that
+// Mat alive until the step has run. When it was freed first, the step failed
+// on every call and only logged the failure.
+test("calculateSkewAngle runs the Hough step on a live Mat", async () => {
+  const canvas = createCanvas(200, 100);
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, 200, 100);
+  ctx.fillStyle = "white";
+  ctx.fillRect(10, 10, 60, 8);
+  ctx.fillRect(10, 40, 60, 8);
+
+  const log = spyOn(console, "log").mockImplementation(() => {});
+  let messages: string[];
+  try {
+    await new DeskewService({ verbose: true }).calculateSkewAngle(canvas);
+    messages = log.mock.calls.map((call) => String(call[0]));
+  } finally {
+    log.mockRestore();
+  }
+
+  expect(messages.some((message) => message.includes("Found 2 text regions"))).toBe(true);
+  expect(messages.some((message) => message.includes("Hough transform failed"))).toBe(false);
 });

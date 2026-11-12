@@ -80,95 +80,16 @@ export class DeskewService {
    * @returns The calculated skew angle in degrees (positive = clockwise, negative = counter-clockwise)
    */
   async calculateSkewAngle(canvas: CanvasLike): Promise<number> {
-    const processor = new ImageProcessor(canvas);
-    const mat = processor
-      .grayscale()
-      .threshold({
-        lower: 0,
-        upper: 255,
-        type: cv.THRESH_BINARY + cv.THRESH_OTSU,
-      })
-      .toMat();
-
-    const contours = new Contours(mat, {
-      mode: cv.RETR_LIST,
-      method: cv.CHAIN_APPROX_SIMPLE,
-    });
-
-    processor.destroy();
-
     const minAngle = -20;
     const maxAngle = 20;
-    const minArea = this.minimumAreaThreshold;
 
-    const textRegions: Array<{
-      rect: { x: number; y: number; width: number; height: number };
-      contour: cv.Mat;
-      area: number;
-      aspectRatio: number;
-    }> = [];
-
-    let minRectAngles: WeightedAngle[];
-    let baselineAngles: WeightedAngle[];
-    let houghAngles: WeightedAngle[];
-
-    // Each contour from iterate() is a Mat the GC never frees: dropped ones
-    // are deleted in the callback, kept ones in the finally.
-    try {
-      contours.iterate((contour: cv.Mat) => {
-        const rect = contours.getRect(contour);
-        const area = rect.width * rect.height;
-        const aspectRatio = rect.width / rect.height;
-
-        if (area >= minArea && aspectRatio > 0.2 && aspectRatio < 10) {
-          textRegions.push({
-            rect,
-            contour,
-            area,
-            aspectRatio,
-          });
-        } else {
-          contour.delete();
-        }
-      });
-
-      if (textRegions.length === 0) {
-        this.log("No valid text regions found for skew calculation.");
-        return 0;
-      }
-
-      const averageHeight =
-        textRegions.reduce((sum, region) => sum + region.rect.height, 0) / textRegions.length;
-
-      const filteredRegions = textRegions.filter((region) => {
-        return region.rect.height <= averageHeight * 1.5;
-      });
-
-      this.log(`Found ${filteredRegions.length} text regions for skew analysis.`);
-
-      minRectAngles = calculateMinRectAngles(filteredRegions);
-
-      baselineAngles = calculateBaselineAngles(filteredRegions);
-
-      houghAngles = calculateHoughAngles(mat, minAngle, maxAngle, (m) => this.log(m));
-    } finally {
-      for (const region of textRegions) region.contour.delete();
-      contours.destroy();
-    }
+    const measured = this.measureAngles(canvas, minAngle, maxAngle);
+    if (!measured) return 0;
 
     const allAngles: Array<{ angle: number; weight: number; method: string }> = [
-      ...minRectAngles.map((a: { angle: number; weight: number }) => ({
-        ...a,
-        method: "minRect",
-      })),
-      ...baselineAngles.map((a: { angle: number; weight: number }) => ({
-        ...a,
-        method: "baseline",
-      })),
-      ...houghAngles.map((a: { angle: number; weight: number }) => ({
-        ...a,
-        method: "hough",
-      })),
+      ...measured.minRect.map((a) => ({ ...a, method: "minRect" })),
+      ...measured.baseline.map((a) => ({ ...a, method: "baseline" })),
+      ...measured.hough.map((a) => ({ ...a, method: "hough" })),
     ];
 
     if (allAngles.length === 0) {
@@ -185,6 +106,94 @@ export class DeskewService {
     );
 
     return consensusAngle;
+  }
+
+  /**
+   * Binarizes the image, picks text-like contours, and measures their angles
+   * with the minRect, baseline, and Hough methods.
+   *
+   * Every OpenCV object here lives on the WASM heap and the GC never frees
+   * it, so each one is freed in a finally. The binary Mat stays alive until
+   * the Hough step has read it.
+   *
+   * @returns The angles from each method, or null when no contour passes the
+   * text-region filters.
+   */
+  private measureAngles(
+    canvas: CanvasLike,
+    minAngle: number,
+    maxAngle: number
+  ): { minRect: WeightedAngle[]; baseline: WeightedAngle[]; hough: WeightedAngle[] } | null {
+    const processor = new ImageProcessor(canvas);
+
+    try {
+      const mat = processor
+        .grayscale()
+        .threshold({
+          lower: 0,
+          upper: 255,
+          type: cv.THRESH_BINARY + cv.THRESH_OTSU,
+        })
+        .toMat();
+
+      const contours = new Contours(mat, {
+        mode: cv.RETR_LIST,
+        method: cv.CHAIN_APPROX_SIMPLE,
+      });
+
+      const minArea = this.minimumAreaThreshold;
+      const textRegions: Array<{
+        rect: { x: number; y: number; width: number; height: number };
+        contour: cv.Mat;
+        area: number;
+        aspectRatio: number;
+      }> = [];
+
+      // Dropped contours are deleted in the callback, kept ones in the finally.
+      try {
+        contours.iterate((contour: cv.Mat) => {
+          const rect = contours.getRect(contour);
+          const area = rect.width * rect.height;
+          const aspectRatio = rect.width / rect.height;
+
+          if (area >= minArea && aspectRatio > 0.2 && aspectRatio < 10) {
+            textRegions.push({
+              rect,
+              contour,
+              area,
+              aspectRatio,
+            });
+          } else {
+            contour.delete();
+          }
+        });
+
+        if (textRegions.length === 0) {
+          this.log("No valid text regions found for skew calculation.");
+          return null;
+        }
+
+        const averageHeight =
+          textRegions.reduce((sum, region) => sum + region.rect.height, 0) / textRegions.length;
+
+        const filteredRegions = textRegions.filter((region) => {
+          return region.rect.height <= averageHeight * 1.5;
+        });
+
+        this.log(`Found ${filteredRegions.length} text regions for skew analysis.`);
+
+        return {
+          minRect: calculateMinRectAngles(filteredRegions),
+          baseline: calculateBaselineAngles(filteredRegions),
+          hough: calculateHoughAngles(mat, minAngle, maxAngle, (m) => this.log(m)),
+        };
+      } finally {
+        for (const region of textRegions) region.contour.delete();
+        contours.destroy();
+      }
+    } finally {
+      processor.destroy();
+    }
   }
 
   /**

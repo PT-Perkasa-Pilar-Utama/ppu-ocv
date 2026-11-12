@@ -13,9 +13,14 @@
   - `DeskewService.calculateSkewAngle()` kept every contour it read. It now
     frees them, also when it throws.
   - The Hough step of `calculateSkewAngle()` kept its three Mats whenever it
-    failed, and it fails on every call because its input Mat is already
-    deleted. It now frees them. The angle it returns is unchanged.
+    failed. It now frees them in every case.
   - `dilate()`, `erode()`, and `morphologicalGradient()` kept their kernel.
+- **`DeskewService.calculateSkewAngle()` now uses its Hough line step.** The
+  binary image was freed before the step read it, so the step failed on every
+  call and the angle came from the minRect and baseline methods alone. The
+  returned angle changed by up to 1.4 degrees. On four assets rotated by
+  -10 to +10 degrees, the mean error stayed about the same (3.12 degrees
+  before, 3.08 after, over 24 readings).
 - OpenCV objects are freed when an OpenCV call throws. Before, every image
   operation leaked its output Mat, `rotate` and `warp` also leaked their
   transform matrices, `equalize` its CLAHE object, the `Contours` constructor
