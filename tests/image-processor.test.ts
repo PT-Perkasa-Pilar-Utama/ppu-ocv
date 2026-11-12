@@ -1,5 +1,6 @@
 import { beforeAll, expect, test } from "bun:test";
 import { Canvas, CanvasProcessor, createCanvas, cv, ImageProcessor } from "../src/index.js";
+import { recordKernels } from "./support/record-kernels.js";
 
 beforeAll(async () => {
   await ImageProcessor.initRuntime();
@@ -155,4 +156,19 @@ test("execute throws for unknown operation", () => {
     // @ts-expect-error -- testing invalid input behaviour
     processor.execute("unknownOperation", {});
   }).toThrow(/^Operation "unknownOperation" not found in registry$/);
+});
+
+// The structuring element is a Mat on the WASM heap that the GC never frees,
+// so a morphology step that keeps it leaks one kernel per call.
+test("morphology operations free their kernel", () => {
+  const processor = new ImageProcessor(new cv.Mat(20, 20, cv.CV_8UC1, new cv.Scalar(0)));
+  let kernels: cv.Mat[];
+  try {
+    kernels = recordKernels(() => processor.dilate().erode().morphologicalGradient());
+  } finally {
+    processor.destroy();
+  }
+
+  expect(kernels).toHaveLength(3);
+  expect(kernels.every((kernel) => kernel.isDeleted())).toBe(true);
 });

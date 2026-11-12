@@ -77,7 +77,8 @@ export class Contours {
   /**
    * Get contour at a specific index.
    * @param index - The index of the contour to get.
-   * @returns The contour at the specified index (cv.Mat).
+   * @returns The contour at the specified index (cv.Mat), or an empty Mat when
+   * the index is out of range. Either way it is a new Mat the caller must delete.
    */
   getFromIndex(index: number): cv.Mat {
     if (index < this.contours.size()) {
@@ -98,9 +99,21 @@ export class Contours {
 
   /**
    * Iterate over all contours and call the callback function for each contour.
+   *
+   * Each contour is a new `cv.Mat` on the OpenCV heap, and neither the
+   * garbage collector nor `destroy()` frees it. The callback owns it: call
+   * `contour.delete()` when done, or keep it and delete it later.
    * @param callback - The callback function to call for each contour.
    * The callback function takes a contour as a parameter.
    * @returns void
+   * @example
+   * contours.iterate((contour) => {
+   *   try {
+   *     boxes.push(contours.getRect(contour));
+   *   } finally {
+   *     contour.delete();
+   *   }
+   * });
    */
   // oxlint-disable-next-line typescript/no-explicit-any -- callback return value intentionally discarded
   iterate(callback: (contour: cv.Mat) => any): Contours {
@@ -114,22 +127,30 @@ export class Contours {
 
   /**
    * Get the largest contour area.
-   * @returns The largest contour area (cv.Mat).
+   * @returns The largest contour area (cv.Mat), which the caller must delete.
    */
   getLargestContourArea(): cv.Mat | null {
     let maxArea = 0;
-    let largestContour: cv.Mat | null = null;
+    let largestIndex = -1;
 
-    this.iterate((contour) => {
-      const area = cv.contourArea(contour);
+    // Each get() returns a new Mat, so every contour is freed after its area
+    // is read and only the largest one is fetched again for the caller.
+    for (let i = 0, len = this.getSize(); i < len; i++) {
+      const contour = this.contours.get(i);
 
-      if (area > maxArea) {
-        maxArea = area;
-        largestContour = contour;
+      try {
+        const area = cv.contourArea(contour);
+
+        if (area > maxArea) {
+          maxArea = area;
+          largestIndex = i;
+        }
+      } finally {
+        contour.delete();
       }
-    });
+    }
 
-    return largestContour;
+    return largestIndex === -1 ? null : this.contours.get(largestIndex);
   }
 
   /**

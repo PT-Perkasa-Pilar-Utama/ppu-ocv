@@ -1,5 +1,7 @@
 import { beforeAll, describe, expect, test } from "bun:test";
 import { CanvasProcessor, createCanvas, cv, DeskewService, ImageProcessor } from "../src";
+import { calculateHoughAngles } from "../src/deskew-angles";
+import { recordKernels } from "./support/record-kernels.js";
 
 beforeAll(async () => {
   await ImageProcessor.initRuntime();
@@ -126,4 +128,51 @@ describe("DeskewService", () => {
     expect(typeof angle1).toBe("number");
     expect(typeof angle2).toBe("number");
   });
+});
+
+// calculateSkewAngle keeps some contours past iterate() and drops others;
+// both kinds are Mats on the WASM heap that the GC never frees.
+test("calculateSkewAngle frees every contour it reads", async () => {
+  const canvas = createCanvas(200, 100);
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, 200, 100);
+  ctx.fillStyle = "white";
+  ctx.fillRect(10, 10, 60, 8); // text-like line, kept for the angle
+  ctx.fillRect(10, 40, 60, 8); // text-like line, kept for the angle
+  ctx.fillRect(150, 70, 2, 2); // below minimumAreaThreshold, dropped
+  ctx.fillRect(170, 10, 4, 80); // aspect ratio below 0.2, dropped
+
+  const handedOut: cv.Mat[] = [];
+  const get = cv.MatVector.prototype.get;
+  cv.MatVector.prototype.get = function (this: cv.MatVector, index: number) {
+    const contour: cv.Mat = Reflect.apply(get, this, [index]);
+    handedOut.push(contour);
+    return contour;
+  };
+
+  try {
+    await new DeskewService().calculateSkewAngle(canvas);
+  } finally {
+    cv.MatVector.prototype.get = get;
+  }
+
+  expect(handedOut.length).toBe(4);
+  expect(handedOut.every((contour) => contour.isDeleted())).toBe(true);
+});
+
+// The Hough step swallows its own errors, so a failing call must still free
+// its Mats. A deleted input Mat makes morphologyEx throw.
+test("calculateHoughAngles frees its kernel when the transform fails", () => {
+  const deleted = new cv.Mat(10, 10, cv.CV_8UC1);
+  deleted.delete();
+
+  let angles: unknown[] = [];
+  const kernels = recordKernels(() => {
+    angles = calculateHoughAngles(deleted, -20, 20, () => {});
+  });
+
+  expect(angles).toEqual([]);
+  expect(kernels).toHaveLength(1);
+  expect(kernels.every((kernel) => kernel.isDeleted())).toBe(true);
 });

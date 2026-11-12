@@ -1,5 +1,25 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- **OpenCV memory leaks that fill the 1 GiB WASM heap in long-running
+  processes.** The garbage collector never frees OpenCV objects, so each of
+  these leaked memory on every call:
+  - `getLargestContourArea()` kept every contour except the largest. It now
+    frees each contour after reading its area. The returned contour is still
+    the caller's to delete.
+  - `DeskewService.calculateSkewAngle()` kept every contour it read. It now
+    frees them, also when it throws.
+  - The Hough step of `calculateSkewAngle()` kept its three Mats whenever it
+    failed, and it fails on every call because its input Mat is already
+    deleted. It now frees them. The angle it returns is unchanged.
+  - `dilate()`, `erode()`, and `morphologicalGradient()` kept their kernel.
+- `Contours.iterate()` and `getFromIndex()` now document that the caller owns
+  each contour they return and must delete it. Their behaviour is unchanged.
+  Reported in PT-Perkasa-Pilar-Utama/ppu-paddle-ocr#163.
+
 ## [4.0.0] — 2026-06-28
 
 ### Changed

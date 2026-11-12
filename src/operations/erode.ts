@@ -29,6 +29,7 @@ export function erode(img: cv.Mat, options: ErodeOptions): OperationResult {
   );
 
   cv.erode(img, imgErode, kernel, new cv.Point(-1, -1), options.iter);
+  kernel.delete();
   img.delete();
 
   return {
