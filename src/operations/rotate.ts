@@ -4,6 +4,7 @@
 import type { OperationResult, RequiredOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
+import { writeToNewMat } from "../write-to-new-mat.js";
 
 /** Options for rotating the image around a pivot point. */
 export type RotateOptions = RequiredOptions & {
@@ -18,12 +19,16 @@ export function rotate(img: cv.Mat, options: RotateOptions): OperationResult {
   const center = options.center || new cv.Point(img.cols / 2, img.rows / 2);
   const M = cv.getRotationMatrix2D(center, options.angle, 1);
   const dsize = new cv.Size(img.cols, img.rows);
-  const rotatedImg = new cv.Mat();
 
-  cv.warpAffine(img, rotatedImg, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
-
+  let rotatedImg: cv.Mat;
+  try {
+    rotatedImg = writeToNewMat((out) =>
+      cv.warpAffine(img, out, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar())
+    );
+  } finally {
+    M.delete();
+  }
   img.delete();
-  M.delete();
 
   return {
     img: rotatedImg,

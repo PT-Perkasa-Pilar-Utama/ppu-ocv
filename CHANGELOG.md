@@ -16,6 +16,11 @@
     failed, and it fails on every call because its input Mat is already
     deleted. It now frees them. The angle it returns is unchanged.
   - `dilate()`, `erode()`, and `morphologicalGradient()` kept their kernel.
+- OpenCV objects are freed when an OpenCV call throws. Before, every image
+  operation leaked its output Mat, `rotate` and `warp` also leaked their
+  transform matrices, `equalize` its CLAHE object, the `Contours` constructor
+  its hierarchy and contour list, and `getCornerPoints()` and
+  `getApproximateRectangleContour()` the contour they were given.
 - `Contours.iterate()` and `getFromIndex()` now document that the caller owns
   each contour they return and must delete it. Their behaviour is unchanged.
   Reported in PT-Perkasa-Pilar-Utama/ppu-paddle-ocr#163.

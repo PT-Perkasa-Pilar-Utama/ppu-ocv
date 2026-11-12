@@ -5,6 +5,7 @@ import { cv } from "../cv-provider.js";
 import type { BoundingBox, Points } from "../index.interface.js";
 import { registry } from "../pipeline/registry.js";
 import type { OperationResult, RequiredOptions } from "../pipeline/types.js";
+import { writeToNewMat } from "../write-to-new-mat.js";
 
 /** Options for the perspective warp (four-point transform) operation. */
 export type WarpOptions = RequiredOptions & {
@@ -25,8 +26,6 @@ export function warp(img: cv.Mat, options: WarpOptions): OperationResult {
   }
 
   const { points, bbox } = options;
-  const imgWarp = new cv.Mat();
-
   const targetWidth = bbox.x1 - bbox.x0;
   const targetHeight = bbox.y1 - bbox.y0;
 
@@ -55,14 +54,20 @@ export function warp(img: cv.Mat, options: WarpOptions): OperationResult {
   const dest = cv.matFromArray(4, 1, cv.CV_32FC2, destArray);
   const src = cv.matFromArray(4, 1, cv.CV_32FC2, srcArray);
 
-  const M = cv.getPerspectiveTransform(src, dest);
   const dsize = new cv.Size(targetWidth, targetHeight);
-  cv.warpPerspective(img, imgWarp, M, dsize);
 
-  M.delete();
-  src.delete();
-  dest.delete();
-
+  let imgWarp: cv.Mat;
+  try {
+    const M = cv.getPerspectiveTransform(src, dest);
+    try {
+      imgWarp = writeToNewMat((out) => cv.warpPerspective(img, out, M, dsize));
+    } finally {
+      M.delete();
+    }
+  } finally {
+    src.delete();
+    dest.delete();
+  }
   img.delete();
 
   return {

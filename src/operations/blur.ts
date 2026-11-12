@@ -4,6 +4,7 @@
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
 import type { OperationResult, PartialOptions } from "../pipeline/types.js";
+import { writeToNewMat } from "../write-to-new-mat.js";
 
 /** Options for the Gaussian blur operation. */
 export type BlurOptions = PartialOptions & {
@@ -19,9 +20,9 @@ function defaultOptions(): BlurOptions {
 
 /** Apply Gaussian blur to reduce noise. */
 export function blur(img: cv.Mat, options: BlurOptions): OperationResult {
-  const imgBlur = new cv.Mat();
-
-  cv.GaussianBlur(img, imgBlur, new cv.Size(options.size[0], options.size[1]), options.sigma);
+  const imgBlur = writeToNewMat((out) =>
+    cv.GaussianBlur(img, out, new cv.Size(options.size[0], options.size[1]), options.sigma)
+  );
   img.delete();
 
   return {

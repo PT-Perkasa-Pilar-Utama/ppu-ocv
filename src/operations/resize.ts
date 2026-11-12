@@ -4,6 +4,7 @@
 import type { OperationResult, RequiredOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
+import { writeToNewMat } from "../write-to-new-mat.js";
 
 /** Options for resizing the image to exact pixel dimensions. */
 export type ResizeOptions = RequiredOptions & {
@@ -19,8 +20,8 @@ export function resize(img: cv.Mat, options: ResizeOptions): OperationResult {
     throw new Error("Invalid options: width and height are required");
   }
 
-  const imgResize = new cv.Mat();
-  cv.resize(img, imgResize, new cv.Size(options.width, options.height));
+  const { width, height } = options;
+  const imgResize = writeToNewMat((out) => cv.resize(img, out, new cv.Size(width, height)));
   img.delete();
 
   return {

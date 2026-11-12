@@ -4,6 +4,7 @@
 import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
+import { writeToNewMat } from "../write-to-new-mat.js";
 
 /** Options for the morphological gradient operation. */
 export type MorphologicalGradientOptions = PartialOptions & {
@@ -22,14 +23,19 @@ export function morphologicalGradient(
   img: cv.Mat,
   options: MorphologicalGradientOptions
 ): OperationResult {
-  const imgMorphologicalGradient = new cv.Mat();
   const kernel = cv.getStructuringElement(
     cv.MORPH_RECT,
     new cv.Size(options.size[0], options.size[1])
   );
 
-  cv.morphologyEx(img, imgMorphologicalGradient, cv.MORPH_GRADIENT, kernel);
-  kernel.delete();
+  let imgMorphologicalGradient: cv.Mat;
+  try {
+    imgMorphologicalGradient = writeToNewMat((out) =>
+      cv.morphologyEx(img, out, cv.MORPH_GRADIENT, kernel)
+    );
+  } finally {
+    kernel.delete();
+  }
   img.delete();
 
   return {

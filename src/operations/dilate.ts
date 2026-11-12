@@ -4,6 +4,7 @@
 import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
+import { writeToNewMat } from "../write-to-new-mat.js";
 
 /** Options for the morphological dilation operation. */
 export type DilateOptions = PartialOptions & {
@@ -22,14 +23,19 @@ function defaultOptions(): DilateOptions {
 
 /** Dilate the image to expand foreground regions. */
 export function dilate(img: cv.Mat, options: DilateOptions): OperationResult {
-  const imgDilate = new cv.Mat();
   const kernel = cv.getStructuringElement(
     cv.MORPH_RECT,
     new cv.Size(options.size[0], options.size[1])
   );
 
-  cv.dilate(img, imgDilate, kernel, new cv.Point(-1, -1), options.iter);
-  kernel.delete();
+  let imgDilate: cv.Mat;
+  try {
+    imgDilate = writeToNewMat((out) =>
+      cv.dilate(img, out, kernel, new cv.Point(-1, -1), options.iter)
+    );
+  } finally {
+    kernel.delete();
+  }
   img.delete();
 
   return {

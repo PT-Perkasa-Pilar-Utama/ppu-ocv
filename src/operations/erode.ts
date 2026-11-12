@@ -4,6 +4,7 @@
 import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
+import { writeToNewMat } from "../write-to-new-mat.js";
 
 /** Options for the morphological erosion operation. */
 export type ErodeOptions = PartialOptions & {
@@ -22,14 +23,19 @@ function defaultOptions(): ErodeOptions {
 
 /** Erode the image to shrink foreground regions and remove small noise. */
 export function erode(img: cv.Mat, options: ErodeOptions): OperationResult {
-  const imgErode = new cv.Mat();
   const kernel = cv.getStructuringElement(
     cv.MORPH_RECT,
     new cv.Size(options.size[0], options.size[1])
   );
 
-  cv.erode(img, imgErode, kernel, new cv.Point(-1, -1), options.iter);
-  kernel.delete();
+  let imgErode: cv.Mat;
+  try {
+    imgErode = writeToNewMat((out) =>
+      cv.erode(img, out, kernel, new cv.Point(-1, -1), options.iter)
+    );
+  } finally {
+    kernel.delete();
+  }
   img.delete();
 
   return {

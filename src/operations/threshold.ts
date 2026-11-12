@@ -4,6 +4,7 @@
 import type { OperationResult, PartialOptions } from "../pipeline/types.js";
 import { cv } from "../cv-provider.js";
 import { registry } from "../pipeline/registry.js";
+import { writeToNewMat } from "../write-to-new-mat.js";
 
 /** Options for the global threshold operation. */
 export type ThresholdOptions = PartialOptions & {
@@ -25,8 +26,9 @@ function defaultOptions(): ThresholdOptions {
 
 /** Apply a global threshold to convert a grayscale image to binary. */
 export function threshold(img: cv.Mat, options: ThresholdOptions): OperationResult {
-  const imgThreshold = new cv.Mat();
-  cv.threshold(img, imgThreshold, options.lower, options.upper, options.type);
+  const imgThreshold = writeToNewMat((out) =>
+    cv.threshold(img, out, options.lower, options.upper, options.type)
+  );
   img.delete();
 
   return {
