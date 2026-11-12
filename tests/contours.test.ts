@@ -56,3 +56,36 @@ test("getCornerPoints returns full canvas corners when no contours", () => {
 
   contours.destroy();
 });
+
+// Each MatVector.get() returns a new Mat on the WASM heap that the GC never
+// frees, so a method that reads contours must delete every one it does not
+// hand back to the caller.
+test("getLargestContourArea frees every contour except the one it returns", () => {
+  const mat = new cv.Mat(40, 40, cv.CV_8UC1, new cv.Scalar(0));
+  cv.rectangle(mat, { x: 2, y: 2 }, { x: 5, y: 5 }, new cv.Scalar(255), -1);
+  cv.rectangle(mat, { x: 10, y: 10 }, { x: 29, y: 29 }, new cv.Scalar(255), -1);
+  cv.rectangle(mat, { x: 33, y: 33 }, { x: 37, y: 37 }, new cv.Scalar(255), -1);
+
+  const contours = new Contours(mat, { mode: cv.RETR_LIST });
+  const vector = contours.getAll();
+  const get = vector.get.bind(vector);
+  const handedOut: cv.Mat[] = [];
+  vector.get = (index: number) => {
+    const contour = get(index);
+    handedOut.push(contour);
+    return contour;
+  };
+
+  try {
+    const largest = contours.getLargestContourArea();
+    if (!largest) throw new Error("expected a largest contour");
+
+    expect(contours.getRect(largest)).toEqual({ x: 10, y: 10, width: 20, height: 20 });
+    expect(handedOut.filter((contour) => !contour.isDeleted())).toEqual([largest]);
+
+    largest.delete();
+  } finally {
+    contours.destroy();
+    mat.delete();
+  }
+});

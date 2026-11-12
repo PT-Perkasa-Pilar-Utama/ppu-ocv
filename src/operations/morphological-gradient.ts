@@ -29,6 +29,7 @@ export function morphologicalGradient(
   );
 
   cv.morphologyEx(img, imgMorphologicalGradient, cv.MORPH_GRADIENT, kernel);
+  kernel.delete();
   img.delete();
 
   return {

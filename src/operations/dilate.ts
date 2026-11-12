@@ -29,6 +29,7 @@ export function dilate(img: cv.Mat, options: DilateOptions): OperationResult {
   );
 
   cv.dilate(img, imgDilate, kernel, new cv.Point(-1, -1), options.iter);
+  kernel.delete();
   img.delete();
 
   return {

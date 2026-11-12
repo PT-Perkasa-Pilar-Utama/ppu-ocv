@@ -140,12 +140,15 @@ export function calculateHoughAngles(
 ): WeightedAngle[] {
   const angles: WeightedAngle[] = [];
 
+  const kernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(3, 1));
+  const morphed = new cv.Mat();
+  const lines = new cv.Mat();
+
+  // The catch swallows the failure, so the Mats are freed in a finally:
+  // otherwise every failed call would leak all three on the WASM heap.
   try {
-    const kernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(3, 1));
-    const morphed = new cv.Mat();
     cv.morphologyEx(mat, morphed, cv.MORPH_CLOSE, kernel);
 
-    const lines = new cv.Mat();
     cv.HoughLinesP(morphed, lines, 1, Math.PI / 180, 30, 50, 10);
 
     for (let i = 0; i < lines.rows; i++) {
@@ -169,12 +172,12 @@ export function calculateHoughAngles(
         }
       }
     }
-
+  } catch {
+    log("Hough transform failed, skipping this method.");
+  } finally {
     morphed.delete();
     lines.delete();
     kernel.delete();
-  } catch {
-    log("Hough transform failed, skipping this method.");
   }
 
   return angles;

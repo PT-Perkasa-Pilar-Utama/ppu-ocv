@@ -10,6 +10,7 @@ import {
   calculateHoughAngles,
   calculateMinRectAngles,
 } from "./deskew-angles.js";
+import type { WeightedAngle } from "./deskew-angles.js";
 import { ImageProcessor } from "./image-processor.js";
 
 /**
@@ -107,46 +108,53 @@ export class DeskewService {
       aspectRatio: number;
     }> = [];
 
-    contours.iterate((contour: cv.Mat) => {
-      const rect = contours.getRect(contour);
-      const area = rect.width * rect.height;
+    let minRectAngles: WeightedAngle[];
+    let baselineAngles: WeightedAngle[];
+    let houghAngles: WeightedAngle[];
 
-      if (area < minArea) return;
+    // Each contour from iterate() is a Mat the GC never frees: dropped ones
+    // are deleted in the callback, kept ones in the finally.
+    try {
+      contours.iterate((contour: cv.Mat) => {
+        const rect = contours.getRect(contour);
+        const area = rect.width * rect.height;
+        const aspectRatio = rect.width / rect.height;
 
-      const aspectRatio = rect.width / rect.height;
+        if (area >= minArea && aspectRatio > 0.2 && aspectRatio < 10) {
+          textRegions.push({
+            rect,
+            contour,
+            area,
+            aspectRatio,
+          });
+        } else {
+          contour.delete();
+        }
+      });
 
-      if (aspectRatio > 0.2 && aspectRatio < 10) {
-        textRegions.push({
-          rect,
-          contour,
-          area,
-          aspectRatio,
-        });
+      if (textRegions.length === 0) {
+        this.log("No valid text regions found for skew calculation.");
+        return 0;
       }
-    });
 
-    if (textRegions.length === 0) {
-      this.log("No valid text regions found for skew calculation.");
+      const averageHeight =
+        textRegions.reduce((sum, region) => sum + region.rect.height, 0) / textRegions.length;
+
+      const filteredRegions = textRegions.filter((region) => {
+        return region.rect.height <= averageHeight * 1.5;
+      });
+
+      this.log(`Found ${filteredRegions.length} text regions for skew analysis.`);
+
+      minRectAngles = calculateMinRectAngles(filteredRegions);
+
+      baselineAngles = calculateBaselineAngles(filteredRegions);
+
+      houghAngles = calculateHoughAngles(mat, minAngle, maxAngle, (m) => this.log(m));
+    } finally {
+      for (const region of textRegions) region.contour.delete();
       contours.destroy();
-      return 0;
     }
-
-    const averageHeight =
-      textRegions.reduce((sum, region) => sum + region.rect.height, 0) / textRegions.length;
-
-    const filteredRegions = textRegions.filter((region) => {
-      return region.rect.height <= averageHeight * 1.5;
-    });
-
-    this.log(`Found ${filteredRegions.length} text regions for skew analysis.`);
-
-    const minRectAngles = calculateMinRectAngles(filteredRegions);
-
-    const baselineAngles = calculateBaselineAngles(filteredRegions);
-
-    const houghAngles = calculateHoughAngles(mat, minAngle, maxAngle, (m) => this.log(m));
-
-    contours.destroy();
 
     const allAngles: Array<{ angle: number; weight: number; method: string }> = [
       ...minRectAngles.map((a: { angle: number; weight: number }) => ({

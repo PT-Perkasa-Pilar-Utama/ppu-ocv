@@ -424,10 +424,10 @@ Detects and corrects text skew in document images using a multi-method consensus
 | -------------------------------- | --------------- | ---------------------------------------------------------------- |
 | constructor                      | cv.Mat, options | Instantiate Contours and automatically find & store contour list |
 | `getAll`                         |                 | Return the full `cv.MatVector` of contours                       |
-| `getFromIndex`                   | index           | Get contour at a specific index                                  |
+| `getFromIndex`                   | index           | Get contour at a specific index; the caller deletes it           |
 | `getRect`                        | contour         | Get the bounding rectangle of a contour                          |
-| `iterate`                        | callback        | Iterate over all contours                                        |
-| `getLargestContourArea`          |                 | Return the contour with the largest area                         |
+| `iterate`                        | callback        | Iterate over all contours; the callback must delete each contour |
+| `getLargestContourArea`          |                 | Return the contour with the largest area; the caller deletes it  |
 | `getCornerPoints`                | options         | Get four corner points for perspective transformation (warp)     |
 | `getApproximateRectangleContour` | options         | Simplify a contour to an approximate rectangle                   |
 | `destroy`                        |                 | Destroy and clean up contour memory                              |
